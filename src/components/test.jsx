@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Sun, Moon, Bell, ChevronDown, Search, Grid } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
+
 const menuItems = ['Unity', 'Unreal']
 
 const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => {
@@ -37,22 +38,18 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 dark:border-white/10 bg-white dark:bg-black px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="flex h-16 items-center justify-between gap-4">
-
-        {/*Logo & Navigation */}
+        
+        {/* Left Section: Logo & Navigation */}
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white tracking-tighter">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg shadow-lg shadow-blue-500/20 overflow-hidden">
-              <img
-                src="/Logo/Logo.png"
-                alt="GameNode Logo"
-                className="h-12 w-12 object-contain"
-              />
-            </div>
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-500/20">
+              G
+            </span>
             <span>GameNode</span>
           </Link>
 
           <nav ref={navRef} className="hidden items-center gap-6 text-[15px] md:flex">
-            {['My RoadMap', 'Roadmaps', 'Jobs'].map((menuName) => {
+            {['My Learning', 'Pathways', 'Roadmaps', 'Jobs'].map((menuName) => {
               const path = menuName === 'Jobs' ? '/jobs' : menuName === 'Roadmaps' ? '/' : '#'
               return (
                 <div key={menuName} className="relative">
@@ -90,9 +87,15 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
 
         {/* Right Section: Tools & Auth */}
         <div className="flex items-center gap-3">
+          
+          {/* Mock Search Bar giống trong ảnh */}
+          <div className="hidden items-center gap-2 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-1.5 text-slate-400 focus-within:border-blue-500 dark:focus-within:border-blue-400 lg:flex">
+            <span className="text-sm">Search</span>
+            <Search className="h-4 w-4" />
+          </div>
 
           {/* Theme Toggle */}
-          <button
+          <button 
             onClick={toggleDarkMode}
             className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
           >

@@ -1,7 +1,6 @@
 import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
-import Header from '../components/Header'
 
 const roadmapSamples = [
   {
@@ -40,7 +39,6 @@ const HomePage = ({ onOpenLogin, onOpenRegister }) => {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#2b2b2b,#171717_55%)] text-slate-900">
       <div className="min-h-screen w-full overflow-hidden bg-white shadow-2xl shadow-black/20">
-        <Header onOpenLogin={onOpenLogin} onOpenRegister={onOpenRegister} />
 
           <section className="border-b border-slate-200 bg-[#dfeaf8] px-4 py-10 sm:px-6 lg:px-10">
             <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">

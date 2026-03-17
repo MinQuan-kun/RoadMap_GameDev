@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Search, SlidersHorizontal } from 'lucide-react'
-import Header from '../components/Header'
 
 const mockJobs = [
   {
@@ -39,7 +38,6 @@ const JobSearch = ({ onOpenLogin, onOpenRegister }) => {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#2b2b2b,#171717_55%)] text-slate-900">
       <div className="min-h-screen w-full overflow-hidden bg-white shadow-2xl shadow-black/20">
-        <Header onOpenLogin={onOpenLogin} onOpenRegister={onOpenRegister} />
 
         <div className="border-b border-slate-200 px-4 py-4 sm:px-6 lg:px-8">
             <div className="grid gap-3 md:grid-cols-[160px_1fr_110px]">

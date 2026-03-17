@@ -2,7 +2,6 @@ import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { Link as LinkIcon, Mail, Pencil, Phone, PlusCircle, User } from 'lucide-react'
 import AuthContext from '../context/AuthContext'
-import Header from '../components/Header'
 
 const sideMenu = ['DashBoard', 'MyProfile', 'MyJob', 'MyRoadMap', 'Setting']
 
@@ -21,7 +20,6 @@ const UserProfile = ({ onOpenLogin, onOpenRegister }) => {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#2b2b2b,#171717_55%)] text-slate-900">
       <div className="min-h-screen w-full overflow-hidden bg-white shadow-2xl shadow-black/20">
-        <Header onOpenLogin={onOpenLogin} onOpenRegister={onOpenRegister} />
 
         <div className="grid min-h-[640px] grid-cols-1 lg:grid-cols-[230px_1fr]">
             <aside className="border-r border-slate-300 px-5 py-7">
