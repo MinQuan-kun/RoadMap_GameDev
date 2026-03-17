@@ -43,7 +43,7 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
           <Link to="/" className="flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white tracking-tighter">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg shadow-lg shadow-blue-500/20 overflow-hidden">
               <img
-                src="/Logo/Logo.png"
+                src="/Img/logo.png"
                 alt="GameNode Logo"
                 className="h-12 w-12 object-contain"
               />
@@ -52,35 +52,50 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
           </Link>
 
           <nav ref={navRef} className="hidden items-center gap-6 text-[15px] md:flex">
-            {['My RoadMap', 'Roadmaps', 'Jobs'].map((menuName) => {
-              const path = menuName === 'Jobs' ? '/jobs' : menuName === 'Roadmaps' ? '/' : '#'
+            {['MyRoadMap','Roadmaps', 'Jobs'].map((menuName) => {
+              const isJobs = menuName === 'Jobs';
+              const isMyRoadMap = menuName === 'MyRoadMap';
+              const path = isJobs ? '/Jobs' : isMyRoadMap ? '/profile' : '/';
+               
               return (
                 <div key={menuName} className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setOpenMenu((current) => (current === menuName ? null : menuName))}
-                    className={`flex items-center gap-1 transition-colors ${navLabelClass(path)}`}
-                  >
-                    <span>{menuName}</span>
-                    {(menuName === 'Roadmaps' || menuName === 'Browse') && (
-                      <ChevronDown className={`h-4 w-4 transition-transform ${openMenu === menuName ? 'rotate-180' : ''}`} />
-                    )}
-                  </button>
+                  {isJobs || isMyRoadMap ? (
+                    <Link
+                      to={path}
+                      className={`flex items-center gap-1 transition-colors ${navLabelClass(path)}`}
+                    >
+                      <span>{menuName}</span>
+                    </Link>
+                  ) : (
+                    /* Nút Roadmaps: Hiện dropdown */
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setOpenMenu((current) => (current === menuName ? null : menuName))}
+                        className={`flex items-center gap-1 transition-colors ${navLabelClass(path)}`}
+                      >
+                        <span>{menuName}</span>
+                        <ChevronDown className={`h-4 w-4 transition-transform ${openMenu === menuName ? 'rotate-180' : ''}`} />
+                      </button>
 
-                  {/* Dropdown Menu */}
-                  {openMenu === menuName && (menuName === 'Roadmaps') && (
-                    <div className="absolute left-0 top-full z-20 mt-2 w-48 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-2 shadow-xl ring-1 ring-black/5">
-                      {menuItems.map((item) => (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() => setOpenMenu(null)}
-                          className="block w-full rounded-lg px-4 py-2.5 text-left text-sm text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
+                      {openMenu === menuName && (
+                        <div className="absolute left-0 top-full z-20 mt-2 w-48 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121212] p-2 shadow-xl ring-1 ring-black/5">
+                          {menuItems.map((item) => (
+                            <button
+                              key={item}
+                              type="button"
+                              onClick={() => {
+                                setOpenMenu(null);
+                                // Ví dụ: navigate(`/roadmaps/${item.toLowerCase()}`);
+                              }}
+                              className="block w-full rounded-lg px-4 py-2.5 text-left text-sm text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
+                            >
+                              {item}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )

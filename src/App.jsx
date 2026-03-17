@@ -7,6 +7,7 @@ import AuthContext from './context/AuthContext'
 import HomePage from './pages/HomePage'
 import JobSearch from './pages/JobSearch'
 import UserProfile from './pages/UserProfile'
+import Footer from './components/Footer';
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -81,14 +82,18 @@ function App() {
             <Routes>
               <Route
                 path="/"
-                element={<HomePage onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
+                element={
+                <HomePage 
+                onOpenLogin={openLoginModal} 
+                onOpenRegister={openRegisterModal}
+                isDarkMode={isDarkMode} />}
               />
               <Route
                 path="/profile"
                 element={<UserProfile onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
               />
               <Route
-                path="/jobs"
+                path="/Jobs"
                 element={<JobSearch onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
               />
             </Routes>
@@ -104,6 +109,7 @@ function App() {
               onSwitchToLogin={openLoginModal}
             />
           </div>
+          <Footer />
         </div>
       </Router>
     </AuthContext.Provider>
