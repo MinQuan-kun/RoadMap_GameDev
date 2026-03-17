@@ -1,103 +1,85 @@
-import React, { useContext } from 'react'
-import { Link } from 'react-router-dom'
-import { Link as LinkIcon, Mail, Pencil, Phone, PlusCircle, User } from 'lucide-react'
-import AuthContext from '../context/AuthContext'
+import React, { useContext, useState } from 'react';
+import { User, LayoutDashboard, Briefcase, Map, Settings } from 'lucide-react';
+import AuthContext from '../context/AuthContext';
+import ProfileSidebar from '../components/profile/ProfileSidebar';
+import ProfileInfo from '../components/profile/ProfileInfo';
+import Dashboard from '../components/profile/Dashboard'
+import MyJobs from '../components/profile/MyJobs';
+import Setting from '../components/profile/Setting';
 
-const sideMenu = ['DashBoard', 'MyProfile', 'MyJob', 'MyRoadMap', 'Setting']
+const sideMenu = [
+  { id: 'DashBoard', label: 'Bảng điều khiển', icon: LayoutDashboard },
+  { id: 'MyProfile', label: 'Hồ sơ của tôi', icon: User },
+  { id: 'MyJob', label: 'Việc làm của tôi', icon: Briefcase },
+  { id: 'MyRoadMap', label: 'Lộ trình của tôi', icon: Map },
+  { id: 'Setting', label: 'Cài đặt', icon: Settings },
+];
 
-const UserProfile = ({ onOpenLogin, onOpenRegister }) => {
-  const { user } = useContext(AuthContext)
-  const profile = {
-    name: user?.fullName || user?.username || 'Username',
-    userName: user?.username || 'username',
-    email: user?.email || 'email@sample.com',
-    phone: '0123 456 789',
-    address: 'address',
-    birthDate: 'Date of birth',
-    link: 'Personal link'
-  }
+const UserProfile = () => {
+  const { user } = useContext(AuthContext);
+  const [activeTab, setActiveTab] = useState('MyProfile');
+
+  const profileData = {
+    name: user?.fullName || 'LaoGiCungTon',
+    userName: `@${user?.username || 'nhon_gamedev'}`,
+    email: user?.email || 'nhon.dev@example.com',
+    phone: '0987 654 321',
+    address: 'TP. Hồ Chí Minh, Việt Nam',
+    birthDate: '20 tháng 10, 2004',
+    bio: 'Đam mê phát triển hệ thống gameplay, kiến trúc engine và tạo mẫu nhanh với Unity & Unreal Engine.'
+  };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#2b2b2b,#171717_55%)] text-slate-900">
-      <div className="min-h-screen w-full overflow-hidden bg-white shadow-2xl shadow-black/20">
+    <div className="min-h-screen bg-white dark:bg-[#050505] text-slate-900 dark:text-white transition-colors duration-300">
+      <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row min-h-screen">
 
-        <div className="grid min-h-[640px] grid-cols-1 lg:grid-cols-[230px_1fr]">
-            <aside className="border-r border-slate-300 px-5 py-7">
-              <div className="space-y-4">
-                {sideMenu.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    className={`w-full rounded-md px-4 py-4 text-center text-sm font-semibold transition ${item === 'MyProfile' ? 'bg-[#dcd1f1] text-slate-800 shadow-sm' : 'bg-[#eadffd] text-slate-600 hover:bg-[#dfd2f8]'}`}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </aside>
+        <ProfileSidebar
+          sideMenu={sideMenu}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
 
-            <main className="px-4 py-8 sm:px-6 lg:px-10">
-              <h1 className="mb-5 text-4xl font-extrabold tracking-tight text-slate-900">My Profile</h1>
+        <main className="flex-1 flex flex-col min-w-0">
+          {activeTab === 'DashBoard' && <div className="p-8 md:p-12 overflow-y-auto flex-1"><Dashboard /></div>}
+          {activeTab === 'MyProfile' && <ProfileInfo profile={profileData} />}
 
-              <section className="mb-8 rounded-sm bg-[#f4f4f4] p-6">
-                <div className="grid gap-8 lg:grid-cols-[140px_1fr_auto] lg:items-start">
-                  <div className="flex justify-center lg:justify-start">
-                    <img
-                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80"
-                      alt="profile"
-                      className="h-28 w-28 rounded-full object-cover"
-                    />
-                  </div>
+          {activeTab === 'MyJob' && <div className="flex-1 p-8 md:p-12 overflow-y-auto"><MyJobs /></div>}
 
-                  <div className="grid gap-5 text-sm text-slate-700 sm:grid-cols-2">
-                    <div className="space-y-3">
-                      <p className="flex items-center gap-3"><User className="h-4 w-4" /> {profile.userName}</p>
-                      <p className="flex items-center gap-3"><Phone className="h-4 w-4" /> {profile.phone}</p>
-                      <p className="flex items-center gap-3"><Mail className="h-4 w-4" /> {profile.email}</p>
-                    </div>
-                    <div className="space-y-3">
-                      <p>{profile.address}</p>
-                      <p>{profile.birthDate}</p>
-                      <p className="flex items-center gap-3"><LinkIcon className="h-4 w-4" /> {profile.link}</p>
-                    </div>
-                  </div>
-
-                  <button type="button" className="text-slate-700 transition hover:text-slate-900">
-                    <Pencil className="h-6 w-6" />
-                  </button>
+          {(activeTab === 'MyRoadMap') && (
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-fade-in">
+              <div className="relative">
+                <div className="absolute inset-0 bg-blue-600/20 blur-[50px] rounded-full animate-pulse" />
+                <div className="relative h-24 w-24 rounded-[2rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center mb-6">
+                  {activeTab === 'MyRoadMap' ? (
+                    <Map size={40} className="text-blue-500 animate-bounce" />
+                  ) : (
+                    <Settings size={40} className="text-slate-400 animate-spin-slow" />
+                  )}
                 </div>
-              </section>
+              </div>
 
-              <section className="space-y-7">
-                {[
-                  {
-                    title: 'About me',
-                    content: 'Game developer interested in gameplay systems, engine architecture and rapid prototyping with Unity and Unreal.'
-                  },
-                  {
-                    title: 'Education',
-                    content: 'Bachelor of Software Engineering. Focusing on graphics, real-time systems and game production workflow.'
-                  },
-                  {
-                    title: 'Skill',
-                    content: 'Unity, Unreal Engine, C#, C++, Gameplay Programming, Git, Shader Graph.'
-                  }
-                ].map((section) => (
-                  <div key={section.title} className="rounded-sm bg-[#f4f4f4] px-6 py-5">
-                    <div className="mb-4 flex items-center justify-between">
-                      <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">{section.title}</h2>
-                      <PlusCircle className="h-5 w-5 text-slate-600" />
-                    </div>
-                    <p className="max-w-4xl text-sm leading-7 text-slate-600">{section.content}</p>
-                  </div>
-                ))}
-              </section>
+              <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mb-2">
+                Tính năng đang phát triển
+              </h2>
+              <p className="max-w-xs text-slate-500 dark:text-slate-400 font-medium">
+                Chúng tôi đang nỗ lực hoàn thiện phần <span className="text-blue-500">{activeTab === 'MyRoadMap' ? 'Lộ trình' : 'Cài đặt'}</span>. Vui lòng quay lại sau nhé!
+              </p>
 
-            </main>
-        </div>
+              <button
+                onClick={() => setActiveTab('DashBoard')}
+                className="mt-8 px-6 py-3 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm font-bold hover:bg-blue-600 hover:text-white transition-all active:scale-95"
+              >
+                Quay lại Bảng điều khiển
+              </button>
+            </div>
+          )}
+          {activeTab === 'Setting' && <div className="flex-1 p-8 md:p-12 overflow-y-auto custom-scrollbar"><Setting /></div>};
+
+        </main>
+
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UserProfile
+export default UserProfile;

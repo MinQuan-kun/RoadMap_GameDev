@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import AuthContext from '../context/AuthContext';
+import AuthContext from '../../context/AuthContext';
 
 const HomeBanner = ({ onOpenLogin, onOpenRegister, onBrowseJobs, lightImage, darkImage, isDarkMode }) => {
     const { user, isAuthenticated } = useContext(AuthContext);

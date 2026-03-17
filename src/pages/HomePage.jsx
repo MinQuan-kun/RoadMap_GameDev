@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
-import HomeBanner from '../components/HomeBanner'
+import HomeBanner from '../components/home/HomeBanner'
 
 const roadmapSamples = [
   {
