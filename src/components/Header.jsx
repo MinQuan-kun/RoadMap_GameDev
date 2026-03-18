@@ -51,6 +51,9 @@ const Header = ({ onOpenLogin, onOpenRegister }) => {
           </Link>
 
           <nav ref={navRef} className="hidden items-center gap-5 text-sm md:flex">
+            <Link to="/roadmap/builder" className={navLabelClass('/roadmap/builder')}>
+              Create Roadmap
+            </Link>
             {['Roadmaps', 'Jobs'].map((menuName) => (
               <div key={menuName} className="relative">
                 <button

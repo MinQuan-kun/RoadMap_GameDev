@@ -6,6 +6,7 @@ import AuthContext from './context/AuthContext'
 import HomePage from './pages/HomePage'
 import JobSearch from './pages/JobSearch'
 import UserProfile from './pages/UserProfile'
+import RoadmapBuilder from './pages/RoadmapBuilder'
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -56,6 +57,10 @@ function App() {
             <Route
               path="/"
               element={<HomePage onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
+            />
+            <Route
+              path="/roadmap/builder"
+              element={<RoadmapBuilder onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
             />
             <Route
               path="/profile"
