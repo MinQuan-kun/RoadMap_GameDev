@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 import { 
   Save, 
   Download, 
@@ -18,11 +18,22 @@ import ComponentSidebar from '../components/RoadmapBuilder/ComponentSidebar'
 import RoadmapCanvas from '../components/RoadmapBuilder/RoadmapCanvas'
 import NodeEditor from '../components/RoadmapBuilder/NodeEditor'
 import { RoadmapProvider, useRoadmap } from '../context/RoadmapContext.jsx'
+import AuthContext from '../context/AuthContext'
+import { buildRoadmapPayload, createRoadmap, updateRoadmap } from '../services/roadmapApi'
 
-const RoadmapBuilderContent = ({ onOpenLogin, onOpenRegister }) => {
+const RoadmapBuilderContent = () => {
   const { state, actions, selectedNode, hasChanges } = useRoadmap()
-  const [showNodeEditor, setShowNodeEditor] = useState(false)
-  const [showExportModal, setShowExportModal] = useState(false)
+  const { user } = useContext(AuthContext)
+  const [savedRoadmapId, setSavedRoadmapId] = useState(null)
+  const [saveState, setSaveState] = useState('idle')
+  const [saveMessage, setSaveMessage] = useState('')
+
+  const creatorId = useMemo(() => {
+    if (!user) {
+      return null
+    }
+    return user.id || user._id || user.username || user.email || null
+  }, [user])
 
   // Handle title change
   const handleTitleChange = (e) => {
@@ -56,7 +67,7 @@ const RoadmapBuilderContent = ({ onOpenLogin, onOpenRegister }) => {
           try {
             const data = JSON.parse(e.target.result)
             actions.importRoadmap(data)
-          } catch (error) {
+          } catch {
             alert('Invalid JSON file')
           }
         }
@@ -84,13 +95,44 @@ const RoadmapBuilderContent = ({ onOpenLogin, onOpenRegister }) => {
   const handleClear = () => {
     if (window.confirm('Are you sure you want to clear the entire roadmap? This cannot be undone.')) {
       actions.resetRoadmap()
+      setSavedRoadmapId(null)
+      setSaveMessage('')
+    }
+  }
+
+  const handleSaveRoadmap = async () => {
+    try {
+      setSaveState('saving')
+      setSaveMessage('Saving roadmap...')
+
+      const payload = buildRoadmapPayload({
+        title: state.title,
+        creatorId,
+        nodes: state.nodes,
+        connections: state.connections,
+      })
+
+      if (savedRoadmapId) {
+        await updateRoadmap(savedRoadmapId, payload)
+        setSaveMessage('Roadmap updated successfully.')
+      } else {
+        const created = await createRoadmap(payload)
+        setSavedRoadmapId(created.id)
+        setSaveMessage('Roadmap created successfully.')
+      }
+
+      setSaveState('saved')
+    } catch (error) {
+      const apiMessage = error?.response?.data?.message
+      setSaveState('error')
+      setSaveMessage(apiMessage || 'Failed to save roadmap. Please try again.')
     }
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <Header onOpenLogin={onOpenLogin} onOpenRegister={onOpenRegister} />
+      {/* <Header onOpenLogin={onOpenLogin} onOpenRegister={onOpenRegister} /> */}
 
       {/* Main Content */}
       <div className="flex-1 flex">
@@ -199,9 +241,17 @@ const RoadmapBuilderContent = ({ onOpenLogin, onOpenRegister }) => {
               <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
                 Snap
               </button>
+              <button
+                onClick={handleSaveRoadmap}
+                disabled={saveState === 'saving'}
+                className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-md hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1"
+              >
+                <Save className="w-3 h-3" />
+                {saveState === 'saving' ? 'Saving...' : 'Save'}
+              </button>
               <div className="h-4 w-px bg-gray-300 mx-2" />
               <button
-                onClick={() => setShowExportModal(true)}
+                onClick={() => setSaveMessage('Use Export JSON to share the roadmap file.')}
                 className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 flex items-center gap-1"
               >
                 <Share2 className="w-3 h-3" />
@@ -221,7 +271,7 @@ const RoadmapBuilderContent = ({ onOpenLogin, onOpenRegister }) => {
               {selectedNode ? `Selected: ${selectedNode.content || selectedNode.type}` : 'No selection'}
             </div>
             <div>
-              Last saved: {hasChanges ? 'Auto-saving...' : 'Up to date'}
+              {saveMessage || `Last saved: ${hasChanges ? 'Auto-saving...' : 'Up to date'}`}
             </div>
           </div>
         </div>
@@ -243,13 +293,10 @@ const RoadmapBuilderContent = ({ onOpenLogin, onOpenRegister }) => {
 }
 
 // Main component with Provider
-const RoadmapBuilder = ({ onOpenLogin, onOpenRegister }) => {
+const RoadmapBuilder = () => {
   return (
     <RoadmapProvider>
-      <RoadmapBuilderContent 
-        onOpenLogin={onOpenLogin} 
-        onOpenRegister={onOpenRegister} 
-      />
+      <RoadmapBuilderContent />
     </RoadmapProvider>
   )
 }

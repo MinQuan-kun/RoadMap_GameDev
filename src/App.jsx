@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage'
 import JobSearch from './pages/JobSearch'
 import UserProfile from './pages/UserProfile'
 import Footer from './components/Footer';
+import RoadmapBuilder from './pages/RoadmapBuilder' 
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -87,6 +88,10 @@ function App() {
                 onOpenLogin={openLoginModal} 
                 onOpenRegister={openRegisterModal}
                 isDarkMode={isDarkMode} />}
+              />
+              <Route
+                path="/roadmap/builder"
+                element={<RoadmapBuilder onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
               />
               <Route
                 path="/profile"

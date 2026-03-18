@@ -18,8 +18,7 @@ const RoadmapNode = ({
   const [showContextMenu, setShowContextMenu] = useState(false)
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 })
   const [showConnections, setShowConnections] = useState(false)
-  
-  const nodeRef = useRef(null)
+
   const editInputRef = useRef(null)
 
   // Handle node selection
@@ -120,11 +119,25 @@ const RoadmapNode = ({
   // Handle connection point interactions
   const handleConnectionMouseDown = (e, pointId) => {
     e.stopPropagation()
-    const point = connectionPoints.find(p => p.id === pointId)
-    if (point && onConnectionStart) {
-      const rect = nodeRef.current.getBoundingClientRect()
-      const pointX = rect.left + (rect.width * parseInt(point.x) / 100)
-      const pointY = rect.top + (rect.height * parseInt(point.y) / 100)
+    if (onConnectionStart) {
+      let pointX = node.x + node.width / 2
+      let pointY = node.y + node.height / 2
+
+      switch (pointId) {
+        case 'top':
+          pointY = node.y
+          break
+        case 'right':
+          pointX = node.x + node.width
+          break
+        case 'bottom':
+          pointY = node.y + node.height
+          break
+        case 'left':
+          pointX = node.x
+          break
+      }
+
       onConnectionStart(node.id, pointId, { x: pointX, y: pointY })
     }
   }
@@ -234,7 +247,6 @@ const RoadmapNode = ({
     <>
       {/* Main Node */}
       <div
-        ref={nodeRef}
         className={`absolute cursor-move select-none transition-all duration-200 ${
           isSelected ? 'ring-2 ring-blue-500 ring-offset-2 shadow-lg' : ''
         } ${isDragging ? 'shadow-2xl scale-105 z-50' : 'hover:shadow-md'}`}

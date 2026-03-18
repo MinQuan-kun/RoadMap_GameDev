@@ -5,9 +5,7 @@ const ConnectionLines = ({
   nodes, 
   isConnecting = false, 
   connectionStart = null, 
-  mousePos = { x: 0, y: 0 },
-  canvasOffset = { x: 0, y: 0 },
-  zoom = 1
+  mousePos = { x: 0, y: 0 }
 }) => {
   // Helper function to get node by ID
   const getNodeById = (nodeId) => {
@@ -83,63 +81,15 @@ const ConnectionLines = ({
     return `M ${start.x} ${start.y} L ${end.x} ${end.y}`
   }
 
-  // Calculate viewBox to contain all connections
-  const calculateViewBox = () => {
-    if (connections.length === 0 && !isConnecting) {
-      return { x: 0, y: 0, width: 1000, height: 1000 }
-    }
-
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-
-    // Include all connection endpoints
-    connections.forEach(connection => {
-      const fromNode = getNodeById(connection.fromNodeId)
-      const toNode = getNodeById(connection.toNodeId)
-      
-      if (fromNode && toNode) {
-        const start = getConnectionPoint(fromNode, connection.fromPoint)
-        const end = getConnectionPoint(toNode, connection.toPoint)
-        
-        minX = Math.min(minX, start.x, end.x)
-        minY = Math.min(minY, start.y, end.y)
-        maxX = Math.max(maxX, start.x, end.x)
-        maxY = Math.max(maxY, start.y, end.y)
-      }
-    })
-
-    // Include temporary connection if active
-    if (isConnecting && connectionStart) {
-      const tempEnd = {
-        x: (mousePos.x - canvasOffset.x) / zoom,
-        y: (mousePos.y - canvasOffset.y) / zoom
-      }
-      minX = Math.min(minX, tempEnd.x)
-      minY = Math.min(minY, tempEnd.y)
-      maxX = Math.max(maxX, tempEnd.x)
-      maxY = Math.max(maxY, tempEnd.y)
-    }
-
-    // Add padding
-    const padding = 100
-    return {
-      x: minX - padding,
-      y: minY - padding,
-      width: (maxX - minX) + (padding * 2),
-      height: (maxY - minY) + (padding * 2)
-    }
-  }
-
-  const viewBox = calculateViewBox()
-
   return (
     <svg
       className="absolute inset-0 pointer-events-none"
       style={{
         width: '100%',
         height: '100%',
-        zIndex: 1
+        zIndex: 1,
+        overflow: 'visible'
       }}
-      viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
     >
       {/* Definitions for arrowheads and patterns */}
       <defs>
@@ -259,8 +209,8 @@ const ConnectionLines = ({
           d={generateStraightPath(
             connectionStart,
             {
-              x: (mousePos.x - canvasOffset.x) / zoom,
-              y: (mousePos.y - canvasOffset.y) / zoom
+              x: mousePos.x,
+              y: mousePos.y
             }
           )}
           stroke="#3b82f6"

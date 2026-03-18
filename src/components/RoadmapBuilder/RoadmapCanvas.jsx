@@ -6,13 +6,42 @@ import ConnectionLines from './ConnectionLines'
 const RoadmapCanvas = () => {
   const { state, actions } = useRoadmap()
   const canvasRef = useRef(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false) 
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectionStart, setConnectionStart] = useState(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+  const toCanvasCoords = useCallback((clientX, clientY) => {
+    if (!canvasRef.current) {
+      return { x: 0, y: 0 }
+    }
+
+    const rect = canvasRef.current.getBoundingClientRect()
+    return {
+      x: (clientX - rect.left - state.canvasOffset.x) / state.zoom,
+      y: (clientY - rect.top - state.canvasOffset.y) / state.zoom,
+    }
+  }, [state.canvasOffset, state.zoom])
+
+  const getNodeConnectionPoint = useCallback((node, pointType) => {
+    if (!node) {
+      return { x: 0, y: 0 }
+    }
+
+    switch (pointType) {
+      case 'top':
+        return { x: node.x + node.width / 2, y: node.y }
+      case 'right':
+        return { x: node.x + node.width, y: node.y + node.height / 2 }
+      case 'bottom':
+        return { x: node.x + node.width / 2, y: node.y + node.height }
+      case 'left':
+        return { x: node.x, y: node.y + node.height / 2 }
+      default:
+        return { x: node.x + node.width / 2, y: node.y + node.height / 2 }
+    }
+  }, [])
 
   // Handle drop from sidebar
   const handleDrop = useCallback((e) => {
@@ -61,7 +90,7 @@ const RoadmapCanvas = () => {
   }, [state.canvasOffset])
 
   const handleMouseMove = useCallback((e) => {
-    setMousePos({ x: e.clientX, y: e.clientY })
+    setMousePos(toCanvasCoords(e.clientX, e.clientY))
 
     if (isPanning) {
       const newOffset = {
@@ -70,11 +99,10 @@ const RoadmapCanvas = () => {
       }
       actions.setCanvasOffset(newOffset)
     }
-  }, [isPanning, panStart, actions])
+  }, [isPanning, panStart, actions, toCanvasCoords])
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false)
-    setIsDragging(false)
     setIsConnecting(false)
     setConnectionStart(null)
   }, [])
@@ -175,8 +203,6 @@ const RoadmapCanvas = () => {
             isConnecting={isConnecting}
             connectionStart={connectionStart}
             mousePos={mousePos}
-            canvasOffset={state.canvasOffset}
-            zoom={state.zoom}
           />
 
           {/* Nodes Layer */}
@@ -189,8 +215,10 @@ const RoadmapCanvas = () => {
               onUpdate={(id, updates) => actions.updateNode(id, updates)}
               onDelete={(id) => actions.deleteNode(id)}
               onConnectionStart={(nodeId, point, coords) => {
+                const node = state.nodes.find(n => n.id === nodeId)
+                const startPoint = coords || getNodeConnectionPoint(node, point)
                 setIsConnecting(true)
-                setConnectionStart({ nodeId, point, x: coords.x, y: coords.y })
+                setConnectionStart({ nodeId, point, x: startPoint.x, y: startPoint.y })
               }}
               onConnectionEnd={(nodeId, point) => {
                 if (isConnecting && connectionStart && connectionStart.nodeId !== nodeId) {
@@ -201,29 +229,6 @@ const RoadmapCanvas = () => {
               }}
             />
           ))}
-
-          {/* Temporary connection line while dragging */}
-          {isConnecting && connectionStart && (
-            <svg
-              className="absolute inset-0 pointer-events-none"
-              style={{ 
-                width: '10000px', 
-                height: '10000px',
-                zIndex: 1000 
-              }}
-            >
-              <line
-                x1={connectionStart.x || 0}
-                y1={connectionStart.y || 0}
-                x2={(mousePos.x - state.canvasOffset.x) / state.zoom}
-                y2={(mousePos.y - state.canvasOffset.y) / state.zoom}
-                stroke="#3b82f6"
-                strokeWidth="2"
-                strokeDasharray="5,5"
-                className="animate-pulse"
-              />
-            </svg>
-          )}
         </div>
 
         {/* Empty state */}

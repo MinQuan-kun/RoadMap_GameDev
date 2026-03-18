@@ -52,6 +52,9 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
           </Link>
 
           <nav ref={navRef} className="hidden items-center gap-6 text-[15px] md:flex">
+            <Link to="/roadmap/builder" className={navLabelClass('/roadmap/builder')}>
+              Create Roadmap
+            </Link>
             {['MyRoadMap','Roadmaps', 'Jobs'].map((menuName) => {
               const isJobs = menuName === 'Jobs';
               const isMyRoadMap = menuName === 'MyRoadMap';

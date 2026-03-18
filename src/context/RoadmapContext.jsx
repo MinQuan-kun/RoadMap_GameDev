@@ -5,20 +5,87 @@ const RoadmapContext = createContext()
 // Node types giống roadmap.sh
 export const NODE_TYPES = {
   TITLE: 'title',
-  TOPIC: 'topic', 
+  TOPIC: 'topic',
+  START: 'topic',
   SUB_TOPIC: 'subtopic',
+  SUBTOPIC: 'subtopic',
   PARAGRAPH: 'paragraph',
   LABEL: 'label',
+  ICON: 'label',
   BUTTON: 'button',
   IMAGE: 'image',
   LEGEND: 'legend',
   TODO: 'todo',
   CHECKLIST: 'checklist',
+  LIST: 'checklist',
   LINKS_GROUP: 'links_group',
   HORIZONTAL_LINE: 'horizontal_line',
   VERTICAL_LINE: 'vertical_line',
   RESOURCE_BUTTON: 'resource_button',
-  SECTION: 'section'
+  SECTION: 'section',
+  END: 'section'
+}
+
+export const getDefaultNodeStyle = (type) => {
+  const base = {
+    backgroundColor: '#ffffff',
+    borderColor: '#d1d5db',
+    color: '#111827',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    border: true
+  }
+
+  switch (type) {
+    case NODE_TYPES.TITLE:
+      return {
+        ...base,
+        backgroundColor: '#eff6ff',
+        borderColor: '#3b82f6',
+        fontSize: '20px',
+        fontWeight: '700'
+      }
+
+    case NODE_TYPES.TOPIC:
+    case NODE_TYPES.START:
+      return {
+        ...base,
+        backgroundColor: '#f5f3ff',
+        borderColor: '#8b5cf6',
+        fontWeight: '600'
+      }
+
+    case NODE_TYPES.SUB_TOPIC:
+    case NODE_TYPES.SUBTOPIC:
+      return {
+        ...base,
+        backgroundColor: '#fffbeb',
+        borderColor: '#f59e0b'
+      }
+
+    case NODE_TYPES.BUTTON:
+    case NODE_TYPES.RESOURCE_BUTTON:
+      return {
+        ...base,
+        backgroundColor: '#2563eb',
+        borderColor: '#1d4ed8',
+        color: '#ffffff',
+        borderRadius: '9999px'
+      }
+
+    case NODE_TYPES.HORIZONTAL_LINE:
+    case NODE_TYPES.VERTICAL_LINE:
+      return {
+        ...base,
+        backgroundColor: '#9ca3af',
+        borderColor: '#9ca3af',
+        border: false
+      }
+
+    default:
+      return base
+  }
 }
 
 // Action types
