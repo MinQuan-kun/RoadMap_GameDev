@@ -1,156 +1,233 @@
 import React, { useState } from 'react'
-import { Search, SlidersHorizontal } from 'lucide-react'
+import {
+  Search, MapPin, Filter, ChevronRight,
+  CheckCircle2, ChevronLeft, ChevronRightSquare,
+  ArrowUpDown, Clock, Banknote
+} from 'lucide-react'
 
-const mockJobs = [
-  {
-    id: 1,
-    title: 'Role',
-    company: 'Company',
-    salary: 'Salary',
-    required: 'Match score: 70%',
-    badge: 'Check',
-    score: 70
-  },
-  {
-    id: 2,
-    title: 'Gameplay Programmer',
-    company: 'Studio North',
-    salary: '$900 - $1,400',
-    required: 'Match score: 64%',
-    badge: 'Check',
-    score: 64
-  }
-]
-
-const JobSearch = ({ onOpenLogin, onOpenRegister }) => {
+const JobSearch = ({ isDarkMode = false }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSkills, setSelectedSkills] = useState([])
   const [experienceLevel, setExperienceLevel] = useState('')
+  const [sortBy, setSortBy] = useState('newest') // State cho bộ lọc sắp xếp
 
   const handleSkillToggle = (skill) => {
     setSelectedSkills((prev) => (
-      prev.includes(skill)
-        ? prev.filter((item) => item !== skill)
-        : [...prev, skill]
+      prev.includes(skill) ? prev.filter((item) => item !== skill) : [...prev, skill]
     ))
   }
 
+  const mockJobs = [
+    {
+      id: 1,
+      title: 'Senior Unity Developer',
+      company: 'GameLoft Vietnam',
+      location: 'Hồ Chí Minh',
+      salary: '$2,000 - $3,500',
+      skills: ['Unity', 'C#', 'Shader'],
+      score: 85,
+      logo: 'GL',
+      postedAt: '2 giờ trước'
+    },
+    {
+      id: 2,
+      title: 'Gameplay Programmer',
+      company: 'Studio North',
+      location: 'Hà Nội (Remote)',
+      salary: '$900 - $1,400',
+      skills: ['C++', 'Unreal Engine', 'Math'],
+      score: 64,
+      logo: 'SN',
+      postedAt: '1 ngày trước'
+    }
+  ]
+
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#2b2b2b,#171717_55%)] text-slate-900">
-      <div className="min-h-screen w-full overflow-hidden bg-white shadow-2xl shadow-black/20">
+    <div className={`${isDarkMode ? 'dark' : ''} min-h-screen font-sans transition-colors duration-300`}>
+      <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#121212] dark:text-slate-100">
 
-        <div className="border-b border-slate-200 px-4 py-4 sm:px-6 lg:px-8">
-            <div className="grid gap-3 md:grid-cols-[160px_1fr_110px]">
-              <button type="button" className="flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800">
-                <span>☰</span>
-                <span>Danh mục</span>
-              </button>
-
-              <div className="flex items-center rounded-md border border-slate-300 bg-white px-3">
-                <Search className="h-4 w-4 text-slate-400" />
+        {/* Top Search Bar */}
+        <div className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 py-4 shadow-sm dark:border-white/10 dark:bg-[#1e1e1e]/80">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <div className="relative flex flex-1 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all dark:border-white/10 dark:bg-white/5">
+                <Search className="h-5 w-5 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Tìm kiếm việc làm..."
+                  placeholder="Vị trí, kỹ năng hoặc công ty..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full border-0 px-3 py-3 text-sm outline-none"
+                  className="w-full border-0 bg-transparent px-3 py-3.5 text-sm font-medium outline-none dark:text-white"
                 />
               </div>
-
-              <button type="button" className="rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+              <button className="rounded-xl bg-blue-600 px-8 py-3 text-sm font-black text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all active:scale-95">
                 Tìm kiếm
               </button>
             </div>
           </div>
+        </div>
 
-        <div className="grid gap-0 lg:grid-cols-[180px_1fr]">
-            <aside className="border-r border-slate-200 px-4 py-5">
-              <button type="button" className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-700">
-                <SlidersHorizontal className="h-4 w-4" />
-                <span>Filter</span>
-              </button>
+        <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
 
-              <div className="mb-6">
-                <h3 className="mb-3 text-sm font-bold text-slate-700">Skills</h3>
-                <div className="space-y-2 text-sm text-slate-600">
-                  {['Unity', 'Unreal'].map((skill) => (
-                    <label key={skill} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedSkills.includes(skill)}
-                        onChange={() => handleSkillToggle(skill)}
-                        className="h-3.5 w-3.5 rounded border-slate-300"
-                      />
-                      <span>{skill}</span>
-                    </label>
-                  ))}
-                </div>
+            {/* Sidebar Filter */}
+            <aside className="hidden lg:block space-y-8">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
+                  <Filter className="h-5 w-5 text-blue-600" /> Bộ lọc
+                </h2>
+                <button className="text-xs font-bold text-blue-600 hover:underline">Xóa tất cả</button>
               </div>
 
-              <div>
-                <h3 className="mb-3 text-sm font-bold text-slate-700">Experiences</h3>
-                <div className="space-y-2 text-sm text-slate-600">
-                  {['5 năm', '3 năm', 'Mới bắt đầu'].map((level) => (
-                    <label key={level} className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="experience"
-                        value={level}
-                        checked={experienceLevel === level}
-                        onChange={(e) => setExperienceLevel(e.target.value)}
-                        className="h-3.5 w-3.5 border-slate-300"
-                      />
-                      <span>{level}</span>
-                    </label>
-                  ))}
-                </div>
+              <div className="space-y-6">
+                <section>
+                  <h3 className="mb-4 text-xs font-black uppercase tracking-widest text-slate-400">Kỹ năng</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {['Unity', 'Unreal', 'C#', 'C++'].map((skill) => (
+                      <button
+                        key={skill}
+                        onClick={() => handleSkillToggle(skill)}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${selectedSkills.includes(skill)
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-white border border-slate-200 text-slate-600 dark:bg-white/5 dark:border-white/10 dark:text-slate-400'
+                          }`}
+                      >
+                        {skill}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+                <section>
+                  <h3 className="mb-4 text-xs font-black uppercase tracking-widest text-slate-400">Kinh nghiệm</h3>
+                  <div className="space-y-3">
+                    {['Intern/Fresher', '1-3 năm', '3-5 năm'].map((level) => (
+                      <label key={level} className="flex cursor-pointer items-center gap-3 group">
+                        <input
+                          type="radio"
+                          name="experience"
+                          className="h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-slate-200 dark:border-white/20 checked:bg-blue-600 transition-all"
+                          onChange={() => setExperienceLevel(level)}
+                        />
+                        <span className="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-blue-600">{level}</span>
+                      </label>
+                    ))}
+                  </div>
+                </section>
               </div>
             </aside>
 
-            <main className="space-y-4 px-4 py-5 sm:px-6 lg:px-8">
-              {mockJobs.map((job) => (
-                <article key={job.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <div className="grid gap-4 md:grid-cols-[88px_1fr_120px] md:items-start">
-                    <div className="flex h-[88px] w-[88px] items-center justify-center rounded-md border border-slate-300 bg-slate-100 text-xs font-semibold text-slate-500">
-                      Image
-                    </div>
+            {/* Main Content */}
+            <main className="space-y-6">
 
-                    <div>
-                      <h2 className="text-[1.65rem] font-extrabold leading-none text-slate-800">{job.company}</h2>
-                      <p className="mt-2 text-2xl font-bold text-slate-800">{job.title}</p>
-                      <p className="mt-2 text-base font-semibold text-amber-500">{job.salary}</p>
-                      <div className="mt-3 space-y-2 text-sm text-slate-500">
-                        <p>Required:</p>
-                        <p>{job.required}</p>
+              {/* Kết quả tìm kiếm & Bộ lọc sắp xếp */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#1e1e1e] p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
+                <div>
+                  <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                    Tìm thấy <span className="text-blue-600 dark:text-blue-400">1,240</span> việc làm phù hợp
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sắp xếp:</span>
+                  <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl">
+                    <button
+                      onClick={() => setSortBy('newest')}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${sortBy === 'newest' ? 'bg-white dark:bg-white/10 shadow-sm text-blue-600' : 'text-slate-500'}`}
+                    >
+                      <Clock size={14} /> Mới nhất
+                    </button>
+                    <button
+                      onClick={() => setSortBy('salary')}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${sortBy === 'salary' ? 'bg-white dark:bg-white/10 shadow-sm text-blue-600' : 'text-slate-500'}`}
+                    >
+                      <Banknote size={14} /> Lương cao nhất
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Danh sách Job Cards */}
+              <div className="space-y-4">
+                {mockJobs.map((job) => (
+                  <article key={job.id} className="group relative rounded-3xl border border-slate-200 bg-white p-6 transition-all hover:border-blue-500/50 hover:shadow-xl dark:border-white/5 dark:bg-[#1e1e1e]">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xl font-black text-slate-500 dark:bg-white/5 dark:text-slate-400 group-hover:text-blue-600 transition-all">
+                        {job.logo}
                       </div>
-                      <div className="mt-3 flex items-center gap-3">
-                        <div className="h-3 w-56 overflow-hidden rounded-full bg-slate-200">
-                          <div className="h-full rounded-full bg-green-600" style={{ width: `${job.score}%` }} />
+
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="text-xs font-black uppercase tracking-widest text-blue-600">{job.company}</h3>
+                            <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">{job.title}</h2>
+                          </div>
+                          <div className="hidden md:block text-right">
+                            <p className="text-lg font-black text-emerald-500">{job.salary}</p>
+                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter italic">{job.postedAt}</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {job.skills.map(skill => (
+                            <span key={skill} className="rounded-lg bg-slate-100 px-3 py-1 text-[11px] font-black text-slate-600 dark:bg-white/5 dark:text-slate-400">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="mt-6 flex items-center gap-4 border-t border-slate-100 dark:border-white/5 pt-5">
+                          <div className="flex-1 hidden sm:block">
+                            <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-white/10">
+                              <div className="h-full rounded-full bg-blue-600" style={{ width: `${job.score}%` }} />
+                            </div>
+                          </div>
+                          <button className="w-full sm:w-auto flex items-center justify-center gap-1 rounded-xl bg-slate-900 px-8 py-2.5 text-sm font-black text-white hover:bg-blue-600 transition-all dark:bg-blue-600 dark:hover:bg-blue-700">
+                            Ứng tuyển <ChevronRight size={16} />
+                          </button>
                         </div>
                       </div>
                     </div>
-
-                    <div className="flex flex-col items-end gap-12">
-                      <button type="button" className="rounded bg-green-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700">
-                        {job.badge}
-                      </button>
-                      <button type="button" className="text-base font-semibold text-blue-600 hover:underline">
-                        Apply
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-
-              <div className="min-h-[130px] rounded-2xl border border-slate-200 bg-white shadow-sm" />
-
-              <div className="flex items-center justify-end gap-2 text-sm text-slate-500">
-                <span>Trang 10</span>
-                <button type="button" className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white">1</button>
-                <span>...</span>
-                <button type="button" className="font-semibold text-slate-700">10</button>
+                  </article>
+                ))}
               </div>
+
+              {/* Pagination Section */}
+              <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 py-8 border-t border-slate-200 dark:border-white/5">
+                <div className="flex items-center gap-2">
+                  <button className="h-10 w-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 hover:bg-white dark:hover:bg-white/5 transition-all disabled:opacity-30">
+                    <ChevronLeft size={20} />
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3].map((page) => (
+                      <button
+                        key={page}
+                        className={`h-10 w-10 rounded-xl text-sm font-black transition-all ${page === 1
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                            : 'hover:bg-white dark:hover:bg-white/5 text-slate-500'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    <span className="px-2 text-slate-400">...</span>
+                    <button className="h-10 w-10 rounded-xl text-sm font-black text-slate-500 hover:bg-white dark:hover:bg-white/5 transition-all">
+                      12
+                    </button>
+                  </div>
+
+                  <button className="h-10 w-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:border-blue-500 transition-all">
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  Trang 1 / 12
+                </p>
+              </div>
+
             </main>
+          </div>
         </div>
       </div>
     </div>
