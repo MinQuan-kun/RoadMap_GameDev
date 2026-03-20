@@ -1,22 +1,28 @@
 import React, { useContext, useState } from 'react'
 import { Eye, EyeOff, X, Mail, Lock } from 'lucide-react'
 import AuthContext from '../context/AuthContext'
+import apiClient from '../services/apiClient';
 
 const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const { login } = useContext(AuthContext)
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState({ userName: '', password: '' });
   const [formData, setFormData] = useState({ email: '', password: '' })
+  const [error, setError] = useState('');
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    const mockUser = {
-      id: '1',
-      username: formData.email.split('@')[0] || 'user',
-      email: formData.email,
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+    try {
+      const response = await apiClient.post('/users/login', formData);
+      const { user, token } = response.data;
+      
+      login(user, token);
+      alert('Đăng nhập thành công!');
+      onClose();
+    } catch (err) {
+      setError(err.response?.data || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.');
     }
-    login(mockUser)
-    onClose()
-  }
+  };
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
 

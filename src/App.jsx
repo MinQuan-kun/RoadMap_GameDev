@@ -8,7 +8,7 @@ import HomePage from './pages/HomePage'
 import JobSearch from './pages/JobSearch'
 import UserProfile from './pages/UserProfile'
 import Footer from './components/Footer';
-import RoadmapBuilder from './pages/RoadmapBuilder' 
+import RoadmapBuilder from './pages/RoadmapBuilder'
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -56,26 +56,28 @@ function App() {
     setUser,
     isAuthenticated,
     setIsAuthenticated,
-    login: (userData) => {
-      setUser(userData)
-      setIsAuthenticated(true)
-      localStorage.setItem('gamedev-user', JSON.stringify(userData))
+    login: (userData, token) => {
+      setUser(userData);
+      setIsAuthenticated(true);
+      localStorage.setItem('gamedev-user', JSON.stringify(userData));
+      localStorage.setItem('gamedev-token', token);
     },
     logout: () => {
-      setUser(null)
-      setIsAuthenticated(false)
-      localStorage.removeItem('gamedev-user')
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('gamedev-user');
+      localStorage.removeItem('gamedev-token');
     }
   }
 
-  return (  
+  return (
     <AuthContext.Provider value={authValue}>
       <Router>
         <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
           <Header
             isDarkMode={isDarkMode}
             toggleDarkMode={toggleDarkMode}
-            onOpenLogin={openLoginModal}     
+            onOpenLogin={openLoginModal}
             onOpenRegister={openRegisterModal}
           />
 
@@ -84,10 +86,10 @@ function App() {
               <Route
                 path="/"
                 element={
-                <HomePage 
-                onOpenLogin={openLoginModal} 
-                onOpenRegister={openRegisterModal}
-                isDarkMode={isDarkMode} />}
+                  <HomePage
+                    onOpenLogin={openLoginModal}
+                    onOpenRegister={openRegisterModal}
+                    isDarkMode={isDarkMode} />}
               />
               <Route
                 path="/roadmap/builder"

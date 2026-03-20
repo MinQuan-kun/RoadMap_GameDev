@@ -9,7 +9,7 @@ const JobSearch = ({ isDarkMode = false }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSkills, setSelectedSkills] = useState([])
   const [experienceLevel, setExperienceLevel] = useState('')
-  const [sortBy, setSortBy] = useState('newest') // State cho bộ lọc sắp xếp
+  const [sortBy, setSortBy] = useState('newest')
 
   const handleSkillToggle = (skill) => {
     setSelectedSkills((prev) => (
