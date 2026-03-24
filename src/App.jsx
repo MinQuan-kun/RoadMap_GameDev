@@ -9,6 +9,7 @@ import JobSearch from './pages/JobSearch'
 import UserProfile from './pages/UserProfile'
 import Footer from './components/Footer';
 import RoadmapBuilder from './pages/RoadmapBuilder'
+import CareerQuiz from './pages/CareerQuiz'
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -103,6 +104,7 @@ function App() {
                 path="/Jobs"
                 element={<JobSearch onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
               />
+              <Route path="/quiz" element={<CareerQuiz />} />
             </Routes>
 
             <LoginModal

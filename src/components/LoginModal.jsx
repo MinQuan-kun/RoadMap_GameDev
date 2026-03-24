@@ -15,7 +15,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     try {
       const response = await apiClient.post('/users/login', formData);
       const { user, token } = response.data;
-      
+
       login(user, token);
       alert('Đăng nhập thành công!');
       onClose();
@@ -32,9 +32,9 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Overlay mờ */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      
+
       <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 bg-white/90 dark:bg-[#0f1115]/95 p-8 shadow-2xl backdrop-blur-xl transition-all duration-300">
-        
+
         {/* Nút đóng */}
         <button onClick={onClose} className="absolute right-6 top-6 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
           <X className="h-5 w-5" />
@@ -45,7 +45,12 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
             Đăng nhập
           </h2>
         </div>
+        {error && (
+          <div className="p-3 text-sm font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl text-center">
+            ⚠️ {error}
+          </div>
 
+        )}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">Email</label>

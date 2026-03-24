@@ -1,11 +1,16 @@
 import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 
 const HomeBanner = ({ onOpenLogin, onOpenRegister, onBrowseJobs, lightImage, darkImage, isDarkMode }) => {
     const { user, isAuthenticated } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     // Chọn ảnh dựa trên chế độ hiện tại
     const currentImage = isDarkMode ? darkImage : lightImage;
+
+    // Giả định có property check hoặc cờ localStorage để biết đã làm quiz chưa
+    const hasCompletedQuiz = user?.hasCompletedQuiz || localStorage.getItem('hasCompletedQuiz') === 'true';
 
     return (
         <section className="relative flex min-h-[550px] flex-col items-center justify-center overflow-hidden border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#050505] px-4 py-20 text-center transition-colors duration-500">
@@ -40,13 +45,21 @@ const HomeBanner = ({ onOpenLogin, onOpenRegister, onBrowseJobs, lightImage, dar
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <button
-                        onClick={isAuthenticated ? onBrowseJobs : onOpenLogin}
-                        className="group inline-flex items-center gap-2 rounded-full bg-blue-600 px-10 py-4 text-sm font-bold text-white transition-all hover:bg-blue-700 hover:scale-105 active:scale-95 shadow-lg shadow-blue-600/20"
-                    >
-                        {isAuthenticated ? "Explore Careers" : "Take a Quiz"}
-                        <span className="transition-transform group-hover:translate-x-1">→</span>
-                    </button>
+                    {!hasCompletedQuiz && (
+                        <button
+                            onClick={() => {
+                                if (isAuthenticated) {
+                                    navigate('/onboarding');
+                                } else {
+                                    onOpenLogin();
+                                }
+                            }}
+                            className="group inline-flex items-center gap-2 rounded-full bg-blue-600 px-10 py-4 text-sm font-bold text-white transition-all hover:bg-blue-700 hover:scale-105 active:scale-95 shadow-lg shadow-blue-600/20"
+                        >
+                            Take a Quiz
+                            <span className="transition-transform group-hover:translate-x-1">→</span>
+                        </button>
+                    )}
                 </div>
             </div>
         </section>
