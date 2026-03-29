@@ -1,0 +1,874 @@
+[{
+  "_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "name": "Unity Engine",
+  "engine": "Unity",
+  "category": "Engine Root",
+  "parent_id": null,
+  "description": "Lộ trình chinh phục Unity từ cơ bản đến nâng cao"
+},
+{
+  "_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a39"
+  },
+  "name": "C# Basic",
+  "engine": "Unity",
+  "category": "Language",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về C# Basic"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3a"
+  },
+  "name": "Biến & Toán tử",
+  "engine": "Unity",
+  "category": "Language Syntax",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a39"
+  },
+  "description": "Kiến thức về Biến & Toán tử"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3e"
+  },
+  "name": "Array & List",
+  "engine": "Unity",
+  "category": "Data Structure",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a39"
+  },
+  "description": "Kiến thức về Array & List"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3b"
+  },
+  "name": "Cấu trúc rẽ nhánh (if/else, switch)",
+  "engine": "Unity",
+  "category": "Logic Control",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a39"
+  },
+  "description": "Kiến thức về Cấu trúc rẽ nhánh (if/else, switch)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3c"
+  },
+  "name": "Vòng lặp (for, while, foreach)",
+  "engine": "Unity",
+  "category": "Logic Control",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a39"
+  },
+  "description": "Kiến thức về Vòng lặp (for, while, foreach)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3d"
+  },
+  "name": "Method (Hàm)",
+  "engine": "Unity",
+  "category": "Logic Control",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a39"
+  },
+  "description": "Kiến thức về Method (Hàm)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3f"
+  },
+  "name": "C# OOP",
+  "engine": "Unity",
+  "category": "Language",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về C# OOP"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a41"
+  },
+  "name": "Constructor",
+  "engine": "Unity",
+  "category": "OOP",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3f"
+  },
+  "description": "Kiến thức về Constructor"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a40"
+  },
+  "name": "Class & Object",
+  "engine": "Unity",
+  "category": "OOP",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3f"
+  },
+  "description": "Kiến thức về Class & Object"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a42"
+  },
+  "name": "Access modifier (public, private…)",
+  "engine": "Unity",
+  "category": "OOP",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3f"
+  },
+  "description": "Kiến thức về Access modifier (public, private…)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a44"
+  },
+  "name": "Tính kế thừa (Inheritance)",
+  "engine": "Unity",
+  "category": "OOP",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3f"
+  },
+  "description": "Kiến thức về Tính kế thừa (Inheritance)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a46"
+  },
+  "name": "Interface & Enum",
+  "engine": "Unity",
+  "category": "OOP",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3f"
+  },
+  "description": "Kiến thức về Interface & Enum"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a43"
+  },
+  "name": "Tính đóng gói (Encapsulation)",
+  "engine": "Unity",
+  "category": "OOP",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3f"
+  },
+  "description": "Kiến thức về Tính đóng gói (Encapsulation)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a45"
+  },
+  "name": "Tính đa hình (Polymorphism)",
+  "engine": "Unity",
+  "category": "OOP",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a3f"
+  },
+  "description": "Kiến thức về Tính đa hình (Polymorphism)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a47"
+  },
+  "name": "C# Nâng cao",
+  "engine": "Unity",
+  "category": "Language",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về C# Nâng cao"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a48"
+  },
+  "name": "Delegate & Event",
+  "engine": "Unity",
+  "category": "Advanced Syntax",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a47"
+  },
+  "description": "Kiến thức về Delegate & Event"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a49"
+  },
+  "name": "Action / Func",
+  "engine": "Unity",
+  "category": "Advanced Syntax",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a47"
+  },
+  "description": "Kiến thức về Action / Func"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4a"
+  },
+  "name": "Coroutine (IEnumerator)",
+  "engine": "Unity",
+  "category": "Asynchronous",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a47"
+  },
+  "description": "Kiến thức về Coroutine (IEnumerator)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4b"
+  },
+  "name": "Time Management (Time.deltaTime)",
+  "engine": "Unity",
+  "category": "Engine Logic",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a47"
+  },
+  "description": "Kiến thức về Time Management (Time.deltaTime)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4c"
+  },
+  "name": "Unity Interface",
+  "engine": "Unity",
+  "category": "Engine Basics",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về Unity Interface"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4d"
+  },
+  "name": "Scene & GameObject",
+  "engine": "Unity",
+  "category": "Editor",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4c"
+  },
+  "description": "Kiến thức về Scene & GameObject"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4f"
+  },
+  "name": "Prefab & Inspector",
+  "engine": "Unity",
+  "category": "Editor",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4c"
+  },
+  "description": "Kiến thức về Prefab & Inspector"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4e"
+  },
+  "name": "Component & Transform",
+  "engine": "Unity",
+  "category": "Editor",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4c"
+  },
+  "description": "Kiến thức về Component & Transform"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a50"
+  },
+  "name": "Hierarchy & Project Structure",
+  "engine": "Unity",
+  "category": "Editor",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a4c"
+  },
+  "description": "Kiến thức về Hierarchy & Project Structure"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a51"
+  },
+  "name": "MonoBehaviour Lifecycle",
+  "engine": "Unity",
+  "category": "Engine Basics",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về MonoBehaviour Lifecycle"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a52"
+  },
+  "name": "Awake() & Start()",
+  "engine": "Unity",
+  "category": "Lifecycle",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a51"
+  },
+  "description": "Kiến thức về Awake() & Start()"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a54"
+  },
+  "name": "OnEnable() & OnDisable()",
+  "engine": "Unity",
+  "category": "Lifecycle",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a51"
+  },
+  "description": "Kiến thức về OnEnable() & OnDisable()"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a53"
+  },
+  "name": "Update() & FixedUpdate()",
+  "engine": "Unity",
+  "category": "Lifecycle",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a51"
+  },
+  "description": "Kiến thức về Update() & FixedUpdate()"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a55"
+  },
+  "name": "Movement & Input",
+  "engine": "Unity",
+  "category": "Gameplay",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về Movement & Input"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a58"
+  },
+  "name": "Velocity & AddForce",
+  "engine": "Unity",
+  "category": "Physics",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a55"
+  },
+  "description": "Kiến thức về Velocity & AddForce"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a57"
+  },
+  "name": "Rigidbody (Physics Movement)",
+  "engine": "Unity",
+  "category": "Physics",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a55"
+  },
+  "description": "Kiến thức về Rigidbody (Physics Movement)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a56"
+  },
+  "name": "Input System (New & Old)",
+  "engine": "Unity",
+  "category": "Input",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a55"
+  },
+  "description": "Kiến thức về Input System (New & Old)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a59"
+  },
+  "name": "Physics",
+  "engine": "Unity",
+  "category": "Gameplay",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về Physics"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a5b"
+  },
+  "name": "Collision Detection (Enter/Exit)",
+  "engine": "Unity",
+  "category": "Physics",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a59"
+  },
+  "description": "Kiến thức về Collision Detection (Enter/Exit)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a5c"
+  },
+  "name": "Raycast",
+  "engine": "Unity",
+  "category": "Physics",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a59"
+  },
+  "description": "Kiến thức về Raycast"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a5a"
+  },
+  "name": "Collider & Trigger",
+  "engine": "Unity",
+  "category": "Physics",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a59"
+  },
+  "description": "Kiến thức về Collider & Trigger"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a5d"
+  },
+  "name": "Layer & LayerMask",
+  "engine": "Unity",
+  "category": "Physics",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a59"
+  },
+  "description": "Kiến thức về Layer & LayerMask"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a5e"
+  },
+  "name": "Animation",
+  "engine": "Unity",
+  "category": "Visuals",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về Animation"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a61"
+  },
+  "name": "Blend Trees",
+  "engine": "Unity",
+  "category": "Animation",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a5e"
+  },
+  "description": "Kiến thức về Blend Trees"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a60"
+  },
+  "name": "Animation Clips & Transitions",
+  "engine": "Unity",
+  "category": "Animation",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a5e"
+  },
+  "description": "Kiến thức về Animation Clips & Transitions"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a5f"
+  },
+  "name": "Animator Controller",
+  "engine": "Unity",
+  "category": "Animation",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a5e"
+  },
+  "description": "Kiến thức về Animator Controller"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a62"
+  },
+  "name": "UI (User Interface)",
+  "engine": "Unity",
+  "category": "Visuals",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về UI (User Interface)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a64"
+  },
+  "name": "Button & Slider Event",
+  "engine": "Unity",
+  "category": "UI",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a62"
+  },
+  "description": "Kiến thức về Button & Slider Event"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a63"
+  },
+  "name": "Canvas & TextMeshPro",
+  "engine": "Unity",
+  "category": "UI",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a62"
+  },
+  "description": "Kiến thức về Canvas & TextMeshPro"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a65"
+  },
+  "name": "SceneManager (Chuyển cảnh)",
+  "engine": "Unity",
+  "category": "Navigation",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a62"
+  },
+  "description": "Kiến thức về SceneManager (Chuyển cảnh)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a66"
+  },
+  "name": "Audio",
+  "engine": "Unity",
+  "category": "Sound",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về Audio"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a69"
+  },
+  "name": "PlayOneShot (Sfx logic)",
+  "engine": "Unity",
+  "category": "Scripting",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a66"
+  },
+  "description": "Kiến thức về PlayOneShot (Sfx logic)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a67"
+  },
+  "name": "AudioSource",
+  "engine": "Unity",
+  "category": "Audio Component",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a66"
+  },
+  "description": "Kiến thức về AudioSource"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a6a"
+  },
+  "name": "Background Music (BGM)",
+  "engine": "Unity",
+  "category": "Audio Management",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a66"
+  },
+  "description": "Kiến thức về Background Music (BGM)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a6b"
+  },
+  "name": "Sound Effect (SFX)",
+  "engine": "Unity",
+  "category": "Audio Management",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a66"
+  },
+  "description": "Kiến thức về Sound Effect (SFX)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcae80a2d2c8f715a68"
+  },
+  "name": "AudioListener",
+  "engine": "Unity",
+  "category": "Audio Component",
+  "parent_id": {
+    "$oid": "69a6abcae80a2d2c8f715a66"
+  },
+  "description": "Kiến thức về AudioListener"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a6c"
+  },
+  "name": "Code Architecture",
+  "engine": "Unity",
+  "category": "Architecture",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về Code Architecture"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a6d"
+  },
+  "name": "Singleton Pattern",
+  "engine": "Unity",
+  "category": "Design Pattern",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a6c"
+  },
+  "description": "Kiến thức về Singleton Pattern"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a70"
+  },
+  "name": "State Machine (FSM cơ bản)",
+  "engine": "Unity",
+  "category": "Design Pattern",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a6c"
+  },
+  "description": "Kiến thức về State Machine (FSM cơ bản)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a6f"
+  },
+  "name": "Event System (Observer)",
+  "engine": "Unity",
+  "category": "Design Pattern",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a6c"
+  },
+  "description": "Kiến thức về Event System (Observer)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a6e"
+  },
+  "name": "ScriptableObject",
+  "engine": "Unity",
+  "category": "Data Management",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a6c"
+  },
+  "description": "Kiến thức về ScriptableObject"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a71"
+  },
+  "name": "Save/Load",
+  "engine": "Unity",
+  "category": "Technical",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về Save/Load"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a74"
+  },
+  "name": "File system",
+  "engine": "Unity",
+  "category": "Data Storage",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a71"
+  },
+  "description": "Kiến thức về File system"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a72"
+  },
+  "name": "PlayerPrefs",
+  "engine": "Unity",
+  "category": "Data Storage",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a71"
+  },
+  "description": "Kiến thức về PlayerPrefs"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a73"
+  },
+  "name": "JSON & Serialization",
+  "engine": "Unity",
+  "category": "Data Storage",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a71"
+  },
+  "description": "Kiến thức về JSON & Serialization"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a75"
+  },
+  "name": "Optimization",
+  "engine": "Unity",
+  "category": "Technical",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về Optimization"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a76"
+  },
+  "name": "Object Pooling",
+  "engine": "Unity",
+  "category": "Performance",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a75"
+  },
+  "description": "Kiến thức về Object Pooling"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a78"
+  },
+  "name": "Tối ưu Update()",
+  "engine": "Unity",
+  "category": "Performance",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a75"
+  },
+  "description": "Kiến thức về Tối ưu Update()"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a77"
+  },
+  "name": "Profiler",
+  "engine": "Unity",
+  "category": "Performance",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a75"
+  },
+  "description": "Kiến thức về Profiler"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a79"
+  },
+  "name": "AI & Navigation",
+  "engine": "Unity",
+  "category": "Gameplay",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về AI & Navigation"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a7b"
+  },
+  "name": "NavMesh (Pathfinding)",
+  "engine": "Unity",
+  "category": "AI",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a79"
+  },
+  "description": "Kiến thức về NavMesh (Pathfinding)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a7c"
+  },
+  "name": "Enemy behavior logic",
+  "engine": "Unity",
+  "category": "AI",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a79"
+  },
+  "description": "Kiến thức về Enemy behavior logic"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a7a"
+  },
+  "name": "Finite State Machine (FSM)",
+  "engine": "Unity",
+  "category": "AI",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a79"
+  },
+  "description": "Kiến thức về Finite State Machine (FSM)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a7d"
+  },
+  "name": "Build & Deploy",
+  "engine": "Unity",
+  "category": "Technical",
+  "parent_id": {
+    "$oid": "69a6abc9e80a2d2c8f715a38"
+  },
+  "description": "Nhóm kiến thức về Build & Deploy"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a7e"
+  },
+  "name": "Build PC (Windows/Mac)",
+  "engine": "Unity",
+  "category": "Platform",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a7d"
+  },
+  "description": "Kiến thức về Build PC (Windows/Mac)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a7f"
+  },
+  "name": "Build Android (.apk/.aab)",
+  "engine": "Unity",
+  "category": "Platform",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a7d"
+  },
+  "description": "Kiến thức về Build Android (.apk/.aab)"
+},
+{
+  "_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a80"
+  },
+  "name": "Build WebGL",
+  "engine": "Unity",
+  "category": "Platform",
+  "parent_id": {
+    "$oid": "69a6abcbe80a2d2c8f715a7d"
+  },
+  "description": "Kiến thức về Build WebGL"
+}]

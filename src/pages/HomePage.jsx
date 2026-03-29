@@ -1,9 +1,19 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import HomeBanner from '../components/home/HomeBanner'
+import apiClient from '../services/apiClient'
+import { Loader2 } from 'lucide-react'
 
-const roadmapSamples = [
+const accentColors = [
+  'from-blue-500 to-cyan-400',
+  'from-violet-500 to-indigo-500',
+  'from-emerald-500 to-teal-400',
+  'from-rose-500 to-orange-400',
+  'from-amber-500 to-yellow-400'
+];
+
+const fallbackRoadmaps = [
   {
     title: 'Unity Game Developer',
     description: 'Lộ trình từ C#, gameplay systems đến phát hành game indie.',
@@ -19,11 +29,38 @@ const roadmapSamples = [
     description: 'Shader, lighting, animation pipeline và tool hỗ trợ artist.',
     accent: 'from-emerald-500 to-teal-400'
   }
-]
+];
 
 const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
   const { isAuthenticated, user } = useContext(AuthContext)
   const navigate = useNavigate()
+  const [roadmaps, setRoadmaps] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchRoadmaps = async () => {
+      try {
+        const response = await apiClient.get('/Roadmap') // Fetch from backend
+        if (response.data && response.data.length > 0) {
+          const mappedRoadmaps = response.data.map((rm, idx) => ({
+            id: rm._id || rm.id || Math.random(),
+            title: rm.title,
+            description: rm.description,
+            accent: accentColors[idx % accentColors.length]
+          }))
+          setRoadmaps(mappedRoadmaps)
+        } else {
+          setRoadmaps(fallbackRoadmaps)
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải Example Roadmaps:", error)
+        setRoadmaps(fallbackRoadmaps)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchRoadmaps()
+  }, [])
 
   const handleBrowseJobs = () => {
     navigate('/Jobs')
@@ -65,32 +102,43 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
           <div className="h-px flex-1 bg-white/10" />
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {roadmapSamples.map((roadmap) => (
-            <article
-              key={roadmap.title}
-              className="group relative rounded-3xl border border-white/5 bg-white/5 p-8 transition-all duration-300 hover:-translate-y-2 hover:bg-white/[0.08] hover:shadow-2xl hover:shadow-blue-500/10"
-            >
-              <div className={`mb-6 h-1.5 w-16 rounded-full bg-gradient-to-r ${roadmap.accent}`} />
-              
-              <h3 className="mb-4 text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
-                {roadmap.title}
-              </h3>
-              
-              <p className="mb-8 text-sm leading-relaxed text-slate-400">
-                {roadmap.description}
-              </p>
-              
-              <button 
-                type="button" 
-                className="inline-flex items-center gap-2 text-sm font-bold text-blue-500 hover:text-blue-400 transition-colors"
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="animate-spin text-blue-500" size={48} />
+          </div>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-3">
+            {roadmaps.map((roadmap) => (
+              <article
+                key={roadmap.id || roadmap.title}
+                className="group relative rounded-3xl border border-white/5 bg-white/5 p-8 transition-all duration-300 hover:-translate-y-2 hover:bg-white/[0.08] hover:shadow-2xl hover:shadow-blue-500/10"
               >
-                View roadmap 
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </button>
-            </article>
-          ))}
-        </div>
+                <div className={`mb-6 h-1.5 w-16 rounded-full bg-gradient-to-r ${roadmap.accent}`} />
+                
+                <h3 className="mb-4 text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
+                  {roadmap.title}
+                </h3>
+                
+                <p className="mb-8 text-sm leading-relaxed text-slate-400 line-clamp-3">
+                  {roadmap.description}
+                </p>
+                
+                <button 
+                  type="button"
+                  onClick={() => {
+                    if (roadmap.id && roadmap.id !== Math.random() && typeof roadmap.id === 'string') {
+                      navigate(`/roadmap/${roadmap.id}`)
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 text-sm font-bold text-blue-500 hover:text-blue-400 transition-colors"
+                >
+                  View roadmap 
+                  <span className="transition-transform group-hover:translate-x-1">→</span>
+                </button>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )

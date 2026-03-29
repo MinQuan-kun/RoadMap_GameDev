@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "axios": "^1.13.5",
+    "dagre": "^0.8.5",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.575.0",
+    "mongodb": "^7.1.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.1",
