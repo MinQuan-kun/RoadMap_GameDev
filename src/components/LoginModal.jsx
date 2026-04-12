@@ -14,9 +14,9 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     setError('');
     try {
       const response = await apiClient.post('/users/login', formData);
-      const { user, token } = response.data;
+      const { token } = response.data;
 
-      login(user, token);
+      await login(token);
       alert('Đăng nhập thành công!');
       onClose();
     } catch (err) {

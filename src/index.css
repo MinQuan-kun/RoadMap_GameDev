@@ -42,3 +42,12 @@ code {
 #root {
   min-height: 100vh;
 }
+
+/* ─── React Flow Smooth Transitions ─── */
+.react-flow__node {
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease;
+}
+
+.react-flow__edge-path {
+  transition: d 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}

@@ -24,15 +24,15 @@ const MODULE_H = 56
 
 /* ═══ Color Map ═══════════════════════════════════ */
 const CAT = {
-  module:      { bg: '#fbbf24', border: '#f59e0b', text: '#1a1a2e', glow: '#fbbf2440' },
-  language:    { bg: '#6366f1', border: '#818cf8', text: '#e0e7ff', glow: '#6366f120' },
-  engine:      { bg: '#3b82f6', border: '#60a5fa', text: '#dbeafe', glow: '#3b82f620' },
-  math:        { bg: '#14b8a6', border: '#2dd4bf', text: '#ccfbf1', glow: '#14b8a620' },
-  gameplay:    { bg: '#10b981', border: '#34d399', text: '#d1fae5', glow: '#10b98120' },
-  ai:          { bg: '#22d3ee', border: '#67e8f9', text: '#cffafe', glow: '#22d3ee20' },
-  deploy:      { bg: '#f97316', border: '#fb923c', text: '#ffedd5', glow: '#f9731620' },
-  network:     { bg: '#ef4444', border: '#f87171', text: '#fee2e2', glow: '#ef444420' },
-  default:     { bg: '#64748b', border: '#94a3b8', text: '#e2e8f0', glow: '#64748b20' },
+  module: { bg: '#fbbf24', border: '#f59e0b', text: '#1a1a2e', glow: '#fbbf2440' },
+  language: { bg: '#6366f1', border: '#818cf8', text: '#e0e7ff', glow: '#6366f120' },
+  engine: { bg: '#3b82f6', border: '#60a5fa', text: '#dbeafe', glow: '#3b82f620' },
+  math: { bg: '#14b8a6', border: '#2dd4bf', text: '#ccfbf1', glow: '#14b8a620' },
+  gameplay: { bg: '#10b981', border: '#34d399', text: '#d1fae5', glow: '#10b98120' },
+  ai: { bg: '#22d3ee', border: '#67e8f9', text: '#cffafe', glow: '#22d3ee20' },
+  deploy: { bg: '#f97316', border: '#fb923c', text: '#ffedd5', glow: '#f9731620' },
+  network: { bg: '#ef4444', border: '#f87171', text: '#fee2e2', glow: '#ef444420' },
+  default: { bg: '#64748b', border: '#94a3b8', text: '#e2e8f0', glow: '#64748b20' },
 }
 
 const getTheme = (category = '', isModule = false) => {
@@ -161,7 +161,7 @@ const RoadmapDetail = () => {
     const load = async () => {
       try {
         setLoading(true)
-        const { data } = await apiClient.get(`/Roadmap/${id}`)
+        const { data } = await apiClient.get(`/nodes/${id}`)
         setTitle(data.title)
 
         const nd = (data.nodes || []).map(n => ({

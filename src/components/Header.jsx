@@ -55,14 +55,15 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
             <Link to="/roadmap/builder" className={navLabelClass('/roadmap/builder')}>
               Create Roadmap
             </Link>
-            {['MyRoadMap','Roadmaps', 'Jobs'].map((menuName) => {
+            {['MyRoadMap','Roadmaps', 'Jobs', ...(user?.role === 0 ? ['Admin'] : [])].map((menuName) => {
               const isJobs = menuName === 'Jobs';
               const isMyRoadMap = menuName === 'MyRoadMap';
-              const path = isJobs ? '/Jobs' : isMyRoadMap ? '/profile' : '/';
+              const isAdmin = menuName === 'Admin';
+              const path = isJobs ? '/Jobs' : isMyRoadMap ? '/profile' : isAdmin ? '/admin' : '/';
                
               return (
                 <div key={menuName} className="relative">
-                  {isJobs || isMyRoadMap ? (
+                  {isJobs || isMyRoadMap || isAdmin ? (
                     <Link
                       to={path}
                       className={`flex items-center gap-1 transition-colors ${navLabelClass(path)}`}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom'
 import LoginModal from './components/LoginModal'
 import Header from './components/Header';
 import RegisterModal from './components/RegisterModal'
@@ -12,15 +12,120 @@ import RoadmapBuilder from './pages/RoadmapBuilder'
 import CareerQuiz from './pages/CareerQuiz'
 import RoadmapDetail from './pages/RoadmapDetail'
 
-function App() {
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('gamedev-user')
-    return savedUser ? JSON.parse(savedUser) : null
-  })
+import { getUserProfile } from './services/adminApi'
 
+// Admin imports
+import AdminLayout from './components/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import SiteAppearance from './pages/admin/SiteAppearance'
+import RoadmapManager from './pages/admin/RoadmapManager'
+import NodeManager from './pages/admin/NodeManager'
+import LessonManager from './pages/admin/LessonManager'
+import UserManager from './pages/admin/UserManager'
+
+// Wrapper to conditionally show Header/Footer (hide on /admin routes)
+const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterModal, closeAuthModals, showLoginModal, showRegisterModal }) => {
+  const location = useLocation()
+  const isAdminRoute = location.pathname.startsWith('/admin')
+
+  return (
+    <div className={isAdminRoute ? '' : 'min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300'}>
+      {!isAdminRoute && (
+        <Header
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          onOpenLogin={openLoginModal}
+          onOpenRegister={openRegisterModal}
+        />
+      )}
+
+      <div className={isAdminRoute ? '' : 'App'}>
+        <Routes>
+          {/* ─── Public routes ─── */}
+          <Route
+            path="/"
+            element={
+              <HomePage
+                onOpenLogin={openLoginModal}
+                onOpenRegister={openRegisterModal}
+                isDarkMode={isDarkMode} />}
+          />
+          <Route
+            path="/roadmap/builder"
+            element={<RoadmapBuilder onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
+          />
+          <Route
+            path="/profile"
+            element={<UserProfile onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
+          />
+          <Route
+            path="/Jobs"
+            element={<JobSearch onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
+          />
+          <Route path="/quiz" element={<CareerQuiz />} />
+          <Route path="/roadmap/:id" element={<RoadmapDetail />} />
+
+          {/* ─── Admin routes ─── */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="appearance" element={<SiteAppearance />} />
+            <Route path="roadmaps" element={<RoadmapManager />} />
+            <Route path="nodes" element={<NodeManager />} />
+            <Route path="lessons" element={<LessonManager />} />
+            <Route path="users" element={<UserManager />} />
+          </Route>
+        </Routes>
+
+        {!isAdminRoute && (
+          <>
+            <LoginModal
+              isOpen={showLoginModal}
+              onClose={closeAuthModals}
+              onSwitchToRegister={openRegisterModal}
+            />
+            <RegisterModal
+              isOpen={showRegisterModal}
+              onClose={closeAuthModals}
+              onSwitchToLogin={openLoginModal}
+            />
+          </>
+        )}
+      </div>
+      {!isAdminRoute && <Footer />}
+    </div>
+  )
+}
+
+function App() {
+  const [user, setUser] = useState(null)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true)
   const [isDarkMode, setIsDarkMode] = useState(
     localStorage.getItem('theme') === 'dark'
   );
+
+  const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(localStorage.getItem('gamedev-token')))
+  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showRegisterModal, setShowRegisterModal] = useState(false)
+
+  // Fetch profile on mount if token exists
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('gamedev-token')
+      if (token && token !== 'undefined') {
+        try {
+          const profile = await getUserProfile()
+          setUser(profile)
+          setIsAuthenticated(true)
+        } catch (err) {
+          console.error('Failed to fetch profile:', err)
+          localStorage.removeItem('gamedev-token')
+          setIsAuthenticated(false)
+        }
+      }
+      setIsLoadingProfile(false)
+    }
+    fetchProfile()
+  }, [])
 
   useEffect(() => {
     if (isDarkMode) {
@@ -33,10 +138,6 @@ function App() {
   }, [isDarkMode]);
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
-
-  const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(localStorage.getItem('gamedev-user')))
-  const [showLoginModal, setShowLoginModal] = useState(false)
-  const [showRegisterModal, setShowRegisterModal] = useState(false)
 
   const openLoginModal = () => {
     setShowRegisterModal(false)
@@ -58,16 +159,23 @@ function App() {
     setUser,
     isAuthenticated,
     setIsAuthenticated,
-    login: (userData, token) => {
-      setUser(userData);
-      setIsAuthenticated(true);
-      localStorage.setItem('gamedev-user', JSON.stringify(userData));
+    isLoadingProfile,
+    login: async (token) => {
       localStorage.setItem('gamedev-token', token);
+      setIsAuthenticated(true);
+      setIsLoadingProfile(true);
+      try {
+        const profile = await getUserProfile();
+        setUser(profile);
+      } catch (err) {
+        console.error('Login profile fetch failed:', err);
+      } finally {
+        setIsLoadingProfile(false);
+      }
     },
     logout: () => {
       setUser(null);
       setIsAuthenticated(false);
-      localStorage.removeItem('gamedev-user');
       localStorage.removeItem('gamedev-token');
     }
   }
@@ -75,53 +183,21 @@ function App() {
   return (
     <AuthContext.Provider value={authValue}>
       <Router>
-        <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
-          <Header
+        {isLoadingProfile ? (
+          <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0d16' }}>
+            <div className="admin-loader"></div>
+          </div>
+        ) : (
+          <AppContent
             isDarkMode={isDarkMode}
             toggleDarkMode={toggleDarkMode}
-            onOpenLogin={openLoginModal}
-            onOpenRegister={openRegisterModal}
+            openLoginModal={openLoginModal}
+            openRegisterModal={openRegisterModal}
+            closeAuthModals={closeAuthModals}
+            showLoginModal={showLoginModal}
+            showRegisterModal={showRegisterModal}
           />
-
-          <div className="App">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <HomePage
-                    onOpenLogin={openLoginModal}
-                    onOpenRegister={openRegisterModal}
-                    isDarkMode={isDarkMode} />}
-              />
-              <Route
-                path="/roadmap/builder"
-                element={<RoadmapBuilder onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
-              />
-              <Route
-                path="/profile"
-                element={<UserProfile onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
-              />
-              <Route
-                path="/Jobs"
-                element={<JobSearch onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
-              />
-              <Route path="/quiz" element={<CareerQuiz />} />
-              <Route path="/roadmap/:id" element={<RoadmapDetail />} />
-            </Routes>
-
-            <LoginModal
-              isOpen={showLoginModal}
-              onClose={closeAuthModals}
-              onSwitchToRegister={openRegisterModal}
-            />
-            <RegisterModal
-              isOpen={showRegisterModal}
-              onClose={closeAuthModals}
-              onSwitchToLogin={openLoginModal}
-            />
-          </div>
-          <Footer />
-        </div>
+        )}
       </Router>
     </AuthContext.Provider>
   )

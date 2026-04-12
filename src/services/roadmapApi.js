@@ -30,22 +30,22 @@ export const buildRoadmapPayload = ({ title, creatorId, nodes, connections }) =>
 })
 
 export const createRoadmap = async (payload) => {
-  const response = await apiClient.post('/Roadmap', payload)
+  const response = await apiClient.post('/roadmaps', payload)
   return response.data
 }
 
 export const updateRoadmap = async (roadmapId, payload) => {
-  const response = await apiClient.put(`/Roadmap/${roadmapId}`, payload)
+  const response = await apiClient.put(`/roadmaps/${roadmapId}`, payload)
   return response.data
 }
 
 export const getRoadmapById = async (roadmapId) => {
-  const response = await apiClient.get(`/Roadmap/${roadmapId}`)
+  const response = await apiClient.get(`/roadmaps/${roadmapId}`)
   return response.data
 }
 
 export const getRoadmaps = async (creatorId) => {
-  const response = await apiClient.get('/Roadmap', {
+  const response = await apiClient.get('/roadmaps', {
     params: creatorId ? { creatorId } : undefined,
   })
   return response.data

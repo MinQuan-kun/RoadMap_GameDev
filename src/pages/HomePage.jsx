@@ -40,7 +40,7 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
   useEffect(() => {
     const fetchRoadmaps = async () => {
       try {
-        const response = await apiClient.get('/Roadmap') // Fetch from backend
+        const response = await apiClient.get('/roadmaps') // Fetch from backend
         if (response.data && response.data.length > 0) {
           const mappedRoadmaps = response.data.map((rm, idx) => ({
             id: rm._id || rm.id || Math.random(),
@@ -68,11 +68,11 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white transition-colors duration-300">
-      
+
       {/* BANNER */}
-      <HomeBanner 
-        onOpenLogin={onOpenLogin} 
-        onOpenRegister={onOpenRegister} 
+      <HomeBanner
+        onOpenLogin={onOpenLogin}
+        onOpenRegister={onOpenRegister}
         onBrowseJobs={handleBrowseJobs}
         isDarkMode={isDarkMode}
         lightImage="/Img/ligh_bg.png"
@@ -114,16 +114,16 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
                 className="group relative rounded-3xl border border-white/5 bg-white/5 p-8 transition-all duration-300 hover:-translate-y-2 hover:bg-white/[0.08] hover:shadow-2xl hover:shadow-blue-500/10"
               >
                 <div className={`mb-6 h-1.5 w-16 rounded-full bg-gradient-to-r ${roadmap.accent}`} />
-                
+
                 <h3 className="mb-4 text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
                   {roadmap.title}
                 </h3>
-                
+
                 <p className="mb-8 text-sm leading-relaxed text-slate-400 line-clamp-3">
                   {roadmap.description}
                 </p>
-                
-                <button 
+
+                <button
                   type="button"
                   onClick={() => {
                     if (roadmap.id && roadmap.id !== Math.random() && typeof roadmap.id === 'string') {
@@ -132,7 +132,7 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
                   }}
                   className="inline-flex items-center gap-2 text-sm font-bold text-blue-500 hover:text-blue-400 transition-colors"
                 >
-                  View roadmap 
+                  View roadmap
                   <span className="transition-transform group-hover:translate-x-1">→</span>
                 </button>
               </article>
