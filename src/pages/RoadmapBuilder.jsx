@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { 
   Save, 
   Download, 
@@ -19,14 +19,16 @@ import RoadmapCanvas from '../components/RoadmapBuilder/RoadmapCanvas'
 import NodeEditor from '../components/RoadmapBuilder/NodeEditor'
 import { RoadmapProvider, useRoadmap } from '../context/RoadmapContext.jsx'
 import AuthContext from '../context/AuthContext'
-import { buildRoadmapPayload, createRoadmap, updateRoadmap } from '../services/roadmapApi'
+import { buildRoadmapPayload, createRoadmap, getRoadmapById, mapRoadmapDetailToBuilderState, updateRoadmap } from '../services/roadmapApi'
 
-const RoadmapBuilderContent = () => {
+const RoadmapBuilderContent = ({ embedded = false, roadmapId = null, onSaved }) => {
   const { state, actions, selectedNode, hasChanges } = useRoadmap()
   const { user } = useContext(AuthContext)
   const [savedRoadmapId, setSavedRoadmapId] = useState(null)
   const [saveState, setSaveState] = useState('idle')
   const [saveMessage, setSaveMessage] = useState('')
+  const [isLoadingRoadmap, setIsLoadingRoadmap] = useState(false)
+  const loadedRoadmapIdRef = useRef('__uninitialized__')
 
   const creatorId = useMemo(() => {
     if (!user) {
@@ -34,6 +36,42 @@ const RoadmapBuilderContent = () => {
     }
     return user.id || user._id || user.username || user.email || null
   }, [user])
+
+  useEffect(() => {
+    const loadRoadmapForEdit = async () => {
+      if (loadedRoadmapIdRef.current === roadmapId) {
+        return
+      }
+
+      loadedRoadmapIdRef.current = roadmapId
+
+      if (!roadmapId) {
+        actions.resetRoadmap()
+        setSavedRoadmapId(null)
+        setSaveState('idle')
+        setSaveMessage('')
+        return
+      }
+
+      try {
+        setIsLoadingRoadmap(true)
+        setSaveMessage('Loading roadmap...')
+
+        const roadmapDetail = await getRoadmapById(roadmapId)
+        const mapped = mapRoadmapDetailToBuilderState(roadmapDetail)
+        actions.loadRoadmap(mapped)
+        setSavedRoadmapId(roadmapDetail.id || roadmapId)
+        setSaveMessage('Roadmap loaded.')
+      } catch (error) {
+        setSaveState('error')
+        setSaveMessage(error?.response?.data || 'Failed to load roadmap for editing.')
+      } finally {
+        setIsLoadingRoadmap(false)
+      }
+    }
+
+    loadRoadmapForEdit()
+  }, [roadmapId])
 
   // Handle title change
   const handleTitleChange = (e) => {
@@ -115,10 +153,22 @@ const RoadmapBuilderContent = () => {
       if (savedRoadmapId) {
         await updateRoadmap(savedRoadmapId, payload)
         setSaveMessage('Roadmap updated successfully.')
+        if (onSaved) {
+          onSaved({ mode: 'edit', roadmapId: savedRoadmapId })
+        }
       } else {
         const created = await createRoadmap(payload)
-        setSavedRoadmapId(created.id)
+        const createdId = created.id || created._id
         setSaveMessage('Roadmap created successfully.')
+
+        // In create mode, immediately return builder to a blank canvas.
+        actions.clearDraft()
+        actions.resetRoadmap()
+        setSavedRoadmapId(null)
+
+        if (onSaved) {
+          onSaved({ mode: 'create', roadmapId: createdId || null })
+        }
       }
 
       setSaveState('saved')
@@ -130,39 +180,39 @@ const RoadmapBuilderContent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className={`${embedded ? 'h-full' : 'min-h-screen'} bg-gray-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 flex flex-col`}>
       {/* Header */}
       {/* <Header onOpenLogin={onOpenLogin} onOpenRegister={onOpenRegister} /> */}
 
       {/* Main Content */}
       <div className="flex-1 flex">
         {/* Left Sidebar */}
-        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <div className="w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-700 flex flex-col">
           {/* Title Section */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-lg font-bold text-gray-900">Roadmap Builder</h1>
+              <h1 className="text-lg font-bold text-gray-900 dark:text-slate-100">Roadmap Builder</h1>
               <div className="flex items-center gap-1">
                 {hasChanges && (
                   <div className="w-2 h-2 bg-orange-400 rounded-full" title="Unsaved changes" />
                 )}
                 <button
                   onClick={handleExport}
-                  className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md"
+                  className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-md"
                   title="Export JSON"
                 >
                   <Download className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleImport}
-                  className="p-1.5 text-green-600 hover:bg-green-50 rounded-md"
+                  className="p-1.5 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-500/10 rounded-md"
                   title="Import JSON"
                 >
                   <Upload className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleClear}
-                  className="p-1.5 text-red-600 hover:bg-red-50 rounded-md"
+                  className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md"
                   title="Clear All"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -176,11 +226,11 @@ const RoadmapBuilderContent = () => {
               value={state.title}
               onChange={handleTitleChange}
               placeholder="Enter roadmap title..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
 
             {/* Stats */}
-            <div className="mt-3 text-xs text-gray-500 flex justify-between">
+            <div className="mt-3 text-xs text-gray-500 dark:text-slate-400 flex justify-between">
               <span>{state.nodes.length} nodes</span>
               <span>{state.connections.length} connections</span>
             </div>
@@ -192,7 +242,7 @@ const RoadmapBuilderContent = () => {
           </div>
 
           {/* Usage Hints */}
-          <div className="p-4 border-t border-gray-200 text-xs text-gray-600">
+          <div className="p-4 border-t border-gray-200 dark:border-slate-700 text-xs text-gray-600 dark:text-slate-300">
             <div className="font-medium mb-2">Quick Tips:</div>
             <ul className="space-y-1">
               <li>• Drag components to canvas</li>
@@ -206,28 +256,28 @@ const RoadmapBuilderContent = () => {
         {/* Main Canvas Area */}
         <div className="flex-1 flex flex-col relative">
           {/* Top Toolbar */}
-          <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 px-4 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <button
                 onClick={handleZoomOut}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                className="p-2 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-md"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-4 h-4" />
               </button>
-              <div className="text-sm text-gray-500 min-w-[60px] text-center">
+              <div className="text-sm text-gray-500 dark:text-slate-400 min-w-[60px] text-center">
                 {Math.round(state.zoom * 100)}%
               </div>
               <button
                 onClick={handleZoomIn}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                className="p-2 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-md"
                 title="Zoom In"
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
               <button
                 onClick={handleZoomReset}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                className="p-2 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-md"
                 title="Reset View"
               >
                 <Home className="w-4 h-4" />
@@ -235,21 +285,21 @@ const RoadmapBuilderContent = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+              <button className="px-3 py-1 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-md">
                 Grid
               </button>
-              <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+              <button className="px-3 py-1 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-md">
                 Snap
               </button>
               <button
                 onClick={handleSaveRoadmap}
-                disabled={saveState === 'saving'}
+                disabled={saveState === 'saving' || isLoadingRoadmap}
                 className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-md hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1"
               >
                 <Save className="w-3 h-3" />
-                {saveState === 'saving' ? 'Saving...' : 'Save'}
+                {isLoadingRoadmap ? 'Loading...' : saveState === 'saving' ? 'Saving...' : 'Save'}
               </button>
-              <div className="h-4 w-px bg-gray-300 mx-2" />
+              <div className="h-4 w-px bg-gray-300 dark:bg-slate-600 mx-2" />
               <button
                 onClick={() => setSaveMessage('Use Export JSON to share the roadmap file.')}
                 className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 flex items-center gap-1"
@@ -266,7 +316,7 @@ const RoadmapBuilderContent = () => {
           </div>
 
           {/* Status Bar */}
-          <div className="bg-white border-t border-gray-200 px-4 py-2 text-xs text-gray-500 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700 px-4 py-2 text-xs text-gray-500 dark:text-slate-400 flex items-center justify-between">
             <div>
               {selectedNode ? `Selected: ${selectedNode.content || selectedNode.type}` : 'No selection'}
             </div>
@@ -278,7 +328,7 @@ const RoadmapBuilderContent = () => {
 
         {/* Right Panel - Node Editor (conditionally shown) */}
         {selectedNode && (
-          <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
+          <div className="w-80 bg-white dark:bg-slate-900 border-l border-gray-200 dark:border-slate-700 flex flex-col">
             <div className="flex-1 overflow-y-auto">
               <NodeEditor 
                 node={selectedNode}
@@ -293,10 +343,10 @@ const RoadmapBuilderContent = () => {
 }
 
 // Main component with Provider
-const RoadmapBuilder = () => {
+const RoadmapBuilder = ({ embedded = false, roadmapId = null, onSaved }) => {
   return (
-    <RoadmapProvider>
-      <RoadmapBuilderContent />
+    <RoadmapProvider enableDraftPersistence={!embedded}>
+      <RoadmapBuilderContent embedded={embedded} roadmapId={roadmapId} onSaved={onSaved} />
     </RoadmapProvider>
   )
 }

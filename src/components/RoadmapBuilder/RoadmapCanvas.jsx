@@ -6,6 +6,7 @@ import ConnectionLines from './ConnectionLines'
 const RoadmapCanvas = () => {
   const { state, actions } = useRoadmap()
   const canvasRef = useRef(null)
+  const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains('dark'))
   const [isPanning, setIsPanning] = useState(false) 
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const [isConnecting, setIsConnecting] = useState(false)
@@ -163,18 +164,28 @@ const RoadmapCanvas = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'))
+    })
+
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+
+    return () => observer.disconnect()
+  }, [])
+
   // Grid pattern style
   const gridStyle = {
     backgroundImage: `
-      radial-gradient(circle, #e5e7eb 1px, transparent 1px),
-      radial-gradient(circle, #f3f4f6 1px, transparent 1px)
+      radial-gradient(circle, ${isDarkMode ? '#334155' : '#e5e7eb'} 1px, transparent 1px),
+      radial-gradient(circle, ${isDarkMode ? '#1e293b' : '#f3f4f6'} 1px, transparent 1px)
     `,
     backgroundSize: `${20 * state.zoom}px ${20 * state.zoom}px, ${100 * state.zoom}px ${100 * state.zoom}px`,
     backgroundPosition: `${state.canvasOffset.x}px ${state.canvasOffset.y}px`
   }
 
   return (
-    <div className="w-full h-full relative bg-white overflow-hidden select-none">
+    <div className="w-full h-full relative bg-white dark:bg-slate-900 overflow-hidden select-none">
       {/* Canvas with grid */}
       <div
         ref={canvasRef}
@@ -234,7 +245,7 @@ const RoadmapCanvas = () => {
         {/* Empty state */}
         {state.nodes.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center text-gray-400">
+            <div className="text-center text-gray-400 dark:text-slate-500">
               <div className="text-xl mb-2">🎯</div>
               <div className="text-lg font-medium mb-1">Start Building Your Roadmap</div>
               <div className="text-sm">
@@ -258,7 +269,7 @@ const RoadmapCanvas = () => {
       </div>
 
       {/* Help Overlay */}
-      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-3 text-xs text-gray-600 max-w-xs">
+      <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/85 backdrop-blur-sm border border-gray-200 dark:border-slate-700 rounded-lg p-3 text-xs text-gray-600 dark:text-slate-300 max-w-xs">
         <div className="font-medium mb-2">Shortcuts:</div>
         <div>• <kbd>Delete</kbd> - Remove selected</div>
         <div>• <kbd>Esc</kbd> - Deselect all</div>

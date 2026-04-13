@@ -54,17 +54,17 @@ const ComponentItem = ({ icon: Icon, label, type, description, color = "text-gra
       draggable
       onDragStart={handleDragStart}
       onClick={handleClick}
-      className="group flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-200"
+      className="group flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-200 dark:hover:border-slate-700"
       title={description}
     >
       <div className={`${color} group-hover:scale-110 transition-transform`}>
         <Icon className="w-5 h-5" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="font-medium text-sm text-gray-900 group-hover:text-gray-700">
+        <div className="font-medium text-sm text-gray-900 dark:text-slate-100 group-hover:text-gray-700 dark:group-hover:text-slate-100">
           {label}
         </div>
-        <div className="text-xs text-gray-500 truncate">
+        <div className="text-xs text-gray-500 dark:text-slate-400 truncate">
           {description}
         </div>
       </div>
@@ -218,10 +218,10 @@ const ComponentSidebar = () => {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 uppercase tracking-wide mb-3">
           Components
         </h3>
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-xs text-gray-500 dark:text-slate-400 mb-4">
           Drag & drop or click to add components to your roadmap
         </p>
       </div>
@@ -239,11 +239,11 @@ const ComponentSidebar = () => {
         ))}
       </div>
 
-      <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
-        <div className="text-xs font-medium text-blue-900 mb-1">
+      <div className="mt-6 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/30">
+        <div className="text-xs font-medium text-blue-900 dark:text-blue-200 mb-1">
           💡 Pro Tip
         </div>
-        <div className="text-xs text-blue-800">
+        <div className="text-xs text-blue-800 dark:text-blue-300">
           Hold Shift while dragging to maintain aspect ratio
         </div>
       </div>

@@ -26,20 +26,20 @@ const NodeEditor = ({ node, onClose }) => {
   ]
 
   return (
-    <div className="h-full flex flex-col bg-white border-l border-gray-200">
+    <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-gray-200 dark:border-slate-700">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <h3 className="font-semibold text-gray-900">Edit Node</h3>
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-slate-700">
+        <h3 className="font-semibold text-gray-900 dark:text-slate-100">Edit Node</h3>
         <button
           onClick={onClose}
-          className="p-1 text-gray-400 hover:text-gray-600 rounded"
+          className="p-1 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-200 rounded"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-gray-200 dark:border-slate-700">
         {[
           { id: 'content', label: 'Content', icon: Type },
           { id: 'style', label: 'Style', icon: Palette },
@@ -50,8 +50,8 @@ const NodeEditor = ({ node, onClose }) => {
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.id
-                ? 'border-blue-500 text-blue-600 bg-blue-50'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-500/10'
+                : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -69,7 +69,7 @@ const NodeEditor = ({ node, onClose }) => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Type
               </label>
-              <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-sm text-gray-600">
+              <div className="px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded text-sm text-gray-600 dark:text-slate-300">
                 {node.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </div>
             </div>
@@ -86,7 +86,7 @@ const NodeEditor = ({ node, onClose }) => {
                     onChange={(e) => handleUpdate({ content: e.target.value })}
                     placeholder="Enter text content..."
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   />
                 ) : (
                   <input
@@ -94,7 +94,7 @@ const NodeEditor = ({ node, onClose }) => {
                     value={node.content || ''}
                     onChange={(e) => handleUpdate({ content: e.target.value })}
                     placeholder="Enter node content..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 )}
               </div>
@@ -112,7 +112,7 @@ const NodeEditor = ({ node, onClose }) => {
                   value={node.link || ''}
                   onChange={(e) => handleUpdate({ link: e.target.value })}
                   placeholder="https://example.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             )}
@@ -135,13 +135,13 @@ const NodeEditor = ({ node, onClose }) => {
                       borderColor: preset.border,
                       color: preset.text
                     })}
-                    className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+                    className="flex items-center gap-2 p-2 border border-gray-200 dark:border-slate-600 rounded-lg hover:border-gray-300 dark:hover:border-slate-500 transition-colors"
                   >
                     <div
                       className="w-4 h-4 rounded"
                       style={{ backgroundColor: preset.bg }}
                     />
-                    <span className="text-sm">{preset.name}</span>
+                    <span className="text-sm text-slate-800 dark:text-slate-200">{preset.name}</span>
                   </button>
                 ))}
               </div>
@@ -228,7 +228,7 @@ const NodeEditor = ({ node, onClose }) => {
                   type="number"
                   value={Math.round(node.x)}
                   onChange={(e) => handleUpdate({ x: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -239,7 +239,7 @@ const NodeEditor = ({ node, onClose }) => {
                   type="number"
                   value={Math.round(node.y)}
                   onChange={(e) => handleUpdate({ y: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -255,7 +255,7 @@ const NodeEditor = ({ node, onClose }) => {
                   value={Math.round(node.width)}
                   onChange={(e) => handleUpdate({ width: parseInt(e.target.value) || 100 })}
                   min="20"
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -273,14 +273,14 @@ const NodeEditor = ({ node, onClose }) => {
             </div>
 
             {/* Quick Actions */}
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Quick Actions
               </label>
               <div className="space-y-2">
                 <button
                   onClick={() => handleUpdate({ x: 0, y: 0 })}
-                  className="w-full px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+                  className="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded transition-colors"
                 >
                   Move to Origin (0, 0)
                 </button>
@@ -301,8 +301,8 @@ const NodeEditor = ({ node, onClose }) => {
       </div>
 
       {/* Footer with node info */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <div className="text-xs text-gray-500">
+      <div className="p-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
+        <div className="text-xs text-gray-500 dark:text-slate-400">
           <div>ID: {node.id}</div>
           <div>Created: {new Date(node.createdAt).toLocaleDateString()}</div>
           {node.updatedAt && (

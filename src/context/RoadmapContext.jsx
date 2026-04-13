@@ -229,11 +229,15 @@ function roadmapReducer(state, action) {
 }
 
 // Provider component
-export function RoadmapProvider({ children }) {
+export function RoadmapProvider({ children, enableDraftPersistence = true }) {
   const [state, dispatch] = useReducer(roadmapReducer, initialState)
 
   // Auto-save to localStorage
   useEffect(() => {
+    if (!enableDraftPersistence) {
+      return
+    }
+
     if (state.isModified) {
       const roadmapData = {
         title: state.title,
@@ -245,10 +249,14 @@ export function RoadmapProvider({ children }) {
       }
       localStorage.setItem('roadmap-draft', JSON.stringify(roadmapData))
     }
-  }, [state.isModified, state.title, state.nodes, state.connections, state.canvasOffset, state.zoom])
+  }, [enableDraftPersistence, state.isModified, state.title, state.nodes, state.connections, state.canvasOffset, state.zoom])
 
   // Load from localStorage on mount
   useEffect(() => {
+    if (!enableDraftPersistence) {
+      return
+    }
+
     const savedData = localStorage.getItem('roadmap-draft')
     if (savedData) {
       try {
@@ -258,7 +266,7 @@ export function RoadmapProvider({ children }) {
         console.warn('Failed to load saved roadmap:', error)
       }
     }
-  }, [])
+  }, [enableDraftPersistence])
 
   // Action creators
   const actions = {

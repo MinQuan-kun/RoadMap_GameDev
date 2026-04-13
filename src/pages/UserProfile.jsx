@@ -1,23 +1,57 @@
 import React, { useContext, useState } from 'react';
-import { User, LayoutDashboard, Briefcase, Map, Settings } from 'lucide-react';
+import { User, LayoutDashboard, Briefcase, Map, Settings, PlusSquare } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import ProfileSidebar from '../components/profile/ProfileSidebar';
 import ProfileInfo from '../components/profile/ProfileInfo';
 import Dashboard from '../components/profile/Dashboard'
 import MyJobs from '../components/profile/MyJobs';
 import Setting from '../components/profile/Setting';
+import RoadmapBuilder from './RoadmapBuilder';
+import MyRoadMap from '../components/profile/MyRoadMap';
 
 const sideMenu = [
   { id: 'DashBoard', label: 'Bảng điều khiển', icon: LayoutDashboard },
   { id: 'MyProfile', label: 'Hồ sơ của tôi', icon: User },
   { id: 'MyJob', label: 'Việc làm của tôi', icon: Briefcase },
   { id: 'MyRoadMap', label: 'Lộ trình của tôi', icon: Map },
+  { id: 'CreateRoadmap', label: 'Tạo lộ trình', icon: PlusSquare },
   { id: 'Setting', label: 'Cài đặt', icon: Settings },
 ];
 
 const UserProfile = () => {
   const { user } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('MyProfile');
+  const [editingRoadmapId, setEditingRoadmapId] = useState(null);
+  const [builderSessionKey, setBuilderSessionKey] = useState(0);
+
+  const handleTabChange = (tabId) => {
+    if (tabId === 'CreateRoadmap' && editingRoadmapId === null) {
+      setEditingRoadmapId(null)
+    }
+    setActiveTab(tabId)
+  }
+
+  const handleCreateRoadmap = () => {
+    setEditingRoadmapId(null)
+    setBuilderSessionKey((prev) => prev + 1)
+    setActiveTab('CreateRoadmap')
+  }
+
+  const handleEditRoadmap = (roadmapId) => {
+    setEditingRoadmapId(roadmapId)
+    setActiveTab('CreateRoadmap')
+  }
+
+  const handleRoadmapSaved = ({ mode }) => {
+    if (mode === 'create') {
+      setEditingRoadmapId(null)
+      setBuilderSessionKey((prev) => prev + 1)
+      setActiveTab('CreateRoadmap')
+      return
+    }
+
+    setActiveTab('MyRoadMap')
+  }
 
   const profileData = {
     name: user?.fullName || 'LaoGiCungTon',
@@ -36,7 +70,7 @@ const UserProfile = () => {
         <ProfileSidebar
           sideMenu={sideMenu}
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
         />
 
         <main className="flex-1 flex flex-col min-w-0">
@@ -45,34 +79,20 @@ const UserProfile = () => {
 
           {activeTab === 'MyJob' && <div className="flex-1 p-8 md:p-12 overflow-y-auto"><MyJobs /></div>}
 
-          {(activeTab === 'MyRoadMap') && (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-fade-in">
-              <div className="relative">
-                <div className="absolute inset-0 bg-blue-600/20 blur-[50px] rounded-full animate-pulse" />
-                <div className="relative h-24 w-24 rounded-[2rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center mb-6">
-                  {activeTab === 'MyRoadMap' ? (
-                    <Map size={40} className="text-blue-500 animate-bounce" />
-                  ) : (
-                    <Settings size={40} className="text-slate-400 animate-spin-slow" />
-                  )}
-                </div>
+          {activeTab === 'CreateRoadmap' && (
+            <div className="flex-1 overflow-hidden p-4 md:p-6">
+              <div className="h-full rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
+                <RoadmapBuilder
+                  key={builderSessionKey}
+                  embedded
+                  roadmapId={editingRoadmapId}
+                  onSaved={handleRoadmapSaved}
+                />
               </div>
-
-              <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mb-2">
-                Tính năng đang phát triển
-              </h2>
-              <p className="max-w-xs text-slate-500 dark:text-slate-400 font-medium">
-                Chúng tôi đang nỗ lực hoàn thiện phần <span className="text-blue-500">{activeTab === 'MyRoadMap' ? 'Lộ trình' : 'Cài đặt'}</span>. Vui lòng quay lại sau nhé!
-              </p>
-
-              <button
-                onClick={() => setActiveTab('DashBoard')}
-                className="mt-8 px-6 py-3 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm font-bold hover:bg-blue-600 hover:text-white transition-all active:scale-95"
-              >
-                Quay lại Bảng điều khiển
-              </button>
             </div>
           )}
+
+          {activeTab === 'MyRoadMap' && <MyRoadMap onCreate={handleCreateRoadmap} onEdit={handleEditRoadmap} />}
           {activeTab === 'Setting' && <div className="flex-1 p-8 md:p-12 overflow-y-auto custom-scrollbar"><Setting /></div>};
 
         </main>

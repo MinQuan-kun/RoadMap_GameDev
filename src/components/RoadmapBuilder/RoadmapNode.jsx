@@ -307,7 +307,7 @@ const RoadmapNode = ({
       {/* Action Buttons */}
       {isSelected && !isEditing && (
         <div
-          className="absolute bg-white rounded-lg shadow-lg border border-gray-200 flex items-center p-1 z-30"
+          className="absolute bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 flex items-center p-1 z-30"
           style={{
             left: node.x + node.width + 8,
             top: node.y - 4
@@ -353,7 +353,7 @@ const RoadmapNode = ({
       {/* Context Menu */}
       {showContextMenu && (
         <div
-          className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+          className="fixed bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 py-2 z-50"
           style={{
             left: contextMenuPos.x,
             top: contextMenuPos.y
@@ -361,7 +361,7 @@ const RoadmapNode = ({
           onMouseLeave={() => setShowContextMenu(false)}
         >
           <button
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+            className="w-full px-4 py-2 text-left text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2"
             onClick={() => {
               setIsEditing(true)
               setShowContextMenu(false)
@@ -371,7 +371,7 @@ const RoadmapNode = ({
             Edit
           </button>
           <button
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+            className="w-full px-4 py-2 text-left text-sm text-slate-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2"
             onClick={() => {
               // Duplicate logic
               setShowContextMenu(false)
@@ -380,7 +380,7 @@ const RoadmapNode = ({
             <Copy className="w-4 h-4" />
             Duplicate
           </button>
-          <hr className="my-1" />
+          <hr className="my-1 border-slate-200 dark:border-slate-700" />
           <button
             className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
             onClick={() => {
