@@ -2,14 +2,12 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 
-const HomeBanner = ({ onOpenLogin, onOpenRegister, onBrowseJobs, lightImage, darkImage, isDarkMode }) => {
+const HomeBanner = ({ onOpenLogin, onOpenRegister, onBrowseJobs, settings, isDarkMode }) => {
     const { user, isAuthenticated } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // Chọn ảnh dựa trên chế độ hiện tại
-    const currentImage = isDarkMode ? darkImage : lightImage;
+    const currentImage = isDarkMode ? settings?.bannerDarkImage : settings?.bannerLightImage;
 
-    // Giả định có property check hoặc cờ localStorage để biết đã làm quiz chưa
     const hasCompletedQuiz = user?.hasCompletedQuiz || localStorage.getItem('hasCompletedQuiz') === 'true';
 
     return (
@@ -18,7 +16,7 @@ const HomeBanner = ({ onOpenLogin, onOpenRegister, onBrowseJobs, lightImage, dar
             {currentImage && (
                 <>
                     <img
-                        key={isDarkMode ? 'dark' : 'light'} 
+                        key={isDarkMode ? 'dark' : 'light'}
                         src={currentImage}
                         alt="Banner Background"
                         className="absolute inset-0 h-full w-full object-cover opacity-80 dark:opacity-40 transition-opacity duration-700"
@@ -32,15 +30,15 @@ const HomeBanner = ({ onOpenLogin, onOpenRegister, onBrowseJobs, lightImage, dar
             <div className="relative z-10 max-w-4xl mx-auto">
                 <h1 className="mb-6 text-4xl font-bold tracking-tight text-slate-900 dark:text-white md:text-6xl lg:text-7xl">
                     {isAuthenticated
-                        ? `Welcome, ${user?.fullName || user?.username || 'Gamedev'}`
-                        : "Welcome to GameNode"}
+                        ? (settings?.bannerTitleAuth || '').replace('{name}', user?.fullName || user?.username || 'Gamedev')
+                        : (settings?.bannerTitle || "Welcome to GameNode")}
                 </h1>
 
                 <div className="mx-auto mb-10 max-w-2xl">
                     <p className="text-lg leading-8 text-slate-600 dark:text-slate-400 md:text-xl">
                         {isAuthenticated
-                            ? "Tiếp tục hành trình chinh phục các kỹ năng mới và khám phá những cơ hội nghề nghiệp phù hợp với lộ trình của bạn."
-                            : "Khám phá các lộ trình học tập miễn phí và đưa kỹ năng phát triển game của bạn lên một tầm cao mới."}
+                            ? (settings?.bannerDescriptionAuth || "Tiếp tục hành trình chinh phục các kỹ năng mới và khám phá những cơ hội nghề nghiệp phù hợp với lộ trình của bạn.")
+                            : (settings?.bannerDescription || "Khám phá các lộ trình học tập miễn phí và đưa kỹ năng phát triển game của bạn lên một tầm cao mới.")}
                     </p>
                 </div>
 

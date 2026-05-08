@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react'
 import { Eye, EyeOff, X, Mail, Lock } from 'lucide-react'
 import AuthContext from '../context/AuthContext'
 import apiClient from '../services/apiClient';
+import toast from 'react-hot-toast';
 
 const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const { login } = useContext(AuthContext)
@@ -17,10 +18,14 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
       const { token } = response.data;
 
       await login(token);
-      alert('Đăng nhập thành công!');
+      toast.success('Đăng nhập thành công!');
       onClose();
     } catch (err) {
-      setError(err.response?.data || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.');
+      const msg = typeof err.response?.data === 'string' 
+        ? err.response.data 
+        : err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.';
+      setError(msg);
+      toast.error(msg);
     }
   };
 

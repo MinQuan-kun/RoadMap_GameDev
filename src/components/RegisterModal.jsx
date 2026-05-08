@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react'
 import { Eye, EyeOff, X, User, Mail, Lock } from 'lucide-react'
 import AuthContext from '../context/AuthContext'
 import apiClient from '../services/apiClient';
+import toast from 'react-hot-toast';
 
 const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const { login } = useContext(AuthContext)
@@ -25,22 +26,22 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
     try {
       await apiClient.post('/users/register', formData);
-      alert('Đăng ký thành công!');
+      toast.success('Đăng ký thành công! Hãy đăng nhập.');
       onSwitchToLogin();
     } catch (err) {
+      let msg = 'Có lỗi xảy ra, vui lòng thử lại.';
       if (err.response && err.response.data) {
         if (typeof err.response.data === 'string') {
-          setError(err.response.data);
+          msg = err.response.data;
         }
         else if (err.response.data.message) {
-          setError(err.response.data.message);
-        }
-        else {
-          setError('Có lỗi xảy ra, vui lòng thử lại.');
+          msg = err.response.data.message;
         }
       } else {
-        setError('Không thể kết nối đến máy chủ.');
+        msg = 'Không thể kết nối đến máy chủ.';
       }
+      setError(msg);
+      toast.error(msg);
     }
   };
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })

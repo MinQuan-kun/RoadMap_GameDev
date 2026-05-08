@@ -12,6 +12,105 @@ import {
 import { getAllRoadmaps, getRoadmapById } from '../../services/adminApi'
 import { updateNode } from '../../services/adminApi'
 
+const TreeNode = ({ node, childMap, nodeMap, depth = 0, selectedNodeId, onSelectNode }) => {
+  const [open, setOpen] = useState(depth < 1)
+  const children = (childMap[node.id] || []).map((id) => nodeMap[id]).filter(Boolean)
+  const isSelected = selectedNodeId === node.id
+
+  return (
+    <div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          width: '100%',
+          padding: '6px 12px',
+          paddingLeft: 8 + depth * 20,
+          background: isSelected
+            ? 'rgba(99, 102, 241, 0.12)'
+            : 'transparent',
+          border: 'none',
+          borderLeft: isSelected
+            ? '3px solid #6366f1'
+            : '3px solid transparent',
+          color: isSelected ? '#e2e8f0' : 'var(--admin-text-muted)',
+          fontSize: 13,
+          fontWeight: isSelected ? 600 : 400,
+          transition: 'all 0.15s ease',
+        }}
+        onMouseEnter={(e) => {
+          if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+        }}
+        onMouseLeave={(e) => {
+          if (!isSelected) e.currentTarget.style.background = 'transparent'
+        }}
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            if (children.length > 0) setOpen(!open)
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'inherit',
+            cursor: children.length > 0 ? 'pointer' : 'default',
+            padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 4
+          }}
+        >
+          {children.length > 0 ? (
+            open ? (
+              <ChevronDown size={14} style={{ flexShrink: 0, opacity: 0.8 }} />
+            ) : (
+              <ChevronRight size={14} style={{ flexShrink: 0, opacity: 0.8 }} />
+            )
+          ) : (
+            <span style={{ width: 14, flexShrink: 0 }} />
+          )}
+        </button>
+        
+        <button
+          onClick={() => onSelectNode(node)}
+          style={{
+            flex: 1,
+            background: 'none',
+            border: 'none',
+            color: 'inherit',
+            cursor: 'pointer',
+            textAlign: 'left',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            fontFamily: 'inherit',
+            fontWeight: 'inherit',
+            fontSize: 'inherit',
+            padding: '4px 6px'
+          }}
+        >
+          {node.data?.label || 'Untitled'}
+        </button>
+      </div>
+      {open &&
+        children.map((child) => (
+          <TreeNode
+            key={child.id}
+            node={child}
+            childMap={childMap}
+            nodeMap={nodeMap}
+            depth={depth + 1}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={onSelectNode}
+          />
+        ))}
+    </div>
+  )
+}
+
 const LessonManager = () => {
   const [roadmaps, setRoadmaps] = useState([])
   const [selectedRoadmap, setSelectedRoadmap] = useState(null)
@@ -111,78 +210,7 @@ const LessonManager = () => {
     return { roots, childMap, nodeMap: Object.fromEntries(nodes.map((n) => [n.id, n])) }
   }
 
-  const TreeNode = ({ node, childMap, nodeMap, depth = 0 }) => {
-    const [open, setOpen] = useState(depth < 1)
-    const children = (childMap[node.id] || []).map((id) => nodeMap[id]).filter(Boolean)
-    const isSelected = selectedNode?.id === node.id
 
-    return (
-      <div>
-        <button
-          onClick={() => {
-            selectNode(node)
-            if (children.length > 0) setOpen(!open)
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            width: '100%',
-            padding: '8px 12px',
-            paddingLeft: 12 + depth * 20,
-            background: isSelected
-              ? 'rgba(99, 102, 241, 0.12)'
-              : 'transparent',
-            border: 'none',
-            borderLeft: isSelected
-              ? '3px solid #6366f1'
-              : '3px solid transparent',
-            color: isSelected ? '#e2e8f0' : 'var(--admin-text-muted)',
-            fontSize: 13,
-            fontWeight: isSelected ? 600 : 400,
-            cursor: 'pointer',
-            textAlign: 'left',
-            transition: 'all 0.15s ease',
-          }}
-          onMouseEnter={(e) => {
-            if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-          }}
-          onMouseLeave={(e) => {
-            if (!isSelected) e.currentTarget.style.background = 'transparent'
-          }}
-        >
-          {children.length > 0 ? (
-            open ? (
-              <ChevronDown size={14} style={{ flexShrink: 0, opacity: 0.5 }} />
-            ) : (
-              <ChevronRight size={14} style={{ flexShrink: 0, opacity: 0.5 }} />
-            )
-          ) : (
-            <span style={{ width: 14, flexShrink: 0 }} />
-          )}
-          <span
-            style={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {node.data?.label || 'Untitled'}
-          </span>
-        </button>
-        {open &&
-          children.map((child) => (
-            <TreeNode
-              key={child.id}
-              node={child}
-              childMap={childMap}
-              nodeMap={nodeMap}
-              depth={depth + 1}
-            />
-          ))}
-      </div>
-    )
-  }
 
   if (loading) {
     return (
@@ -358,12 +386,14 @@ const LessonManager = () => {
                 {(() => {
                   const { roots, childMap, nodeMap } = buildTree()
                   return roots.map((root) => (
-                    <TreeNode
-                      key={root.id}
-                      node={root}
-                      childMap={childMap}
-                      nodeMap={nodeMap}
-                    />
+                      <TreeNode
+                        key={root.id}
+                        node={root}
+                        childMap={childMap}
+                        nodeMap={nodeMap}
+                        selectedNodeId={selectedNode?.id}
+                        onSelectNode={selectNode}
+                      />
                   ))
                 })()}
               </div>

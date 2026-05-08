@@ -13,6 +13,7 @@ import CareerQuiz from './pages/CareerQuiz'
 import RoadmapDetail from './pages/RoadmapDetail'
 
 import { getUserProfile } from './services/adminApi'
+import { Toaster } from 'react-hot-toast'
 
 // Admin imports
 import AdminLayout from './components/admin/AdminLayout'
@@ -23,10 +24,16 @@ import NodeManager from './pages/admin/NodeManager'
 import LessonManager from './pages/admin/LessonManager'
 import UserManager from './pages/admin/UserManager'
 
+// Recruiter imports
+import RecruiterLayout from './components/recruiter/RecruiterLayout'
+import RecruiterDashboard from './pages/recruiter/RecruiterDashboard'
+import RecruiterJobManager from './pages/recruiter/RecruiterJobManager'
+import RecruiterApplicants from './pages/recruiter/RecruiterApplicants'
+
 // Wrapper to conditionally show Header/Footer (hide on /admin routes)
 const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterModal, closeAuthModals, showLoginModal, showRegisterModal }) => {
   const location = useLocation()
-  const isAdminRoute = location.pathname.startsWith('/admin')
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/recruiter')
 
   return (
     <div className={isAdminRoute ? '' : 'min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300'}>
@@ -73,6 +80,13 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
             <Route path="nodes" element={<NodeManager />} />
             <Route path="lessons" element={<LessonManager />} />
             <Route path="users" element={<UserManager />} />
+          </Route>
+
+          {/* ─── Recruiter routes ─── */}
+          <Route path="/recruiter" element={<RecruiterLayout />}>
+            <Route index element={<RecruiterDashboard />} />
+            <Route path="jobs" element={<RecruiterJobManager />} />
+            <Route path="applicants" element={<RecruiterApplicants />} />
           </Route>
         </Routes>
 
@@ -183,6 +197,7 @@ function App() {
   return (
     <AuthContext.Provider value={authValue}>
       <Router>
+        <Toaster position="top-right" reverseOrder={false} />
         {isLoadingProfile ? (
           <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0d16' }}>
             <div className="admin-loader"></div>

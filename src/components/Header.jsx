@@ -52,12 +52,14 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
           </Link>
 
           <nav ref={navRef} className="hidden items-center gap-6 text-[15px] md:flex">
-            {['MyRoadMap','Roadmaps', 'Jobs', ...(user?.role === 0 ? ['Admin'] : [])].map((menuName) => {
+            {['MyRoadMap', 'Roadmaps', 'Jobs', ...(user?.role === 0 ? ['Admin'] : [])]
+              .filter(menuName => menuName !== 'MyRoadMap' || isAuthenticated)
+              .map((menuName) => {
               const isJobs = menuName === 'Jobs';
               const isMyRoadMap = menuName === 'MyRoadMap';
               const isAdmin = menuName === 'Admin';
               const path = isJobs ? '/Jobs' : isMyRoadMap ? '/profile' : isAdmin ? '/admin' : '/';
-               
+
               return (
                 <div key={menuName} className="relative">
                   {isJobs || isMyRoadMap || isAdmin ? (
@@ -127,7 +129,11 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
                   to="/profile"
                   className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-slate-200 dark:border-white/20 bg-amber-100 text-sm font-bold text-slate-700 hover:opacity-80 transition"
                 >
-                  {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    user?.userName?.charAt(0)?.toUpperCase() || user?.username?.charAt(0)?.toUpperCase() || 'U'
+                  )}
                 </Link>
                 <button
                   type="button"

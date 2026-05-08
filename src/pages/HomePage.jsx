@@ -4,6 +4,7 @@ import AuthContext from '../context/AuthContext'
 import HomeBanner from '../components/home/HomeBanner'
 import apiClient from '../services/apiClient'
 import { Loader2 } from 'lucide-react'
+import { getSiteSettings } from '../services/adminApi'
 
 const accentColors = [
   'from-blue-500 to-cyan-400',
@@ -36,6 +37,7 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
   const navigate = useNavigate()
   const [roadmaps, setRoadmaps] = useState([])
   const [loading, setLoading] = useState(true)
+  const [settings, setSettings] = useState(getSiteSettings())
 
   useEffect(() => {
     const fetchRoadmaps = async () => {
@@ -75,8 +77,7 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
         onOpenRegister={onOpenRegister}
         onBrowseJobs={handleBrowseJobs}
         isDarkMode={isDarkMode}
-        lightImage="/Img/ligh_bg.png"
-        darkImage="/Img/dark_bg.png"
+        settings={settings}
         className="absolute inset-0 h-full w-full object-cover opacity-90 dark:opacity-40 transition-opacity duration-700"
       />
 

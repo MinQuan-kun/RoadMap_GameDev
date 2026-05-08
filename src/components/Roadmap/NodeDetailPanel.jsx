@@ -1,10 +1,10 @@
 import React from 'react'
-import { X, BookOpen, Layers, Link2, ListChecks, GraduationCap } from 'lucide-react'
+import { X, BookOpen, Layers, Link2, ListChecks, GraduationCap, Video, Image as ImageIcon, Code2 } from 'lucide-react'
 
 const NodeDetailPanel = ({ node, onClose }) => {
   if (!node) return null
 
-  const { label, description, category, resources, prerequisites } = node.data || {}
+  const { label, description, category, resources, prerequisites, contentBlocks, videoUrl } = node.data || {}
 
   const categoryColors = {
     'language': ['#6366f1', 'rgba(99,102,241,0.12)'],
@@ -38,16 +38,78 @@ const NodeDetailPanel = ({ node, onClose }) => {
 
   const [accentColor, accentBg] = getColorPair(category)
 
+  const renderContentBlock = (block, idx) => {
+    switch (block.type) {
+      case 'text':
+        return (
+          <p key={idx} className="text-[14px] text-slate-300 leading-relaxed mb-4">
+            {block.content}
+          </p>
+        )
+      case 'code':
+        return (
+          <div key={idx} className="mb-4 rounded-lg overflow-hidden border border-white/[0.1] bg-[#0d0d16]">
+            <div className="flex items-center justify-between px-4 py-1.5 bg-white/[0.04] border-b border-white/[0.06]">
+              <div className="flex items-center gap-2">
+                <Code2 className="w-3.5 h-3.5 text-slate-400" />
+                <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">{block.language || 'code'}</span>
+              </div>
+            </div>
+            <pre className="p-4 overflow-x-auto custom-scrollbar text-[13px] font-mono leading-relaxed text-[#e2e8f0]">
+              <code>{block.content}</code>
+            </pre>
+          </div>
+        )
+      case 'image':
+        return (
+          <div key={idx} className="mb-4 rounded-xl overflow-hidden border border-white/[0.1] bg-white/[0.02]">
+            <img src={block.content} alt={block.caption || 'Lesson visual'} className="w-full h-auto object-cover" />
+            {block.caption && (
+              <div className="px-3 py-2 bg-black/40 text-center">
+                <p className="text-[12px] text-slate-400 italic flex items-center justify-center gap-2">
+                  <ImageIcon className="w-3 h-3" /> {block.caption}
+                </p>
+              </div>
+            )}
+          </div>
+        )
+      case 'video':
+        return (
+          <div key={idx} className="mb-4 rounded-xl overflow-hidden border border-white/[0.1] bg-black">
+            <video controls src={block.content} className="w-full h-auto" />
+            {block.caption && (
+              <div className="px-3 py-2 bg-black/60 text-center">
+                <p className="text-[12px] text-slate-400 italic flex items-center justify-center gap-2">
+                  <Video className="w-3 h-3" /> {block.caption}
+                </p>
+              </div>
+            )}
+          </div>
+        )
+      default:
+        return null
+    }
+  }
+
+  // Get Youtube Embed URL if possible
+  const getEmbedUrl = (url) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+    return match ? `https://www.youtube.com/embed/${match[1]}?rel=0&modestbranding=1` : url;
+  }
+
+  const embedVideoUrl = videoUrl ? getEmbedUrl(videoUrl) : null;
+
   return (
-    <aside className="h-full flex flex-col bg-[#0a0a12] border-l border-white/[0.06]" style={{ width: 340, flexShrink: 0 }}>
+    <aside className="h-full flex flex-col bg-[#0a0a12] border-l border-white/[0.08]" style={{ width: 520, flexShrink: 0 }}>
       {/* Header */}
-      <div className="px-5 py-4 border-b border-white/[0.06]">
+      <div className="px-6 py-5 border-b border-white/[0.08] bg-white/[0.02]">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-base font-bold text-white truncate leading-tight">{label}</h2>
+            <h2 className="text-xl font-bold text-white truncate leading-tight tracking-wide">{label}</h2>
             {category && (
               <span
-                className="inline-block mt-2 px-2.5 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wider"
+                className="inline-block mt-2.5 px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-widest"
                 style={{ color: accentColor, backgroundColor: accentBg }}
               >
                 {category}
@@ -56,39 +118,60 @@ const NodeDetailPanel = ({ node, onClose }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-md text-slate-500 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0 mt-0.5"
+            className="p-1.5 rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/15 transition-colors flex-shrink-0"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
       </div>
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 custom-scrollbar">
+        
+        {/* Main Video (Unity Pathway Style) */}
+        {embedVideoUrl && (
+          <section className="rounded-xl overflow-hidden border border-white/[0.1] bg-black shadow-lg shadow-black/50">
+            {embedVideoUrl.includes('youtube.com') ? (
+              <iframe 
+                src={embedVideoUrl} 
+                className="w-full aspect-video" 
+                allowFullScreen 
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            ) : (
+              <video controls src={embedVideoUrl} className="w-full aspect-video" />
+            )}
+          </section>
+        )}
+
         {/* Description */}
         {description && (
           <section>
-            <div className="flex items-center gap-2 mb-2">
-              <BookOpen className="w-3.5 h-3.5" style={{ color: accentColor }} />
-              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Mô tả</span>
-            </div>
-            <p className="text-[13px] text-slate-300 leading-relaxed">
+            <p className="text-[15px] text-slate-300 leading-relaxed font-medium">
               {description}
             </p>
           </section>
         )}
 
+        {/* Dynamic Content Blocks */}
+        {contentBlocks && contentBlocks.length > 0 && (
+          <section className="pt-2">
+            {contentBlocks.map((block, idx) => renderContentBlock(block, idx))}
+          </section>
+        )}
+
         {/* Prerequisites */}
         {prerequisites && prerequisites.length > 0 && (
-          <section>
-            <div className="flex items-center gap-2 mb-2">
-              <ListChecks className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Yêu cầu tiên quyết</span>
+          <section className="pt-4 border-t border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-3">
+              <ListChecks className="w-4 h-4 text-amber-400" />
+              <span className="text-[12px] font-bold uppercase tracking-widest text-slate-400">Yêu cầu tiên quyết</span>
             </div>
-            <ul className="space-y-1.5">
+            <ul className="space-y-2">
               {prerequisites.map((prereq, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-[13px] text-slate-300">
-                  <span className="mt-1.5 w-1 h-1 rounded-full bg-amber-400 flex-shrink-0" />
+                <li key={idx} className="flex items-start gap-2.5 text-[14px] text-slate-300 bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
+                  <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
                   {prereq}
                 </li>
               ))}
@@ -98,12 +181,12 @@ const NodeDetailPanel = ({ node, onClose }) => {
 
         {/* Resources / Tài liệu */}
         {resources && resources.length > 0 && (
-          <section>
-            <div className="flex items-center gap-2 mb-2">
-              <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Tài liệu & Cách học</span>
+          <section className="pt-4 border-t border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-3">
+              <GraduationCap className="w-4 h-4 text-emerald-400" />
+              <span className="text-[12px] font-bold uppercase tracking-widest text-slate-400">Tài liệu & Tham khảo</span>
             </div>
-            <ul className="space-y-1.5">
+            <ul className="space-y-2">
               {resources.map((res, idx) => {
                 const isLink = res.startsWith('http')
                 return (
@@ -113,14 +196,14 @@ const NodeDetailPanel = ({ node, onClose }) => {
                         href={res}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-[13px] text-blue-400 hover:text-blue-300 transition-colors break-all"
+                        className="flex items-center gap-2.5 text-[14px] text-blue-400 hover:text-blue-300 transition-colors break-all bg-white/[0.02] p-3 rounded-lg border border-blue-500/20 hover:border-blue-500/40 hover:bg-blue-500/10"
                       >
-                        <Link2 className="w-3 h-3 flex-shrink-0" />
+                        <Link2 className="w-4 h-4 flex-shrink-0" />
                         {res}
                       </a>
                     ) : (
-                      <span className="flex items-start gap-2 text-[13px] text-slate-300">
-                        <span className="mt-1.5 w-1 h-1 rounded-full bg-emerald-400 flex-shrink-0" />
+                      <span className="flex items-start gap-2.5 text-[14px] text-slate-300 bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
+                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
                         {res}
                       </span>
                     )}
@@ -132,10 +215,10 @@ const NodeDetailPanel = ({ node, onClose }) => {
         )}
 
         {/* Empty state */}
-        {!description && (!resources || resources.length === 0) && (!prerequisites || prerequisites.length === 0) && (
-          <div className="flex flex-col items-center justify-center py-12 text-slate-600">
-            <BookOpen className="w-8 h-8 mb-3 opacity-30" />
-            <p className="text-[13px] text-center">Chưa có thông tin chi tiết<br/>cho node này.</p>
+        {!description && (!resources || resources.length === 0) && (!prerequisites || prerequisites.length === 0) && (!contentBlocks || contentBlocks.length === 0) && !videoUrl && (
+          <div className="flex flex-col items-center justify-center py-16 text-slate-600">
+            <BookOpen className="w-12 h-12 mb-4 opacity-20" />
+            <p className="text-[14px] text-center font-medium">Nội dung bài học đang được cập nhật.</p>
           </div>
         )}
       </div>

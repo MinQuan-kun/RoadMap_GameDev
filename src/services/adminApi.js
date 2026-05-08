@@ -11,6 +11,36 @@ export const getUserProfile = async () => {
   return response.data
 }
 
+export const updateProfile = async (payload) => {
+  const response = await apiClient.put('/users/profile', payload)
+  return response.data
+}
+
+export const uploadAvatar = async (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await apiClient.post('/users/profile/avatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    timeout: 60000,
+  })
+  return response.data
+}
+
+export const changePassword = async (oldPassword, newPassword) => {
+  const response = await apiClient.put('/users/change-password', {
+    oldPassword,
+    newPassword,
+  })
+  return response.data
+}
+
+export const getMyApplications = async () => {
+  const response = await apiClient.get('/users/my-applications')
+  return response.data
+}
+
 export const getUserById = async (id) => {
   const response = await apiClient.get(`/users/${id}`)
   return response.data
@@ -23,6 +53,16 @@ export const updateUser = async (id, payload) => {
 
 export const deleteUser = async (id) => {
   const response = await apiClient.delete(`/admin/users/${id}`)
+  return response.data
+}
+
+export const approveRecruiter = async (id) => {
+  const response = await apiClient.put(`/admin/recruiters/${id}/approve`)
+  return response.data
+}
+
+export const rejectRecruiter = async (id) => {
+  const response = await apiClient.put(`/admin/recruiters/${id}/reject`)
   return response.data
 }
 
@@ -73,7 +113,7 @@ export const deleteNode = async (id) => {
   return response.data
 }
 
-// ═══ Site Settings (localStorage for now) ════════
+// ═══ Site Settings ════════
 const SITE_SETTINGS_KEY = 'gamenode-site-settings'
 
 const defaultSettings = {

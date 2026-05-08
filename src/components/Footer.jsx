@@ -6,8 +6,10 @@ import {
   Globe, 
   ChevronUp 
 } from 'lucide-react';
+import { getSiteSettings } from '../services/adminApi';
 
 const Footer = () => {
+  const settings = getSiteSettings();
   const footerSections = [
     {
       title: 'Học tập',
@@ -41,7 +43,7 @@ const Footer = () => {
               <span>GameNode</span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-[200px]">
-              Nền tảng học tập và định hướng nghề nghiệp cho Game Developer.
+              {settings.footerDescription || 'Nền tảng học tập và định hướng nghề nghiệp cho Game Developer.'}
             </p>
             <div className="flex items-center gap-4 text-slate-400">
               <Facebook className="h-5 w-5 hover:text-blue-600 cursor-pointer transition-colors" />
@@ -74,9 +76,9 @@ const Footer = () => {
         {/* Phần 3: Bottom Bar - Tối giản khoảng cách */}
         <div className="pt-6 border-t border-slate-200 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-[11px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-widest text-center md:text-left">
-            <span>© 2026 GameNode Inc.</span>
+            <span>{settings.footerCopyright || '© 2026 GameNode Inc.'}</span>
             <span className="normal-case font-medium text-slate-400 dark:text-slate-600 italic">
-              (Đây là đồ án cho môn học thực hành nghề nghiệp 2026)
+              {settings.footerNote || '(Đây là đồ án cho môn học thực hành nghề nghiệp 2026)'}
             </span>
           </div>
 

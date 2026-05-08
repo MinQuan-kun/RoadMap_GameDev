@@ -161,7 +161,7 @@ const RoadmapDetail = () => {
     const load = async () => {
       try {
         setLoading(true)
-        const { data } = await apiClient.get(`/nodes/${id}`)
+        const { data } = await apiClient.get(`/roadmaps/${id}`)
         setTitle(data.title)
 
         const nd = (data.nodes || []).map(n => ({
@@ -172,6 +172,8 @@ const RoadmapDetail = () => {
             category: n.data?.category || '',
             resources: n.data?.resources || [],
             prerequisites: n.data?.prerequisites || [],
+            contentBlocks: n.data?.contentBlocks || [],
+            videoUrl: n.data?.videoUrl || null,
           },
         }))
 
@@ -294,9 +296,9 @@ const RoadmapDetail = () => {
   const onNodeClick = useCallback((_e, node) => {
     setSelectedNode(node)
     if (node.data.hasChildren) {
-      toggleModule(node.id)
+      setExpandedModules(prev => new Set(prev).add(node.id))
     }
-  }, [toggleModule])
+  }, [])
 
   const onPaneClick = useCallback(() => setSelectedNode(null), [])
 
@@ -304,9 +306,9 @@ const RoadmapDetail = () => {
   const handleModuleSelect = useCallback((moduleNode) => {
     setSelectedNode(moduleNode)
     if (moduleNode.data?.hasChildren || moduleNode.data?.isModule) {
-      toggleModule(moduleNode.id)
+      setExpandedModules(prev => new Set(prev).add(moduleNode.id))
     }
-  }, [toggleModule])
+  }, [])
 
   const miniMapColor = useCallback(n => {
     if (n?.data?.isRoot) return '#3b82f6'
@@ -370,6 +372,7 @@ const RoadmapDetail = () => {
           selectedNodeId={selectedNode?.id}
           expandedModules={expandedModules}
           onNodeSelect={handleModuleSelect}
+          onToggleModule={toggleModule}
         />
 
         {/* CENTER */}

@@ -1,7 +1,7 @@
 import React from 'react'
 import { ChevronRight, ChevronDown, Layers, Circle, Zap } from 'lucide-react'
 
-const ModulePanel = ({ nodes, edges, selectedNodeId, expandedModules = new Set(), onNodeSelect }) => {
+const ModulePanel = ({ nodes, edges, selectedNodeId, expandedModules = new Set(), onNodeSelect, onToggleModule }) => {
   // Build maps
   const nodeMap = {}
   nodes.forEach(n => { nodeMap[n.id] = n })
@@ -63,22 +63,31 @@ const ModulePanel = ({ nodes, edges, selectedNodeId, expandedModules = new Set()
           return (
             <div key={modId}>
               {/* Module */}
-              <button
-                onClick={() => onNodeSelect(mod)}
-                className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-all group
+              <div
+                className={`w-full flex items-center gap-1.5 px-3 py-2.5 transition-all group
                   ${isActive ? 'bg-yellow-500/10 text-yellow-300' : 'text-slate-300 hover:bg-white/[0.04] hover:text-white'}`}
               >
-                {children.length > 0 ? (
-                  isExpanded
-                    ? <ChevronDown className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
-                    : <ChevronRight className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-                ) : <div className="w-3.5" />}
-                <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#fbbf24' }} />
-                <span className="text-[13px] font-semibold truncate">{mod.data?.label}</span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); if(onToggleModule) onToggleModule(modId); }}
+                  className="p-1 hover:bg-white/10 rounded cursor-pointer flex items-center justify-center"
+                >
+                  {children.length > 0 ? (
+                    isExpanded
+                      ? <ChevronDown className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                      : <ChevronRight className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                  ) : <div className="w-4" />}
+                </button>
+                <button
+                  onClick={() => onNodeSelect(mod)}
+                  className="flex-1 flex items-center gap-2 text-left truncate cursor-pointer"
+                >
+                  <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#fbbf24' }} />
+                  <span className="text-[13px] font-semibold truncate">{mod.data?.label}</span>
+                </button>
                 {children.length > 0 && (
-                  <span className="ml-auto text-[10px] text-slate-600 flex-shrink-0">{children.length}</span>
+                  <span className="ml-auto text-[10px] text-slate-600 flex-shrink-0 pr-2">{children.length}</span>
                 )}
-              </button>
+              </div>
 
               {/* Children (topics) */}
               {isExpanded && children.length > 0 && (
@@ -91,17 +100,31 @@ const ModulePanel = ({ nodes, edges, selectedNodeId, expandedModules = new Set()
 
                     return (
                       <div key={child.id}>
-                        <button
-                          onClick={() => onNodeSelect(child)}
-                          className={`w-full flex items-center gap-2 pl-4 pr-3 py-1.5 text-left transition-all
+                        <div
+                          className={`w-full flex items-center gap-1 pl-3 pr-2 py-1.5 transition-all
                             ${isChildActive ? 'bg-white/[0.06] text-white' : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.03]'}`}
                         >
-                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                          <span className="text-[12px] truncate">{child.data?.label}</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); if(onToggleModule) onToggleModule(child.id); }}
+                            className="p-1 hover:bg-white/10 rounded cursor-pointer flex items-center justify-center"
+                          >
+                            {grandChildren.length > 0 ? (
+                              isChildExpanded
+                                ? <ChevronDown className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                                : <ChevronRight className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                            ) : <div className="w-3.5" />}
+                          </button>
+                          <button
+                            onClick={() => onNodeSelect(child)}
+                            className="flex-1 flex items-center gap-2 text-left truncate cursor-pointer"
+                          >
+                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                            <span className="text-[12px] truncate">{child.data?.label}</span>
+                          </button>
                           {grandChildren.length > 0 && (
                             <span className="ml-auto text-[10px] text-slate-600">{grandChildren.length}</span>
                           )}
-                        </button>
+                        </div>
 
                         {/* Grand-children */}
                         {isChildExpanded && grandChildren.length > 0 && (

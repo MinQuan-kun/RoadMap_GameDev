@@ -11,7 +11,7 @@ import MyRoadMap from '../components/profile/MyRoadMap';
 
 const sideMenu = [
   { id: 'DashBoard', label: 'Bảng điều khiển', icon: LayoutDashboard },
-  { id: 'MyProfile', label: 'Hồ sơ của tôi', icon: User },
+  { id: 'ProfileInfo', label: 'Hồ sơ của tôi', icon: User },
   { id: 'MyJob', label: 'Việc làm của tôi', icon: Briefcase },
   { id: 'MyRoadMap', label: 'Lộ trình của tôi', icon: Map },
   { id: 'CreateRoadmap', label: 'Tạo lộ trình', icon: PlusSquare },
@@ -19,8 +19,8 @@ const sideMenu = [
 ];
 
 const UserProfile = () => {
-  const { user } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('MyProfile');
+  const { user, setUser } = useContext(AuthContext);
+  const [activeTab, setActiveTab] = useState('MyRoadMap');
   const [editingRoadmapId, setEditingRoadmapId] = useState(null);
   const [builderSessionKey, setBuilderSessionKey] = useState(0);
 
@@ -53,15 +53,26 @@ const UserProfile = () => {
     setActiveTab('MyRoadMap')
   }
 
+  // Build profile from real user context data instead of hardcoded
   const profileData = {
-    name: user?.fullName || 'LaoGiCungTon',
-    userName: `@${user?.username || 'nhon_gamedev'}`,
-    email: user?.email || 'nhon.dev@example.com',
-    phone: '0987 654 321',
-    address: 'TP. Hồ Chí Minh, Việt Nam',
-    birthDate: '20 tháng 10, 2004',
-    bio: 'Đam mê phát triển hệ thống gameplay, kiến trúc engine và tạo mẫu nhanh với Unity & Unreal Engine.'
+    name: user?.fullName || user?.userName || 'User',
+    userName: `@${user?.userName || 'user'}`,
+    email: user?.email || '',
+    phone: user?.phone || '',
+    address: user?.address || '',
+    birthDate: user?.birthDate || '',
+    bio: user?.bio || '',
+    avatarUrl: user?.avatarUrl || '',
+    coverUrl: user?.coverUrl || '',
+    skills: user?.skills || [],
+    links: user?.links || {},
+    completedNodes: user?.completedNodes || [],
   };
+
+  // Callback when profile is updated (from ProfileInfo edit)
+  const handleProfileUpdated = (updatedUser) => {
+    setUser(prev => ({ ...prev, ...updatedUser }))
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#050505] text-slate-900 dark:text-white transition-colors duration-300">
@@ -75,7 +86,7 @@ const UserProfile = () => {
 
         <main className="flex-1 flex flex-col min-w-0">
           {activeTab === 'DashBoard' && <div className="p-8 md:p-12 overflow-y-auto flex-1"><Dashboard /></div>}
-          {activeTab === 'MyProfile' && <ProfileInfo profile={profileData} />}
+          {activeTab === 'ProfileInfo' && <ProfileInfo profile={profileData} onProfileUpdated={handleProfileUpdated} />}
 
           {activeTab === 'MyJob' && <div className="flex-1 p-8 md:p-12 overflow-y-auto"><MyJobs /></div>}
 
@@ -93,7 +104,7 @@ const UserProfile = () => {
           )}
 
           {activeTab === 'MyRoadMap' && <MyRoadMap onCreate={handleCreateRoadmap} onEdit={handleEditRoadmap} />}
-          {activeTab === 'Setting' && <div className="flex-1 p-8 md:p-12 overflow-y-auto custom-scrollbar"><Setting /></div>};
+          {activeTab === 'Setting' && <div className="flex-1 p-8 md:p-12 overflow-y-auto custom-scrollbar"><Setting /></div>}
 
         </main>
 

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import AdminTable from '../../components/admin/AdminTable'
 import AdminModal from '../../components/admin/AdminModal'
-import { getUsers, updateUser, deleteUser } from '../../services/adminApi'
+import { getUsers, updateUser, deleteUser, approveRecruiter, rejectRecruiter } from '../../services/adminApi'
 
 const UserManager = () => {
   const [users, setUsers] = useState([])
@@ -86,6 +86,24 @@ const UserManager = () => {
     setDeleteTarget(null)
   }
 
+  const handleApprove = async (user) => {
+    try {
+      await approveRecruiter(user.id || user._id)
+      setUsers((prev) => prev.map((u) => ((u.id || u._id) === (user.id || user._id) ? { ...u, isApproved: true } : u)))
+    } catch (e) {
+      alert('Duyệt thất bại.')
+    }
+  }
+
+  const handleReject = async (user) => {
+    try {
+      await rejectRecruiter(user.id || user._id)
+      setUsers((prev) => prev.map((u) => ((u.id || u._id) === (user.id || user._id) ? { ...u, isApproved: false } : u)))
+    } catch (e) {
+      alert('Hủy duyệt thất bại.')
+    }
+  }
+
   const columns = [
     {
       key: 'avatar',
@@ -146,21 +164,30 @@ const UserManager = () => {
     {
       key: 'role',
       label: 'Vai trò',
-      width: 100,
-      render: (val) => {
+      width: 120,
+      render: (val, row) => {
         const isAdmin = val === 0 || val === 'admin'
+        const isRecruiter = val === 2 || val === 'recruiter'
         return (
-          <span
-            className={`admin-badge ${
-              isAdmin ? 'admin-badge-warning' : 'admin-badge-success'
-            }`}
-          >
-            {isAdmin ? (
-              <><ShieldCheck size={10} style={{ marginRight: 4 }} /> Admin</>
-            ) : (
-              'User'
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span
+              className={`admin-badge ${isAdmin ? 'admin-badge-warning' : isRecruiter ? 'admin-badge-primary' : 'admin-badge-success'
+                }`}
+            >
+              {isAdmin ? (
+                <><ShieldCheck size={10} style={{ marginRight: 4 }} /> Admin</>
+              ) : isRecruiter ? (
+                <><Users size={10} style={{ marginRight: 4 }} /> Tuyển dụng</>
+              ) : (
+                'User'
+              )}
+            </span>
+            {isRecruiter && (
+              <span style={{ fontSize: 10, color: row.isApproved ? '#10b981' : '#f59e0b', fontWeight: 600 }}>
+                {row.isApproved ? 'Đã duyệt' : 'Chờ duyệt'}
+              </span>
             )}
-          </span>
+          </div>
         )
       },
     },
@@ -178,28 +205,51 @@ const UserManager = () => {
       key: 'actions',
       label: '',
       sortable: false,
-      width: 100,
-      render: (_, row) => (
-        <div
-          style={{ display: 'flex', gap: 6 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            className="admin-btn admin-btn-ghost admin-btn-sm"
-            onClick={() => openEdit(row)}
-            title="Sửa"
+      width: 130,
+      render: (_, row) => {
+        const isRecruiter = row.role === 2 || row.role === 'recruiter'
+        return (
+          <div
+            style={{ display: 'flex', gap: 6 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <Pencil size={14} />
-          </button>
-          <button
-            className="admin-btn admin-btn-danger admin-btn-sm"
-            onClick={() => setDeleteTarget(row)}
-            title="Xóa"
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
-      ),
+            {isRecruiter && !row.isApproved && (
+              <button
+                className="admin-btn admin-btn-success admin-btn-sm"
+                onClick={() => handleApprove(row)}
+                title="Duyệt tài khoản"
+                style={{ padding: '0 6px', background: '#10b98120', color: '#10b981', borderColor: '#10b98140' }}
+              >
+                <ShieldCheck size={14} />
+              </button>
+            )}
+            {isRecruiter && row.isApproved && (
+              <button
+                className="admin-btn admin-btn-warning admin-btn-sm"
+                onClick={() => handleReject(row)}
+                title="Hủy duyệt"
+                style={{ padding: '0 6px', background: '#f59e0b20', color: '#f59e0b', borderColor: '#f59e0b40' }}
+              >
+                <Shield size={14} />
+              </button>
+            )}
+            <button
+              className="admin-btn admin-btn-ghost admin-btn-sm"
+              onClick={() => openEdit(row)}
+              title="Sửa"
+            >
+              <Pencil size={14} />
+            </button>
+            <button
+              className="admin-btn admin-btn-danger admin-btn-sm"
+              onClick={() => setDeleteTarget(row)}
+              title="Xóa"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        )
+      },
     },
   ]
 
@@ -309,9 +359,8 @@ const UserManager = () => {
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 type="button"
-                className={`admin-btn ${
-                  editForm.role === 1 ? 'admin-btn-primary' : 'admin-btn-ghost'
-                }`}
+                className={`admin-btn ${editForm.role === 1 ? 'admin-btn-primary' : 'admin-btn-ghost'
+                  }`}
                 onClick={() =>
                   setEditForm((f) => ({ ...f, role: 1 }))
                 }
@@ -321,15 +370,25 @@ const UserManager = () => {
               </button>
               <button
                 type="button"
-                className={`admin-btn ${
-                  editForm.role === 0 ? 'admin-btn-primary' : 'admin-btn-ghost'
-                }`}
+                className={`admin-btn ${editForm.role === 0 ? 'admin-btn-primary' : 'admin-btn-ghost'
+                  }`}
                 onClick={() =>
                   setEditForm((f) => ({ ...f, role: 0 }))
                 }
               >
                 <Shield size={14} />
                 Admin
+              </button>
+              <button
+                type="button"
+                className={`admin-btn ${editForm.role === 2 ? 'admin-btn-primary' : 'admin-btn-ghost'
+                  }`}
+                onClick={() =>
+                  setEditForm((f) => ({ ...f, role: 2 }))
+                }
+              >
+                <Users size={14} />
+                Tuyển dụng
               </button>
             </div>
           </div>
