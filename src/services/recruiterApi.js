@@ -21,6 +21,16 @@ export const deleteJob = async (jobId) => {
   return response.data
 }
 
+export const createJobRoadmap = async (jobId, payload) => {
+  const response = await apiClient.post(`/jobs/${jobId}/roadmap`, payload)
+  return response.data
+}
+
+export const getJobRoadmap = async (jobId) => {
+  const response = await apiClient.get(`/jobs/${jobId}/roadmap`)
+  return response.data
+}
+
 
 export const getJobApplicants = async (jobId) => {
   const response = await apiClient.get(`/jobs/${jobId}/applicants`)

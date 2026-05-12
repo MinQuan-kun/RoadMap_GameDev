@@ -21,7 +21,7 @@ import { RoadmapProvider, useRoadmap } from '../context/RoadmapContext.jsx'
 import AuthContext from '../context/AuthContext'
 import { buildRoadmapPayload, createRoadmap, getRoadmapById, mapRoadmapDetailToBuilderState, updateRoadmap } from '../services/roadmapApi'
 
-const RoadmapBuilderContent = ({ embedded = false, roadmapId = null, onSaved }) => {
+const RoadmapBuilderContent = ({ embedded = false, roadmapId = null, onSaved, onLoadRoadmap, onSaveRoadmap }) => {
   const { state, actions, selectedNode, hasChanges } = useRoadmap()
   const { user } = useContext(AuthContext)
   const [savedRoadmapId, setSavedRoadmapId] = useState(null)
@@ -57,11 +57,19 @@ const RoadmapBuilderContent = ({ embedded = false, roadmapId = null, onSaved }) 
         setIsLoadingRoadmap(true)
         setSaveMessage('Loading roadmap...')
 
-        const roadmapDetail = await getRoadmapById(roadmapId)
-        const mapped = mapRoadmapDetailToBuilderState(roadmapDetail)
-        actions.loadRoadmap(mapped)
-        setSavedRoadmapId(roadmapDetail.id || roadmapId)
-        setSaveMessage('Roadmap loaded.')
+        const fetchFn = onLoadRoadmap || getRoadmapById
+        const roadmapDetail = await fetchFn(roadmapId)
+        
+        if (roadmapDetail) {
+          const mapped = mapRoadmapDetailToBuilderState(roadmapDetail)
+          actions.loadRoadmap(mapped)
+          setSavedRoadmapId(roadmapDetail.id || roadmapId)
+          setSaveMessage('Roadmap loaded.')
+        } else {
+          actions.resetRoadmap()
+          setSavedRoadmapId(null)
+          setSaveMessage('Ready to build roadmap.')
+        }
       } catch (error) {
         setSaveState('error')
         setSaveMessage(error?.response?.data || 'Failed to load roadmap for editing.')
@@ -71,7 +79,7 @@ const RoadmapBuilderContent = ({ embedded = false, roadmapId = null, onSaved }) 
     }
 
     loadRoadmapForEdit()
-  }, [roadmapId])
+  }, [roadmapId, onLoadRoadmap])
 
   // Handle title change
   const handleTitleChange = (e) => {
@@ -150,24 +158,33 @@ const RoadmapBuilderContent = ({ embedded = false, roadmapId = null, onSaved }) 
         connections: state.connections,
       })
 
-      if (savedRoadmapId) {
-        await updateRoadmap(savedRoadmapId, payload)
-        setSaveMessage('Roadmap updated successfully.')
+      if (onSaveRoadmap) {
+        const result = await onSaveRoadmap(roadmapId, payload)
+        setSaveMessage('Roadmap saved successfully.')
+        setSavedRoadmapId(result?.roadmapId || roadmapId)
         if (onSaved) {
-          onSaved({ mode: 'edit', roadmapId: savedRoadmapId })
+          onSaved({ mode: 'edit', roadmapId: result?.roadmapId || roadmapId })
         }
       } else {
-        const created = await createRoadmap(payload)
-        const createdId = created.id || created._id
-        setSaveMessage('Roadmap created successfully.')
+        if (savedRoadmapId) {
+          await updateRoadmap(savedRoadmapId, payload)
+          setSaveMessage('Roadmap updated successfully.')
+          if (onSaved) {
+            onSaved({ mode: 'edit', roadmapId: savedRoadmapId })
+          }
+        } else {
+          const created = await createRoadmap(payload)
+          const createdId = created.id || created._id
+          setSaveMessage('Roadmap created successfully.')
 
-        // In create mode, immediately return builder to a blank canvas.
-        actions.clearDraft()
-        actions.resetRoadmap()
-        setSavedRoadmapId(null)
+          // In create mode, immediately return builder to a blank canvas.
+          actions.clearDraft()
+          actions.resetRoadmap()
+          setSavedRoadmapId(null)
 
-        if (onSaved) {
-          onSaved({ mode: 'create', roadmapId: createdId || null })
+          if (onSaved) {
+            onSaved({ mode: 'create', roadmapId: createdId || null })
+          }
         }
       }
 
@@ -343,10 +360,16 @@ const RoadmapBuilderContent = ({ embedded = false, roadmapId = null, onSaved }) 
 }
 
 // Main component with Provider
-const RoadmapBuilder = ({ embedded = false, roadmapId = null, onSaved }) => {
+const RoadmapBuilder = ({ embedded = false, roadmapId = null, onSaved, onLoadRoadmap, onSaveRoadmap }) => {
   return (
     <RoadmapProvider enableDraftPersistence={!embedded}>
-      <RoadmapBuilderContent embedded={embedded} roadmapId={roadmapId} onSaved={onSaved} />
+      <RoadmapBuilderContent 
+        embedded={embedded} 
+        roadmapId={roadmapId} 
+        onSaved={onSaved} 
+        onLoadRoadmap={onLoadRoadmap}
+        onSaveRoadmap={onSaveRoadmap}
+      />
     </RoadmapProvider>
   )
 }

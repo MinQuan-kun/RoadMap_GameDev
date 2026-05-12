@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { 
   Type, 
   Circle, 
@@ -12,9 +12,12 @@ import {
   ExternalLink,
   Layout,
   Hash,
-  AlignLeft
+  AlignLeft,
+  Puzzle,
+  Database
 } from 'lucide-react'
 import { useRoadmap, NODE_TYPES, getDefaultNodeStyle } from '../../context/RoadmapContext.jsx'
+import NodeLibraryPanel from './NodeLibraryPanel'
 
 const ComponentItem = ({ icon: Icon, label, type, description, color = "text-gray-600" }) => {
   const { actions } = useRoadmap()
@@ -105,6 +108,8 @@ const getDefaultHeight = (type) => {
 }
 
 const ComponentSidebar = () => {
+  const [activeTab, setActiveTab] = useState('components')
+
   const components = [
     // Structure nodes
     {
@@ -216,36 +221,71 @@ const ComponentSidebar = () => {
   ]
 
   return (
-    <div className="p-4">
-      <div className="mb-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 uppercase tracking-wide mb-3">
+    <div className="flex flex-col h-full">
+      {/* Tab Bar */}
+      <div className="flex border-b border-gray-200 dark:border-slate-700">
+        <button
+          onClick={() => setActiveTab('components')}
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-all ${
+            activeTab === 'components'
+              ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-500/5'
+              : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'
+          }`}
+        >
+          <Puzzle size={13} />
           Components
-        </h3>
-        <p className="text-xs text-gray-500 dark:text-slate-400 mb-4">
-          Drag & drop or click to add components to your roadmap
-        </p>
-      </div>
-      
-      <div className="space-y-1">
-        {components.map((component, index) => (
-          <ComponentItem
-            key={index}
-            icon={component.icon}
-            label={component.label}
-            type={component.type}
-            description={component.description}
-            color={component.color}
-          />
-        ))}
+        </button>
+        <button
+          onClick={() => setActiveTab('library')}
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-all ${
+            activeTab === 'library'
+              ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/5'
+              : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'
+          }`}
+        >
+          <Database size={13} />
+          Library
+        </button>
       </div>
 
-      <div className="mt-6 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/30">
-        <div className="text-xs font-medium text-blue-900 dark:text-blue-200 mb-1">
-          💡 Pro Tip
-        </div>
-        <div className="text-xs text-blue-800 dark:text-blue-300">
-          Hold Shift while dragging to maintain aspect ratio
-        </div>
+      {/* Tab Content */}
+      <div className="flex-1 overflow-y-auto">
+        {activeTab === 'components' ? (
+          <div className="p-4">
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 uppercase tracking-wide mb-3">
+                Components
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-slate-400 mb-4">
+                Drag & drop or click to add components to your roadmap
+              </p>
+            </div>
+            
+            <div className="space-y-1">
+              {components.map((component, index) => (
+                <ComponentItem
+                  key={index}
+                  icon={component.icon}
+                  label={component.label}
+                  type={component.type}
+                  description={component.description}
+                  color={component.color}
+                />
+              ))}
+            </div>
+
+            <div className="mt-6 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/30">
+              <div className="text-xs font-medium text-blue-900 dark:text-blue-200 mb-1">
+                💡 Pro Tip
+              </div>
+              <div className="text-xs text-blue-800 dark:text-blue-300">
+                Hold Shift while dragging to maintain aspect ratio
+              </div>
+            </div>
+          </div>
+        ) : (
+          <NodeLibraryPanel />
+        )}
       </div>
     </div>
   )

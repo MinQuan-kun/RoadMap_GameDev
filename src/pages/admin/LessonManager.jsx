@@ -125,6 +125,8 @@ const LessonManager = () => {
   const [editDesc, setEditDesc] = useState('')
   const [editResources, setEditResources] = useState([])
   const [newResource, setNewResource] = useState('')
+  const [editVideoUrl, setEditVideoUrl] = useState('')
+  const [editContentBlocks, setEditContentBlocks] = useState([])
 
   useEffect(() => {
     const fetch = async () => {
@@ -160,7 +162,25 @@ const LessonManager = () => {
     setEditDesc(node.data?.description || node.data?.label || '')
     setEditResources(node.data?.resources || [])
     setNewResource('')
+    setEditVideoUrl(node.data?.videoUrl || '')
+    setEditContentBlocks(node.data?.contentBlocks || [])
     setSaved(false)
+  }
+
+  const addContentBlock = (type) => {
+    setEditContentBlocks((prev) => [...prev, { type, content: '' }])
+  }
+
+  const updateContentBlock = (idx, field, value) => {
+    setEditContentBlocks((prev) => {
+      const newBlocks = [...prev]
+      newBlocks[idx][field] = value
+      return newBlocks
+    })
+  }
+
+  const removeContentBlock = (idx) => {
+    setEditContentBlocks((prev) => prev.filter((_, i) => i !== idx))
   }
 
   const addResource = () => {
@@ -181,6 +201,8 @@ const LessonManager = () => {
       await updateNode(selectedNode.id, {
         description: editDesc,
         resources: editResources,
+        videoUrl: editVideoUrl,
+        contentBlocks: editContentBlocks,
       })
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
@@ -450,6 +472,50 @@ const LessonManager = () => {
                           placeholder="Viết nội dung bài học chi tiết ở đây..."
                           style={{ minHeight: 150 }}
                         />
+                      </div>
+
+                      <div>
+                        <label className="admin-label">Video URL (YouTube/Vimeo)</label>
+                        <input
+                          className="admin-input"
+                          value={editVideoUrl}
+                          onChange={(e) => setEditVideoUrl(e.target.value)}
+                          placeholder="https://www.youtube.com/embed/..."
+                        />
+                      </div>
+
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                          <label className="admin-label" style={{ margin: 0 }}>Nội dung bài học (Blocks)</label>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button className="admin-btn admin-btn-ghost" onClick={() => addContentBlock('text')} style={{ padding: '4px 8px', fontSize: 12 }}>+ Văn bản</button>
+                            <button className="admin-btn admin-btn-ghost" onClick={() => addContentBlock('code')} style={{ padding: '4px 8px', fontSize: 12 }}>+ Code</button>
+                            <button className="admin-btn admin-btn-ghost" onClick={() => addContentBlock('image')} style={{ padding: '4px 8px', fontSize: 12 }}>+ Hình ảnh</button>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                          {editContentBlocks.map((block, idx) => (
+                            <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--admin-border)', borderRadius: 8, padding: 12 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--admin-text-dim)', textTransform: 'uppercase' }}>{block.type} Block</span>
+                                <button onClick={() => removeContentBlock(idx)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 2 }}><X size={14} /></button>
+                              </div>
+                              {block.type === 'code' && (
+                                <input className="admin-input" style={{ marginBottom: 8 }} placeholder="Ngôn ngữ (vd: javascript, csharp)" value={block.language || ''} onChange={(e) => updateContentBlock(idx, 'language', e.target.value)} />
+                              )}
+                              {block.type === 'image' && (
+                                <input className="admin-input" style={{ marginBottom: 8 }} placeholder="Tiêu đề hình ảnh (không bắt buộc)" value={block.title || ''} onChange={(e) => updateContentBlock(idx, 'title', e.target.value)} />
+                              )}
+                              <textarea
+                                className="admin-textarea"
+                                value={block.content}
+                                onChange={(e) => updateContentBlock(idx, 'content', e.target.value)}
+                                rows={block.type === 'code' ? 4 : 3}
+                                placeholder={`Nhập nội dung ${block.type}...`}
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
 
                       <div>

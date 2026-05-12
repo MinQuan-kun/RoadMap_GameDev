@@ -1,7 +1,7 @@
 import React from 'react'
-import { X, BookOpen, Layers, Link2, ListChecks, GraduationCap, Video, Image as ImageIcon, Code2 } from 'lucide-react'
+import { X, BookOpen, Layers, Link2, ListChecks, GraduationCap, Video, Image as ImageIcon, Code2, CheckCircle2, XCircle } from 'lucide-react'
 
-const NodeDetailPanel = ({ node, onClose }) => {
+const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipped, isAuthenticated }) => {
   if (!node) return null
 
   const { label, description, category, resources, prerequisites, contentBlocks, videoUrl } = node.data || {}
@@ -114,6 +114,35 @@ const NodeDetailPanel = ({ node, onClose }) => {
               >
                 {category}
               </span>
+            )}
+
+            {/* Status Actions */}
+            {isAuthenticated && (
+              <div className="flex items-center gap-2 mt-3">
+                <button
+                  onClick={() => onUpdateProgress(node.id, isCompleted ? 'none' : 'completed')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    isCompleted 
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                      : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
+                  }`}
+                >
+                  <CheckCircle2 size={14} />
+                  {isCompleted ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}
+                </button>
+
+                <button
+                  onClick={() => onUpdateProgress(node.id, isSkipped ? 'none' : 'skipped')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    isSkipped 
+                      ? 'bg-slate-700/50 text-slate-300 border border-slate-600' 
+                      : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
+                  }`}
+                >
+                  <XCircle size={14} />
+                  {isSkipped ? 'Đã bỏ qua' : 'Bỏ qua'}
+                </button>
+              </div>
             )}
           </div>
           <button

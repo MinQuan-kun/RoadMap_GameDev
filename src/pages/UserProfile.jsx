@@ -1,4 +1,5 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { User, LayoutDashboard, Briefcase, Map, Settings, PlusSquare } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import ProfileSidebar from '../components/profile/ProfileSidebar';
@@ -23,6 +24,15 @@ const UserProfile = () => {
   const [activeTab, setActiveTab] = useState('MyRoadMap');
   const [editingRoadmapId, setEditingRoadmapId] = useState(null);
   const [builderSessionKey, setBuilderSessionKey] = useState(0);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+      // Clean up state so refresh doesn't stick
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleTabChange = (tabId) => {
     if (tabId === 'CreateRoadmap' && editingRoadmapId === null) {

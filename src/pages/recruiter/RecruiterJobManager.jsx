@@ -14,6 +14,7 @@ const EMPTY_FORM = {
   location: '',
   salary: '',
   skills: [],
+  tags: [],
   experienceLevel: '',
   targetRoadmapId: '',
 }
@@ -33,6 +34,8 @@ const RecruiterJobManager = () => {
   const [saving, setSaving] = useState(false)
   const [roadmaps, setRoadmaps] = useState([])
   const [skillInput, setSkillInput] = useState('')
+  const [tagInput, setTagInput] = useState('')
+  const navigate = require('react-router-dom').useNavigate()
 
   const loadJobs = async () => {
     try {
@@ -75,6 +78,7 @@ const RecruiterJobManager = () => {
       location: job.location || '',
       salary: job.salary || '',
       skills: job.skills || [],
+      tags: job.tags || [],
       experienceLevel: job.experienceLevel || '',
       targetRoadmapId: job.targetRoadmapId || '',
     })
@@ -128,6 +132,18 @@ const RecruiterJobManager = () => {
       setForm(prev => ({ ...prev, skills: [...prev.skills, s] }))
     }
     setSkillInput('')
+  }
+
+  const handleAddTag = () => {
+    const t = tagInput.trim()
+    if (t && !form.tags.includes(t)) {
+      setForm(prev => ({ ...prev, tags: [...prev.tags, t] }))
+    }
+    setTagInput('')
+  }
+
+  const handleRemoveTag = (tag) => {
+    setForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }))
   }
 
   const filteredJobs = jobs.filter(j =>
@@ -199,19 +215,36 @@ const RecruiterJobManager = () => {
                 </select>
               </div>
 
-              {/* Roadmap */}
+              {/* Tags */}
               <div>
-                <label className="admin-label">Roadmap yêu cầu</label>
-                <select
-                  className="admin-select"
-                  value={form.targetRoadmapId}
-                  onChange={e => setForm(p => ({ ...p, targetRoadmapId: e.target.value }))}
-                >
-                  <option value="">Không gắn roadmap</option>
-                  {roadmaps.map(rm => (
-                    <option key={rm.id} value={rm.id}>{rm.title}</option>
-                  ))}
-                </select>
+                <label className="admin-label">Tags (Phân loại)</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    className="admin-input"
+                    value={tagInput}
+                    onChange={e => setTagInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag() } }}
+                    placeholder="VD: Remote, Urgent..."
+                  />
+                  <button type="button" onClick={handleAddTag} className="admin-btn admin-btn-ghost admin-btn-sm">
+                    Thêm
+                  </button>
+                </div>
+                {form.tags.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                    {form.tags.map(t => (
+                      <span key={t} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 4,
+                        padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600,
+                        background: 'rgba(245,158,11,0.12)', color: '#fbbf24',
+                        border: '1px solid rgba(245,158,11,0.2)',
+                      }}>
+                        {t}
+                        <X size={12} style={{ cursor: 'pointer', opacity: 0.7 }} onClick={() => handleRemoveTag(t)} />
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Skills */}
@@ -375,6 +408,14 @@ const RecruiterJobManager = () => {
                   <td style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>{job.postedAt}</td>
                   <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                      <button 
+                        onClick={() => navigate(`/recruiter/jobs/${job.id}/roadmap`)} 
+                        className="admin-btn admin-btn-ghost admin-btn-sm" 
+                        title="Roadmap"
+                        style={{ color: '#818cf8', background: 'rgba(129, 140, 248, 0.1)' }}
+                      >
+                        <Briefcase size={14} /> Roadmap
+                      </button>
                       <button onClick={() => handleEdit(job)} className="admin-btn admin-btn-ghost admin-btn-sm" title="Sửa">
                         <Pencil size={14} />
                       </button>

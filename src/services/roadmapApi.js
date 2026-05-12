@@ -90,6 +90,7 @@ const normalizeNode = (node) => ({
   width: Number(node.width ?? 0),
   height: Number(node.height ?? 0),
   link: node.link ?? null,
+  color: node.color ?? null,
   style: node.style ?? {},
   createdAt: node.createdAt ?? null,
   updatedAt: node.updatedAt ?? null,
@@ -130,9 +131,17 @@ export const deleteRoadmap = async (roadmapId) => {
   return response.data
 }
 
-export const getRoadmaps = async (creatorId) => {
+export const getRoadmaps = async ({ creatorId, search, includeOfficial, onlyOfficial } = {}) => {
   const response = await apiClient.get('/roadmaps', {
-    params: creatorId ? { creatorId } : undefined,
+    params: { creatorId, search, includeOfficial, onlyOfficial },
+  })
+  return response.data
+}
+
+// Node Library: lấy danh sách node có sẵn trong DB
+export const getAvailableNodes = async ({ engine, search, category } = {}) => {
+  const response = await apiClient.get('/roadmaps/available-nodes', {
+    params: { engine, search, category },
   })
   return response.data
 }
@@ -140,6 +149,9 @@ export const getRoadmaps = async (creatorId) => {
 export const mapRoadmapDetailToBuilderState = (roadmapDetail) => {
   const nodes = (roadmapDetail?.nodes ?? []).map((node) => {
     const nodeType = node.type || node?.data?.category || 'default'
+    
+    // Ưu tiên style từ API (đã persist), fallback về category parsing
+    let apiStyle = node.style ?? {}
     let parsedStyle = {}
     const rawCategory = node?.data?.category
 
@@ -153,7 +165,13 @@ export const mapRoadmapDetailToBuilderState = (roadmapDetail) => {
 
     const defaultStyle = getDefaultStyleByType(nodeType)
     const defaultSize = getDefaultSizeByType(nodeType)
-    const mergedStyle = { ...defaultStyle, ...parsedStyle }
+    // Priority: API style > parsed category style > default style
+    const mergedStyle = { ...defaultStyle, ...parsedStyle, ...apiStyle }
+    
+    // Apply color from API if available
+    if (node.color) {
+      mergedStyle.backgroundColor = node.color
+    }
 
     return {
       id: node.id,
@@ -161,9 +179,10 @@ export const mapRoadmapDetailToBuilderState = (roadmapDetail) => {
       content: node?.data?.label ?? '',
       x: Number(node?.position?.x ?? 0),
       y: Number(node?.position?.y ?? 0),
-      width: Number(parsedStyle.width ?? defaultSize.width),
-      height: Number(parsedStyle.height ?? defaultSize.height),
+      width: Number(apiStyle.width ?? parsedStyle.width ?? defaultSize.width),
+      height: Number(apiStyle.height ?? parsedStyle.height ?? defaultSize.height),
       link: node?.data?.description ?? null,
+      color: node.color ?? mergedStyle.backgroundColor ?? null,
       style: mergedStyle,
       createdAt: parsedStyle.createdAt ?? null,
       updatedAt: parsedStyle.updatedAt ?? null,

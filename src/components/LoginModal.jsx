@@ -21,8 +21,8 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
       toast.success('Đăng nhập thành công!');
       onClose();
     } catch (err) {
-      const msg = typeof err.response?.data === 'string' 
-        ? err.response.data 
+      const msg = typeof err.response?.data === 'string'
+        ? err.response.data
         : err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.';
       setError(msg);
       toast.error(msg);

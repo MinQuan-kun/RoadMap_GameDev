@@ -6,7 +6,7 @@ import AuthContext from '../context/AuthContext';
 import apiClient from '../services/apiClient';
 
 const CareerQuiz = () => {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -14,6 +14,7 @@ const CareerQuiz = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [direction, setDirection] = useState(1);
+  const timeoutRef = React.useRef(null);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -54,23 +55,38 @@ const CareerQuiz = () => {
   const currentQuestion = visibleQuestions[currentIndex];
 
   const handleOptionSelect = (option) => {
-    setDirection(1);
-    
+    // Cập nhật đáp án
     const newAnswers = {
       ...userAnswers,
       [currentQuestion.id]: option
     };
-    
+
     setUserAnswers(newAnswers);
 
+    // Ngăn chặn lỗi nhảy/giật câu hỏi: Nếu mảng visibleQuestions thay đổi thứ tự, 
+    // chúng ta cần giữ currentIndex ở đúng vị trí của câu hỏi hiện tại.
     const newVisibleQuestions = getVisibleQuestions(newAnswers);
+    const newIndex = newVisibleQuestions.findIndex(q => q.id === currentQuestion.id);
+    if (newIndex !== -1 && newIndex !== currentIndex) {
+      setCurrentIndex(newIndex);
+    }
+  };
 
+  const handleNext = () => {
+    if (timeoutRef.current) return;
+
+    const newVisibleQuestions = getVisibleQuestions(userAnswers);
     if (currentIndex < newVisibleQuestions.length - 1) {
-      setTimeout(() => setCurrentIndex(currentIndex + 1), 400);
+      setDirection(1);
+      setCurrentIndex(prev => prev + 1);
     }
   };
 
   const handleBack = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     if (currentIndex > 0) {
       setDirection(-1);
       setCurrentIndex(prev => prev - 1);
@@ -81,7 +97,7 @@ const CareerQuiz = () => {
     setIsSubmitting(true);
     const finalVisibleQuestions = getVisibleQuestions(userAnswers);
     const finalNodeIds = [];
-    
+
     finalVisibleQuestions.forEach(q => {
       const ans = userAnswers[q.id];
       if (ans && ans.mappingNodes) {
@@ -90,6 +106,12 @@ const CareerQuiz = () => {
     });
 
     const uniqueNodeIds = [...new Set(finalNodeIds)];
+
+    if (uniqueNodeIds.length === 0) {
+      alert("Không thể tạo lộ trình: Bạn chưa chọn các đáp án có bài học tương ứng, hoặc dữ liệu hệ thống chưa được liên kết đầy đủ. Vui lòng thử lại!");
+      setIsSubmitting(false);
+      return;
+    }
 
     const payload = {
       userId: user?.id,
@@ -100,7 +122,9 @@ const CareerQuiz = () => {
     try {
       const res = await apiClient.post('/quiz/submit', payload);
       if (res.status === 200 || res.status === 201) {
-        localStorage.setItem('hasCompletedQuiz', 'true');
+        if (user) {
+          setUser({ ...user, hasCompletedQuiz: true });
+        }
         if (res.data?.roadmapId) {
           navigate(`/roadmap/${res.data.roadmapId}`);
         } else {
@@ -145,18 +169,19 @@ const CareerQuiz = () => {
     );
   }
 
-  const progress = ((currentIndex + 1) / visibleQuestions.length) * 100;
+  // Progress chỉ đạt 100% khi isSubmitting = true
+  const progress = isSubmitting ? 100 : Math.max(5, (currentIndex / visibleQuestions.length) * 100);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-white flex items-center justify-center p-4 md:p-8 lg:p-12 relative overflow-hidden transition-colors duration-500">
-      
+
       {/* Dynamic Background Elements */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-40 dark:opacity-20" style={{ backgroundImage: 'radial-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-blue-600/15 blur-[150px] rounded-full mix-blend-screen animate-pulse-slow" />
       <div className="absolute bottom-[-15%] right-[-10%] w-[40%] h-[40%] bg-purple-600/15 blur-[150px] rounded-full mix-blend-screen animate-pulse-slow" style={{ animationDelay: '2s' }} />
 
       <div className="w-full max-w-5xl z-10 relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-3xl rounded-[3rem] shadow-2xl border border-white/20 dark:border-white/5 p-6 md:p-12">
-        
+
         {/* Header / Progress Bar */}
         <div className="mb-12 md:mb-16">
           <div className="flex justify-between items-end mb-4 px-2">
@@ -193,7 +218,7 @@ const CareerQuiz = () => {
         <div className="relative min-h-[400px] md:min-h-[450px]">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
-              key={currentIndex}
+              key={currentQuestion?.id || currentIndex}
               custom={direction}
               variants={slideVariants}
               initial="enter"
@@ -206,54 +231,50 @@ const CareerQuiz = () => {
                 {currentQuestion?.questionText}
               </h1>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="flex flex-col gap-4">
                 {currentQuestion?.options.map((opt, idx) => {
                   const isSelected = userAnswers[currentQuestion.id]?.text === opt.text;
                   return (
                     <motion.button
                       key={idx}
-                      whileHover={{ scale: 1.02, y: -4 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.01, x: 8 }}
+                      whileTap={{ scale: 0.99 }}
                       onClick={() => handleOptionSelect(opt)}
-                      className={`group p-6 md:p-8 rounded-[2rem] text-left relative overflow-hidden transition-all duration-300 border backdrop-blur-md ${
-                        isSelected
-                          ? 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-blue-400 dark:border-blue-500/50 shadow-[0_10px_40px_-10px_rgba(59,130,246,0.4)]'
-                          : 'bg-white/60 dark:bg-slate-800/40 border-slate-200/60 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-500/50 hover:bg-white dark:hover:bg-slate-800/80 shadow-sm hover:shadow-lg'
-                      }`}
+                      className={`group p-5 md:p-6 rounded-2xl text-left relative overflow-hidden transition-all duration-300 border backdrop-blur-md flex items-center justify-between ${isSelected
+                        ? 'bg-gradient-to-r from-blue-500/10 to-indigo-500/10 dark:from-blue-900/40 dark:to-indigo-900/40 border-blue-500 shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)]'
+                        : 'bg-white/60 dark:bg-slate-800/60 border-slate-200/60 dark:border-slate-700/50 hover:border-blue-400/50 hover:bg-white dark:hover:bg-slate-800 shadow-sm'
+                        }`}
                     >
-                      {/* Glow effect for selected item */}
-                      {isSelected && (
-                        <div className="absolute inset-0 bg-blue-500/5 dark:bg-blue-400/5 animate-pulse" />
-                      )}
+                      {/* Left color bar indicator */}
+                      <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-colors duration-300 ${isSelected ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]' : 'bg-transparent group-hover:bg-blue-400/50'
+                        }`} />
 
-                      <div className="flex items-start md:items-center gap-5 relative z-10">
-                        <div className={`mt-1 md:mt-0 shrink-0 h-14 w-14 md:h-16 md:w-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                          isSelected 
-                            ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 scale-110' 
-                            : 'bg-slate-100 dark:bg-slate-700/50 text-slate-400 dark:text-slate-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20'
-                        }`}>
-                          {isSelected ? <CheckCircle2 size={28} /> : <Gamepad2 size={28} />}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <span className={`text-lg md:text-xl font-bold block leading-snug transition-colors duration-300 ${
-                            isSelected 
-                              ? 'text-blue-700 dark:text-blue-300' 
-                              : 'text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                      <div className="flex items-center gap-5 ml-2 relative z-10 w-full">
+                        <div className={`shrink-0 h-12 w-12 rounded-full flex items-center justify-center transition-all duration-500 ${isSelected
+                          ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/40'
+                          : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 group-hover:text-blue-500 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30'
                           }`}>
+                          {isSelected ? <CheckCircle2 size={24} /> : <span className="font-bold text-lg">{String.fromCharCode(65 + idx)}</span>}
+                        </div>
+
+                        <div className="flex-1 pr-4">
+                          <span className={`text-lg font-bold block transition-colors duration-300 ${isSelected
+                            ? 'text-blue-700 dark:text-blue-300'
+                            : 'text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                            }`}>
                             {opt.text}
                           </span>
                           {opt.description && (
-                            <span className="text-sm md:text-base text-slate-500 dark:text-slate-400 mt-2 block font-medium">
+                            <span className="text-sm text-slate-500 dark:text-slate-400 mt-1 block">
                               {opt.description}
                             </span>
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Decorative background shape */}
                       {isSelected && (
-                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/10 dark:bg-blue-400/10 blur-[30px] rounded-full pointer-events-none" />
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/10 blur-[30px] rounded-full pointer-events-none" />
                       )}
                     </motion.button>
                   );
@@ -268,16 +289,28 @@ const CareerQuiz = () => {
           <button
             onClick={handleBack}
             disabled={currentIndex === 0 || isSubmitting}
-            className={`flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-xs md:text-sm uppercase tracking-[0.15em] transition-all duration-300 ${
-              currentIndex === 0 || isSubmitting
-                ? 'opacity-30 cursor-not-allowed text-slate-400'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-            }`}
+            className={`flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-xs md:text-sm uppercase tracking-[0.15em] transition-all duration-300 ${currentIndex === 0 || isSubmitting
+              ? 'opacity-30 cursor-not-allowed text-slate-400'
+              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+              }`}
           >
             <ChevronLeft size={20} /> Quay Lại
           </button>
 
-          {currentIndex === visibleQuestions.length - 1 && (
+          {currentIndex < visibleQuestions.length - 1 ? (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleNext}
+              disabled={!userAnswers[currentQuestion.id]}
+              className={`flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-xs md:text-sm uppercase tracking-[0.15em] transition-all duration-300 ${!userAnswers[currentQuestion.id]
+                ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                }`}
+            >
+              Tiếp Theo <ChevronRight size={20} />
+            </motion.button>
+          ) : (
             <motion.button
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -285,11 +318,10 @@ const CareerQuiz = () => {
               whileTap={{ scale: 0.95 }}
               onClick={handleSubmit}
               disabled={isSubmitting || !userAnswers[currentQuestion.id]}
-              className={`px-8 md:px-12 py-4 md:py-5 rounded-full font-black text-sm uppercase tracking-[0.15em] flex items-center gap-3 transition-all duration-300 shadow-xl ${
-                !userAnswers[currentQuestion.id] || isSubmitting
-                  ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-blue-500/40 hover:shadow-blue-500/60'
-              }`}
+              className={`px-8 md:px-12 py-4 md:py-5 rounded-full font-black text-sm uppercase tracking-[0.15em] flex items-center gap-3 transition-all duration-300 shadow-xl ${!userAnswers[currentQuestion.id] || isSubmitting
+                ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-blue-500/40 hover:shadow-blue-500/60'
+                }`}
             >
               {isSubmitting ? (
                 <>Đang Xử Lý... <Loader2 size={20} className="animate-spin" /></>
@@ -300,9 +332,10 @@ const CareerQuiz = () => {
           )}
         </div>
       </div>
-      
+
       {/* CSS cho hiệu ứng shimmer */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }

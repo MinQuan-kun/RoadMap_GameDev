@@ -11,6 +11,7 @@ import Footer from './components/Footer';
 import RoadmapBuilder from './pages/RoadmapBuilder'
 import CareerQuiz from './pages/CareerQuiz'
 import RoadmapDetail from './pages/RoadmapDetail'
+import PathwayViewer from './pages/PathwayViewer'
 
 import { getUserProfile } from './services/adminApi'
 import { Toaster } from 'react-hot-toast'
@@ -29,6 +30,7 @@ import RecruiterLayout from './components/recruiter/RecruiterLayout'
 import RecruiterDashboard from './pages/recruiter/RecruiterDashboard'
 import RecruiterJobManager from './pages/recruiter/RecruiterJobManager'
 import RecruiterApplicants from './pages/recruiter/RecruiterApplicants'
+import RecruiterRoadmapBuilder from './pages/recruiter/RecruiterRoadmapBuilder'
 
 // Wrapper to conditionally show Header/Footer (hide on /admin routes)
 const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterModal, closeAuthModals, showLoginModal, showRegisterModal }) => {
@@ -71,6 +73,8 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
           />
           <Route path="/quiz" element={<CareerQuiz />} />
           <Route path="/roadmap/:id" element={<RoadmapDetail />} />
+          <Route path="/roadmap/:roadmapId/node/:nodeId" element={<PathwayViewer />} />
+          <Route path="/roadmap/:roadmapId/learn" element={<PathwayViewer />} />
 
           {/* ─── Admin routes ─── */}
           <Route path="/admin" element={<AdminLayout />}>
@@ -86,6 +90,7 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
           <Route path="/recruiter" element={<RecruiterLayout />}>
             <Route index element={<RecruiterDashboard />} />
             <Route path="jobs" element={<RecruiterJobManager />} />
+            <Route path="jobs/:id/roadmap" element={<RecruiterRoadmapBuilder />} />
             <Route path="applicants" element={<RecruiterApplicants />} />
           </Route>
         </Routes>

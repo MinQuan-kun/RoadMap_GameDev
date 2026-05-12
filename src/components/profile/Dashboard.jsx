@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { 
-  Target, Clock, Trophy, ArrowUpRight, Gamepad2, Code2, Star, 
+import {
+  Target, Clock, Trophy, ArrowUpRight, Gamepad2, Code2, Star,
   Timer, Map
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -46,7 +46,7 @@ const Dashboard = () => {
     <div className="space-y-8 animate-fade-in p-2">
       <div>
         <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-          Chào mừng trở lại, {user?.fullName || 'User'}! 👋
+          Chào mừng trở lại, {user?.user_name || 'User'}! 👋
         </h1>
       </div>
 
@@ -84,7 +84,7 @@ const Dashboard = () => {
                   </button>
                 )}
               </div>
-              
+
               <div className="space-y-3">
                 <div className="flex justify-between text-sm font-bold">
                   <span>Tiến độ tổng quát</span>

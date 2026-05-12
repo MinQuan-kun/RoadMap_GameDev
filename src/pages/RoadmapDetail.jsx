@@ -15,6 +15,7 @@ import apiClient from '../services/apiClient'
 import ModulePanel from '../components/Roadmap/ModulePanel'
 import NodeDetailPanel from '../components/Roadmap/NodeDetailPanel'
 import { Loader2, ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react'
+import AuthContext from '../context/AuthContext'
 
 /* ═══ Constants ═══════════════════════════════════ */
 const NODE_W = 200
@@ -53,14 +54,31 @@ const ModuleNode = ({ data }) => {
   const theme = getTheme(data.category, data.isModule)
   const isExpanded = data.isExpanded
   const hasChildren = data.hasChildren
+  
+  // Progress states
+  const isCompleted = data.isCompleted
+  const isSkipped = data.isSkipped
+  
+  // Apply persisted color from builder if available
+  const customBg = data.customColor || null
+  let effectiveBg = customBg || theme.bg
+  let effectiveBorder = data.customStyle?.borderColor || theme.border
+
+  if (isCompleted) {
+    effectiveBg = '#10b981' // Green
+    effectiveBorder = '#34d399'
+  } else if (isSkipped) {
+    effectiveBg = '#64748b' // Grey
+    effectiveBorder = '#94a3b8'
+  }
 
   return (
     <div
       style={{
         background: data.isModule
-          ? `linear-gradient(135deg, ${theme.bg}, ${theme.bg}dd)`
-          : `linear-gradient(135deg, ${theme.bg}30, ${theme.bg}15)`,
-        border: `2px solid ${data.isModule ? theme.border : theme.bg + '66'}`,
+          ? `linear-gradient(135deg, ${effectiveBg}, ${effectiveBg}dd)`
+          : `linear-gradient(135deg, ${effectiveBg}30, ${effectiveBg}15)`,
+        border: `2px solid ${data.isModule ? effectiveBorder : effectiveBg + '66'}`,
         borderRadius: data.isModule ? 16 : 10,
         padding: data.isModule ? '12px 20px' : '8px 14px',
         color: data.isModule ? theme.text : '#e2e8f0',
@@ -70,7 +88,7 @@ const ModuleNode = ({ data }) => {
         textAlign: 'center',
         cursor: hasChildren ? 'pointer' : 'default',
         boxShadow: data.isSelected
-          ? `0 0 24px ${theme.bg}50, 0 0 0 3px ${theme.bg}30`
+          ? `0 0 24px ${effectiveBg}50, 0 0 0 3px ${effectiveBg}30`
           : `0 4px 16px ${theme.glow}`,
         transition: 'all .25s ease',
         display: 'flex',
@@ -141,6 +159,8 @@ const doLayout = (nodes, edges) => {
 const RoadmapDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user, setUser } = React.useContext(AuthContext)
+  
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const [allNodeData, setAllNodeData] = useState([])
@@ -148,8 +168,20 @@ const RoadmapDetail = () => {
   const [expandedModules, setExpandedModules] = useState(new Set())
   const [selectedNode, setSelectedNode] = useState(null)
   const [title, setTitle] = useState('')
+  const [engine, setEngine] = useState('')
+  const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const [completedNodes, setCompletedNodes] = useState(new Set())
+  const [skippedNodes, setSkippedNodes] = useState(new Set())
+
+  useEffect(() => {
+    if (user) {
+      setCompletedNodes(new Set(user.completedNodes || []))
+      setSkippedNodes(new Set(user.skippedNodes || []))
+    }
+  }, [user])
 
   const nodeTypes = useMemo(() => ({
     moduleNode: ModuleNode,
@@ -163,24 +195,29 @@ const RoadmapDetail = () => {
         setLoading(true)
         const { data } = await apiClient.get(`/roadmaps/${id}`)
         setTitle(data.title)
+        setEngine(data.engine || '')
+        setDescription(data.description || '')
 
         const nd = (data.nodes || []).map(n => ({
           id: n.id,
           data: {
-            label: n.data?.label || 'Untitled',
-            description: n.data?.description || '',
-            category: n.data?.category || '',
-            resources: n.data?.resources || [],
-            prerequisites: n.data?.prerequisites || [],
-            contentBlocks: n.data?.contentBlocks || [],
-            videoUrl: n.data?.videoUrl || null,
+            label: n.data?.label || n.data?.Label || n.label || 'Untitled',
+            description: n.data?.description || n.data?.Description || '',
+            category: n.data?.category || n.data?.Category || n.type || '',
+            resources: n.data?.resources || n.data?.Resources || [],
+            prerequisites: n.data?.prerequisites || n.data?.Prerequisites || [],
+            contentBlocks: n.data?.contentBlocks || n.data?.ContentBlocks || [],
+            videoUrl: n.data?.videoUrl || n.data?.VideoUrl || null,
           },
+          // Persist color/style from API (saved from builder)
+          color: n.color || n.Color || null,
+          style: n.style || n.Style || null,
         }))
 
         const ed = (data.edges || []).map(e => ({
           id: e.id,
-          source: e.source,
-          target: e.target,
+          source: e.source || e.Source,
+          target: e.target || e.Target,
         }))
 
         setAllNodeData(nd)
@@ -257,6 +294,10 @@ const RoadmapDetail = () => {
             hasChildren,
             isExpanded: expandedModules.has(n.id),
             isSelected: selectedNode?.id === n.id,
+            customColor: n.color || null,
+            customStyle: n.style || null,
+            isCompleted: completedNodes.has(n.id),
+            isSkipped: skippedNodes.has(n.id),
           },
         }
       })
@@ -280,7 +321,31 @@ const RoadmapDetail = () => {
     const laid = doLayout(visibleFlow, visibleEdgeFlow)
     setNodes(laid)
     setEdges(visibleEdgeFlow)
-  }, [allNodeData, allEdgeData, expandedModules, selectedNode, setNodes, setEdges])
+  }, [allNodeData, allEdgeData, expandedModules, selectedNode, completedNodes, skippedNodes, setNodes, setEdges])
+
+  /* ─── Handle Node Progress Update ─── */
+  const handleUpdateProgress = async (nodeId, status) => {
+    try {
+      const res = await apiClient.post('/users/progress', { nodeId, status })
+      if (res.data && res.data.data) {
+        // Update local state
+        setCompletedNodes(new Set(res.data.data.completed || []))
+        setSkippedNodes(new Set(res.data.data.skipped || []))
+        
+        // Update user context
+        if (user) {
+          setUser({
+            ...user,
+            completedNodes: res.data.data.completed || [],
+            skippedNodes: res.data.data.skipped || []
+          })
+        }
+      }
+    } catch (err) {
+      console.error('Failed to update progress', err)
+      alert('Lỗi khi cập nhật trạng thái bài học')
+    }
+  }
 
   /* ─── Toggle module expand ─── */
   const toggleModule = useCallback((nodeId) => {
@@ -357,7 +422,35 @@ const RoadmapDetail = () => {
           <ArrowLeft size={18} />
         </button>
         <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)' }} />
-        <h1 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: 0 }}>{title}</h1>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h1 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: 0 }}>{title}</h1>
+            {engine && (
+              <span style={{
+                fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999,
+                background: engine === 'Unity' ? 'rgba(99,102,241,0.2)' : 'rgba(239,68,68,0.2)',
+                color: engine === 'Unity' ? '#818cf8' : '#f87171',
+                border: `1px solid ${engine === 'Unity' ? '#6366f140' : '#ef444440'}`,
+                textTransform: 'uppercase', letterSpacing: '0.5px',
+              }}>{engine}</span>
+            )}
+            <button 
+              onClick={() => navigate(`/learn/${id}`)}
+              style={{
+                marginLeft: 12, padding: '4px 12px', fontSize: 12, fontWeight: 700,
+                color: '#fff', background: '#2563eb', border: 'none', borderRadius: 6,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
+              }}
+            >
+              Bắt đầu học
+            </button>
+          </div>
+          {description && (
+            <p style={{ fontSize: 11, color: '#475569', margin: 0, maxWidth: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {description}
+            </p>
+          )}
+        </div>
         <span style={{ marginLeft: 'auto', fontSize: 11, color: '#475569' }}>
           {allNodeData.length} nodes · {expandedModules.size} mở
         </span>
@@ -420,6 +513,10 @@ const RoadmapDetail = () => {
           <NodeDetailPanel
             node={selectedNode}
             onClose={() => setSelectedNode(null)}
+            onUpdateProgress={handleUpdateProgress}
+            isCompleted={completedNodes.has(selectedNode.id)}
+            isSkipped={skippedNodes.has(selectedNode.id)}
+            isAuthenticated={!!user}
           />
         )}
       </div>
