@@ -9,6 +9,7 @@ import {
   Activity,
   ArrowUpRight,
   Palette,
+  Plus,
 } from 'lucide-react'
 import StatCard from '../../components/admin/StatCard'
 import { getDashboardStats } from '../../services/adminApi'
@@ -22,17 +23,17 @@ const quickActions = [
     color: '#8b5cf6',
   },
   {
-    icon: Map,
-    label: 'Quản lý Roadmaps',
-    desc: 'Xem, sửa, xóa lộ trình',
+    icon: BookOpen,
+    label: 'Danh sách Lộ trình',
+    desc: 'Quản lý các Pathway đã tạo',
     to: '/admin/roadmaps',
     color: '#3b82f6',
   },
   {
-    icon: Boxes,
-    label: 'Quản lý Nodes',
-    desc: 'Thêm, sửa node kỹ năng',
-    to: '/admin/nodes',
+    icon: Plus,
+    label: 'Thiết kế lộ trình',
+    desc: 'Tạo cấu trúc Giai đoạn & Bài học',
+    to: '/admin/pathways/create',
     color: '#10b981',
   },
   {
@@ -48,7 +49,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate()
   const [stats, setStats] = useState({
     totalUsers: 0,
-    totalRoadmaps: 0,
+    totalPathways: 0,
     totalNodes: 0,
   })
   const [loading, setLoading] = useState(true)
@@ -110,9 +111,9 @@ const AdminDashboard = () => {
           delay={1}
         />
         <StatCard
-          icon={Map}
-          label="Roadmaps"
-          value={loading ? '—' : stats.totalRoadmaps}
+          icon={BookOpen}
+          label="Pathways"
+          value={loading ? '—' : stats.totalPathways}
           color="blue"
           delay={2}
         />

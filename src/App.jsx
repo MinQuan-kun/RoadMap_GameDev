@@ -12,6 +12,8 @@ import RoadmapBuilder from './pages/RoadmapBuilder'
 import CareerQuiz from './pages/CareerQuiz'
 import RoadmapDetail from './pages/RoadmapDetail'
 import PathwayViewer from './pages/PathwayViewer'
+import LessonPage from './pages/LessonPage'
+import CourseListPage from './pages/CourseListPage'
 
 import { getUserProfile } from './services/adminApi'
 import { Toaster } from 'react-hot-toast'
@@ -24,6 +26,7 @@ import RoadmapManager from './pages/admin/RoadmapManager'
 import NodeManager from './pages/admin/NodeManager'
 import LessonManager from './pages/admin/LessonManager'
 import UserManager from './pages/admin/UserManager'
+import PathwayBuilder from './pages/admin/PathwayBuilder'
 
 // Recruiter imports
 import RecruiterLayout from './components/recruiter/RecruiterLayout'
@@ -75,14 +78,18 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
           <Route path="/roadmap/:id" element={<RoadmapDetail />} />
           <Route path="/roadmap/:roadmapId/node/:nodeId" element={<PathwayViewer />} />
           <Route path="/roadmap/:roadmapId/learn" element={<PathwayViewer />} />
+          <Route path="/courses" element={<CourseListPage isDarkMode={isDarkMode} />} />
+          <Route path="/courses/:pathwayId" element={<CourseListPage isDarkMode={isDarkMode} />} />
+          <Route path="/courses/:id" element={<LessonPage isDarkMode={isDarkMode} />} />
+          <Route path="/learn/:id" element={<LessonPage isDarkMode={isDarkMode} />} />
 
           {/* ─── Admin routes ─── */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="appearance" element={<SiteAppearance />} />
             <Route path="roadmaps" element={<RoadmapManager />} />
-            <Route path="nodes" element={<NodeManager />} />
-            <Route path="lessons" element={<LessonManager />} />
+            <Route path="pathways/create" element={<PathwayBuilder />} />
+            <Route path="pathways/edit/:id" element={<PathwayBuilder />} />
             <Route path="users" element={<UserManager />} />
           </Route>
 

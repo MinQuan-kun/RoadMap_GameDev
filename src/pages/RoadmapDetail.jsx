@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useMemo, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactFlow, {
   Background,
@@ -9,170 +9,73 @@ import ReactFlow, {
   Handle,
   Position,
 } from 'reactflow'
-import dagre from 'dagre'
 import 'reactflow/dist/style.css'
 import apiClient from '../services/apiClient'
-import ModulePanel from '../components/Roadmap/ModulePanel'
+import CoursePanel from '../components/Roadmap/CoursePanel'
 import NodeDetailPanel from '../components/Roadmap/NodeDetailPanel'
 import { Loader2, ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react'
 import AuthContext from '../context/AuthContext'
 
-/* ═══ Constants ═══════════════════════════════════ */
-const NODE_W = 200
-const NODE_H = 52
-const MODULE_W = 220
-const MODULE_H = 56
-
-/* ═══ Color Map ═══════════════════════════════════ */
-const CAT = {
-  module: { bg: '#fbbf24', border: '#f59e0b', text: '#1a1a2e', glow: '#fbbf2440' },
-  language: { bg: '#6366f1', border: '#818cf8', text: '#e0e7ff', glow: '#6366f120' },
-  engine: { bg: '#3b82f6', border: '#60a5fa', text: '#dbeafe', glow: '#3b82f620' },
-  math: { bg: '#14b8a6', border: '#2dd4bf', text: '#ccfbf1', glow: '#14b8a620' },
-  gameplay: { bg: '#10b981', border: '#34d399', text: '#d1fae5', glow: '#10b98120' },
-  ai: { bg: '#22d3ee', border: '#67e8f9', text: '#cffafe', glow: '#22d3ee20' },
-  deploy: { bg: '#f97316', border: '#fb923c', text: '#ffedd5', glow: '#f9731620' },
-  network: { bg: '#ef4444', border: '#f87171', text: '#fee2e2', glow: '#ef444420' },
-  default: { bg: '#64748b', border: '#94a3b8', text: '#e2e8f0', glow: '#64748b20' },
-}
-
-const getTheme = (category = '', isModule = false) => {
-  if (isModule) return CAT.module
-  const c = category.toLowerCase()
-  for (const [key, theme] of Object.entries(CAT)) {
-    if (c.includes(key)) return theme
-  }
-  if (c.includes('oop') || c.includes('syntax') || c.includes('logic') || c.includes('data') || c.includes('advanced')) return CAT.language
-  if (c.includes('editor') || c.includes('lifecycle')) return CAT.engine
-  if (c.includes('physics') || c.includes('animation') || c.includes('audio') || c.includes('ui')) return CAT.gameplay
-  if (c.includes('pattern') || c.includes('architecture') || c.includes('technical') || c.includes('performance')) return { ...CAT.default, bg: '#8b5cf6', border: '#a78bfa', text: '#ede9fe', glow: '#8b5cf620' }
-  return CAT.default
-}
-
 /* ═══ Custom Module Node ═════════════════════════ */
 const ModuleNode = ({ data }) => {
-  const theme = getTheme(data.category, data.isModule)
-  const isExpanded = data.isExpanded
-  const hasChildren = data.hasChildren
-  
-  // Progress states
-  const isCompleted = data.isCompleted
-  const isSkipped = data.isSkipped
-  
-  // Apply persisted color from builder if available
-  const customBg = data.customColor || null
-  let effectiveBg = customBg || theme.bg
-  let effectiveBorder = data.customStyle?.borderColor || theme.border
-
-  if (isCompleted) {
-    effectiveBg = '#10b981' // Green
-    effectiveBorder = '#34d399'
-  } else if (isSkipped) {
-    effectiveBg = '#64748b' // Grey
-    effectiveBorder = '#94a3b8'
-  }
-
   return (
     <div
+      className={`group relative transition-all duration-500 ${data.isSelected ? 'scale-105' : 'hover:scale-102'}`}
       style={{
-        background: data.isModule
-          ? `linear-gradient(135deg, ${effectiveBg}, ${effectiveBg}dd)`
-          : `linear-gradient(135deg, ${effectiveBg}30, ${effectiveBg}15)`,
-        border: `2px solid ${data.isModule ? effectiveBorder : effectiveBg + '66'}`,
-        borderRadius: data.isModule ? 16 : 10,
-        padding: data.isModule ? '12px 20px' : '8px 14px',
-        color: data.isModule ? theme.text : '#e2e8f0',
-        fontSize: data.isModule ? 14 : 12,
-        fontWeight: data.isModule ? 700 : 500,
-        width: data.isModule ? MODULE_W : NODE_W,
+        background: 'linear-gradient(135deg, #1e40af, #1e3a8a)',
+        border: '2px solid #3b82f6',
+        borderRadius: '24px',
+        padding: '20px 40px',
+        color: '#ffffff',
+        fontSize: 18,
+        fontWeight: 900,
         textAlign: 'center',
-        cursor: hasChildren ? 'pointer' : 'default',
         boxShadow: data.isSelected
-          ? `0 0 24px ${effectiveBg}50, 0 0 0 3px ${effectiveBg}30`
-          : `0 4px 16px ${theme.glow}`,
-        transition: 'all .25s ease',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        position: 'relative',
+          ? '0 20px 50px rgba(30,64,175,0.4), 0 0 0 4px rgba(59,130,246,0.2)'
+          : '0 10px 30px rgba(0,0,0,0.3)',
+        minWidth: 320,
+        cursor: 'pointer',
+        letterSpacing: '-0.02em',
       }}
     >
-      <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
-      <span style={{ flex: 1 }}>{data.label}</span>
-      {hasChildren && data.isModule && (
-        isExpanded
-          ? <ChevronDown size={16} style={{ opacity: 0.7, flexShrink: 0 }} />
-          : <ChevronRight size={16} style={{ opacity: 0.7, flexShrink: 0 }} />
-      )}
-      <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Top} style={{ background: '#3b82f6', width: 8, height: 8, border: '2px solid #050505', opacity: 0 }} />
+      <div className="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1 opacity-60">Module Lộ trình</div>
+      <div className="text-white text-lg font-black tracking-tight">{data.label}</div>
+      <Handle type="source" position={Position.Bottom} style={{ background: '#3b82f6', width: 8, height: 8, border: '2px solid #050505', opacity: 0 }} />
     </div>
   )
 }
 
-/* ═══ Root Node ═════════════════════════════════ */
-const RootNode = ({ data }) => (
-  <div
-    style={{
-      background: 'linear-gradient(135deg, #1e40af, #3b82f6)',
-      border: '2px solid #60a5fa',
-      borderRadius: 20,
-      padding: '14px 28px',
-      color: '#ffffff',
-      fontSize: 16,
-      fontWeight: 800,
-      textAlign: 'center',
-      boxShadow: data.isSelected
-        ? '0 0 30px rgba(59,130,246,0.5), 0 0 0 4px rgba(59,130,246,0.2)'
-        : '0 8px 32px rgba(59,130,246,0.25)',
-      letterSpacing: '0.5px',
-      minWidth: 240,
-    }}
-  >
-    <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
-    {data.label}
-  </div>
-)
-
-/* ═══ Dagre Layout ═══════════════════════════════ */
-const doLayout = (nodes, edges) => {
-  const g = new dagre.graphlib.Graph()
-  g.setDefaultEdgeLabel(() => ({}))
-  g.setGraph({ rankdir: 'TB', nodesep: 40, ranksep: 80 })
-  nodes.forEach(n => {
-    const w = n.data?.isRoot ? 260 : n.data?.isModule ? MODULE_W : NODE_W
-    const h = n.data?.isRoot ? 56 : n.data?.isModule ? MODULE_H : NODE_H
-    g.setNode(n.id, { width: w, height: h })
-  })
-  edges.forEach(e => g.setEdge(e.source, e.target))
-  dagre.layout(g)
-
-  return nodes.map(n => {
-    const pos = g.node(n.id)
-    const w = n.data?.isRoot ? 260 : n.data?.isModule ? MODULE_W : NODE_W
-    const h = n.data?.isRoot ? 56 : n.data?.isModule ? MODULE_H : NODE_H
-    return { ...n, position: { x: pos.x - w / 2, y: pos.y - h / 2 } }
-  })
+const nodeTypes = {
+  moduleNode: ModuleNode,
+  rootNode: ModuleNode, // Unified
 }
+const edgeTypes = {}
 
 /* ═══ Main Component ═════════════════════════════ */
 const RoadmapDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user, setUser } = React.useContext(AuthContext)
+  const { user, setUser } = useContext(AuthContext)
   
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
+  
   const [allNodeData, setAllNodeData] = useState([])
   const [allEdgeData, setAllEdgeData] = useState([])
   const [expandedModules, setExpandedModules] = useState(new Set())
   const [selectedNode, setSelectedNode] = useState(null)
-  const [title, setTitle] = useState('')
-  const [engine, setEngine] = useState('')
-  const [description, setDescription] = useState('')
+  
+  // Metadata state
+  const [metadata, setMetadata] = useState({
+    title: '',
+    engine: '',
+    description: '',
+    pathwayContent: []
+  })
+  
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-
   const [completedNodes, setCompletedNodes] = useState(new Set())
   const [skippedNodes, setSkippedNodes] = useState(new Set())
 
@@ -183,156 +86,97 @@ const RoadmapDetail = () => {
     }
   }, [user])
 
-  const nodeTypes = useMemo(() => ({
-    moduleNode: ModuleNode,
-    rootNode: RootNode,
-  }), [])
-
   /* ─── Fetch data ─── */
   useEffect(() => {
-    const load = async () => {
+    const loadData = async () => {
+      if (!id) return
       try {
-        setLoading(true)
-        const { data } = await apiClient.get(`/roadmaps/${id}`)
-        setTitle(data.title)
-        setEngine(data.engine || '')
-        setDescription(data.description || '')
+        const { data: response } = await apiClient.get(`/Pathways/${id}/content`)
+        const pathway = response.pathway
+        const courses = response.courses || []
+        
+        setMetadata({
+          title: pathway.title || '',
+          engine: pathway.difficulty || '',
+          description: pathway.description || '',
+          pathwayContent: courses
+        })
 
-        const nd = (data.nodes || []).map(n => ({
-          id: n.id,
-          data: {
-            label: n.data?.label || n.data?.Label || n.label || 'Untitled',
-            description: n.data?.description || n.data?.Description || '',
-            category: n.data?.category || n.data?.Category || n.type || '',
-            resources: n.data?.resources || n.data?.Resources || [],
-            prerequisites: n.data?.prerequisites || n.data?.Prerequisites || [],
-            contentBlocks: n.data?.contentBlocks || n.data?.ContentBlocks || [],
-            videoUrl: n.data?.videoUrl || n.data?.VideoUrl || null,
-          },
-          // Persist color/style from API (saved from builder)
-          color: n.color || n.Color || null,
-          style: n.style || n.Style || null,
-        }))
+        if (pathway.roadmapGraphId) {
+          const { data: graph } = await apiClient.get(`/RoadmapGraphs/${pathway.roadmapGraphId}`)
+          
+          const nd = (graph.nodes || []).map((n, idx) => {
+            // FORCE VERTICAL ALIGNMENT: x is centered (0), y is sequential
+            const x = 0
+            const y = idx * 250 // Spaced out for a clear path
+            return {
+              id: n.id,
+              data: {
+                label: n.title,
+                nodeType: n.nodeType,
+                referenceId: n.referenceId,
+              },
+              position: { x, y }
+            }
+          })
 
-        const ed = (data.edges || []).map(e => ({
-          id: e.id,
-          source: e.source || e.Source,
-          target: e.target || e.Target,
-        }))
+          const ed = (graph.edges || []).map(e => ({
+            id: e.id || `e-${e.sourceNodeId}-${e.targetNodeId}`,
+            source: e.sourceNodeId,
+            target: e.targetNodeId,
+          }))
 
-        setAllNodeData(nd)
-        setAllEdgeData(ed)
+          setAllNodeData(nd)
+          setAllEdgeData(ed)
+        }
       } catch (err) {
         console.error('Failed to load roadmap:', err)
-        setError('Không thể tải roadmap. Vui lòng thử lại!')
+        setError('Không thể tải lộ trình. Vui lòng thử lại!')
       } finally {
         setLoading(false)
       }
     }
-    if (id) load()
+    loadData()
   }, [id])
 
-  /* ─── Derive visible nodes/edges from expand state ─── */
+  /* ─── Derive Flow ─── */
   useEffect(() => {
     if (allNodeData.length === 0) return
 
-    // Build parent→children map
-    const childrenOf = {}
-    allEdgeData.forEach(e => {
-      if (!childrenOf[e.source]) childrenOf[e.source] = []
-      childrenOf[e.source].push(e.target)
-    })
+    const visibleFlow = allNodeData.map(n => ({
+      ...n,
+      type: 'moduleNode',
+      data: {
+        ...n.data,
+        isExpanded: expandedModules.has(n.id),
+        isSelected: selectedNode?.id === n.id,
+        isCompleted: completedNodes.has(n.id),
+        isSkipped: skippedNodes.has(n.id),
+      },
+    }))
 
-    // Find root (no incoming edge)
-    const targetIds = new Set(allEdgeData.map(e => e.target))
-    const rootId = allNodeData.find(n => !targetIds.has(n.id))?.id
+    const visibleEdgeFlow = allEdgeData.map(e => ({
+      ...e,
+      type: 'straight',
+      animated: true,
+      style: { 
+        stroke: '#2563eb', 
+        strokeWidth: 6, // Thick vertical path
+        opacity: 0.3 
+      },
+    }))
 
-    if (!rootId) return
-
-    // Module-level = direct children of root
-    const moduleIds = new Set(childrenOf[rootId] || [])
-
-    // Compute visible node IDs
-    const visibleIds = new Set()
-    visibleIds.add(rootId)
-    moduleIds.forEach(mid => visibleIds.add(mid))
-
-    // For each expanded module, add its descendants recursively
-    const addDescendants = (nodeId) => {
-      const children = childrenOf[nodeId] || []
-      children.forEach(cid => {
-        visibleIds.add(cid)
-        // Also expand sub-topics if their parent is expanded
-        if (expandedModules.has(cid)) {
-          addDescendants(cid)
-        } else {
-          // Always show one level deeper (topics of modules)
-          const grandChildren = childrenOf[cid] || []
-          grandChildren.forEach(gc => visibleIds.add(gc))
-        }
-      })
-    }
-
-    expandedModules.forEach(mid => addDescendants(mid))
-
-    // Build visible flow nodes
-    const visibleFlow = allNodeData
-      .filter(n => visibleIds.has(n.id))
-      .map(n => {
-        const isRoot = n.id === rootId
-        const isModule = moduleIds.has(n.id)
-        const hasChildren = (childrenOf[n.id] || []).length > 0
-
-        return {
-          id: n.id,
-          type: isRoot ? 'rootNode' : 'moduleNode',
-          position: { x: 0, y: 0 },
-          data: {
-            ...n.data,
-            isRoot,
-            isModule,
-            hasChildren,
-            isExpanded: expandedModules.has(n.id),
-            isSelected: selectedNode?.id === n.id,
-            customColor: n.color || null,
-            customStyle: n.style || null,
-            isCompleted: completedNodes.has(n.id),
-            isSkipped: skippedNodes.has(n.id),
-          },
-        }
-      })
-
-    // Visible edges = edges where both source and target are visible
-    const visibleEdgeFlow = allEdgeData
-      .filter(e => visibleIds.has(e.source) && visibleIds.has(e.target))
-      .map(e => ({
-        id: e.id,
-        source: e.source,
-        target: e.target,
-        type: 'smoothstep',
-        animated: moduleIds.has(e.target),
-        style: {
-          stroke: moduleIds.has(e.target) ? '#fbbf2466' : '#3b82f640',
-          strokeWidth: moduleIds.has(e.target) ? 3 : 2,
-          strokeDasharray: moduleIds.has(e.target) ? undefined : '6 3',
-        },
-      }))
-
-    const laid = doLayout(visibleFlow, visibleEdgeFlow)
-    setNodes(laid)
+    setNodes(visibleFlow)
     setEdges(visibleEdgeFlow)
-  }, [allNodeData, allEdgeData, expandedModules, selectedNode, completedNodes, skippedNodes, setNodes, setEdges])
+  }, [allNodeData, expandedModules, selectedNode, completedNodes, skippedNodes, setNodes, setEdges])
 
-  /* ─── Handle Node Progress Update ─── */
+  /* ─── Handlers ─── */
   const handleUpdateProgress = async (nodeId, status) => {
     try {
       const res = await apiClient.post('/users/progress', { nodeId, status })
-      if (res.data && res.data.data) {
-        // Update local state
+      if (res.data?.data) {
         setCompletedNodes(new Set(res.data.data.completed || []))
         setSkippedNodes(new Set(res.data.data.skipped || []))
-        
-        // Update user context
         if (user) {
           setUser({
             ...user,
@@ -342,12 +186,10 @@ const RoadmapDetail = () => {
         }
       }
     } catch (err) {
-      console.error('Failed to update progress', err)
-      alert('Lỗi khi cập nhật trạng thái bài học')
+      console.error('Progress update failed', err)
     }
   }
 
-  /* ─── Toggle module expand ─── */
   const toggleModule = useCallback((nodeId) => {
     setExpandedModules(prev => {
       const next = new Set(prev)
@@ -357,119 +199,65 @@ const RoadmapDetail = () => {
     })
   }, [])
 
-  /* ─── Node click ─── */
   const onNodeClick = useCallback((_e, node) => {
     setSelectedNode(node)
-    if (node.data.hasChildren) {
-      setExpandedModules(prev => new Set(prev).add(node.id))
-    }
   }, [])
 
   const onPaneClick = useCallback(() => setSelectedNode(null), [])
 
-  /* ─── Module panel select ─── */
   const handleModuleSelect = useCallback((moduleNode) => {
     setSelectedNode(moduleNode)
-    if (moduleNode.data?.hasChildren || moduleNode.data?.isModule) {
+    if (moduleNode.id) {
       setExpandedModules(prev => new Set(prev).add(moduleNode.id))
     }
   }, [])
 
-  const miniMapColor = useCallback(n => {
-    if (n?.data?.isRoot) return '#3b82f6'
-    if (n?.data?.isModule) return '#fbbf24'
-    return getTheme(n?.data?.category).bg
-  }, [])
-
-  /* ─── Loading / Error ─── */
   if (loading) {
     return (
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin text-blue-500" size={48} />
-          <p className="text-slate-400 text-sm">Đang tải roadmap…</p>
-        </div>
+        <Loader2 className="animate-spin text-blue-500" size={48} />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-red-400 text-lg">{error}</p>
-          <button onClick={() => navigate('/')} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            Quay về trang chủ
-          </button>
-        </div>
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center text-red-400">
+        {error}
       </div>
     )
   }
 
-  /* ─── Render ─── */
   return (
-    <div style={{ width: '100vw', height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', background: '#050505' }}>
-      {/* Title Bar */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '8px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        background: 'rgba(10,10,18,0.95)',
-        backdropFilter: 'blur(8px)',
-        zIndex: 20, flexShrink: 0,
-      }}>
-        <button onClick={() => navigate('/')} style={{ padding: 6, borderRadius: 8, color: '#94a3b8', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-          <ArrowLeft size={18} />
+    <div className="w-screen h-screen flex flex-col bg-[#050505] overflow-hidden">
+      {/* Top Header */}
+      <div className="h-16 flex items-center gap-4 px-6 bg-[#0a0a0f]/95 backdrop-blur-md border-b border-white/[0.06] z-50">
+        <button onClick={() => navigate('/')} className="p-2 text-slate-400 hover:text-white transition-colors">
+          <ArrowLeft size={20} />
         </button>
-        <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)' }} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <h1 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: 0 }}>{title}</h1>
-            {engine && (
-              <span style={{
-                fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999,
-                background: engine === 'Unity' ? 'rgba(99,102,241,0.2)' : 'rgba(239,68,68,0.2)',
-                color: engine === 'Unity' ? '#818cf8' : '#f87171',
-                border: `1px solid ${engine === 'Unity' ? '#6366f140' : '#ef444440'}`,
-                textTransform: 'uppercase', letterSpacing: '0.5px',
-              }}>{engine}</span>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-bold text-white tracking-tight">{metadata.title}</h1>
+            {metadata.engine && (
+              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase">
+                {metadata.engine}
+              </span>
             )}
-            <button 
-              onClick={() => navigate(`/learn/${id}`)}
-              style={{
-                marginLeft: 12, padding: '4px 12px', fontSize: 12, fontWeight: 700,
-                color: '#fff', background: '#2563eb', border: 'none', borderRadius: 6,
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
-              }}
-            >
-              Bắt đầu học
-            </button>
           </div>
-          {description && (
-            <p style={{ fontSize: 11, color: '#475569', margin: 0, maxWidth: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {description}
-            </p>
-          )}
+          <p className="text-xs text-slate-500 truncate max-w-md">{metadata.description}</p>
         </div>
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#475569' }}>
-          {allNodeData.length} nodes · {expandedModules.size} mở
-        </span>
       </div>
 
-      {/* 3-Column Layout */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* LEFT */}
-        <ModulePanel
-          nodes={allNodeData}
-          edges={allEdgeData}
+      <div className="flex-1 flex overflow-hidden relative">
+        <CoursePanel
+          pathwayContent={metadata.pathwayContent}
           selectedNodeId={selectedNode?.id}
           expandedModules={expandedModules}
           onNodeSelect={handleModuleSelect}
           onToggleModule={toggleModule}
         />
 
-        {/* CENTER */}
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div className="flex-1 relative">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -478,37 +266,28 @@ const RoadmapDetail = () => {
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             nodesDraggable={false}
             nodesConnectable={false}
-            elementsSelectable
             fitView
-            fitViewOptions={{ padding: 0.3, duration: 400 }}
-            minZoom={0.1}
-            maxZoom={2.5}
-            proOptions={{ hideAttribution: true }}
+            fitViewOptions={{ padding: 0.4 }}
           >
             <Background color="#1e293b" gap={24} size={1} variant="dots" />
-            <Controls position="bottom-left" style={{ background: '#0f0f18', borderColor: '#1e293b' }} />
-            <MiniMap
-              nodeColor={miniMapColor}
-              maskColor="rgba(0,0,0,0.75)"
-              style={{ backgroundColor: '#0a0a0f', border: '1px solid rgba(255,255,255,0.08)' }}
-              position="bottom-right"
+            <Controls position="bottom-left" className="!bg-[#0f0f18] !border-[#1e293b] !fill-slate-400" />
+            <MiniMap 
+              nodeColor={() => '#1e40af'} 
+              maskColor="rgba(0,0,0,0.7)" 
+              className="!bg-[#0a0a0f] !border-white/5" 
             />
           </ReactFlow>
 
           {!selectedNode && (
-            <div style={{
-              position: 'absolute', bottom: 64, left: '50%', transform: 'translateX(-50%)',
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 9999, padding: '6px 18px', fontSize: 11, color: '#64748b', pointerEvents: 'none',
-            }}>
-              Click vào module (màu vàng) để mở rộng nhánh
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 px-6 py-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-[10px] text-slate-500 font-bold uppercase tracking-widest pointer-events-none">
+              Chọn một module để xem chi tiết bài học
             </div>
           )}
         </div>
 
-        {/* RIGHT */}
         {selectedNode && (
           <NodeDetailPanel
             node={selectedNode}

@@ -1,10 +1,12 @@
 import React from 'react'
-import { X, BookOpen, Layers, Link2, ListChecks, GraduationCap, Video, Image as ImageIcon, Code2, CheckCircle2, XCircle } from 'lucide-react'
+import { X, BookOpen, Layers, Link2, ListChecks, GraduationCap, Video, Image as ImageIcon, Code2, CheckCircle2, XCircle, ExternalLink } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipped, isAuthenticated }) => {
+  const navigate = useNavigate()
   if (!node) return null
 
-  const { label, description, category, resources, prerequisites, contentBlocks, videoUrl } = node.data || {}
+  const { label, description, category, resources, prerequisites, contentBlocks, videoUrl, tasks, referenceId } = node.data || {}
 
   const categoryColors = {
     'language': ['#6366f1', 'rgba(99,102,241,0.12)'],
@@ -117,33 +119,42 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
             )}
 
             {/* Status Actions */}
-            {isAuthenticated && (
-              <div className="flex items-center gap-2 mt-3">
+            <div className="flex flex-col gap-3 mt-4">
+              {(node.data?.nodeType === 'course' || node.data?.category === 'Lesson') && (
                 <button
-                  onClick={() => onUpdateProgress(node.id, isCompleted ? 'none' : 'completed')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    isCompleted 
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                      : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
-                  }`}
+                  onClick={() => navigate(`/learn/${referenceId || node.id}`)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-600/20 group"
                 >
-                  <CheckCircle2 size={14} />
-                  {isCompleted ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}
+                  <ExternalLink size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  Di chuyển đến khóa học
                 </button>
+              )}
 
-                <button
-                  onClick={() => onUpdateProgress(node.id, isSkipped ? 'none' : 'skipped')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    isSkipped 
-                      ? 'bg-slate-700/50 text-slate-300 border border-slate-600' 
-                      : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
-                  }`}
-                >
-                  <XCircle size={14} />
-                  {isSkipped ? 'Đã bỏ qua' : 'Bỏ qua'}
-                </button>
-              </div>
-            )}
+              {isAuthenticated && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => onUpdateProgress(node.id, isCompleted ? 'none' : 'completed')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${isCompleted
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
+                      }`}
+                  >
+                    <CheckCircle2 size={14} />
+                    {isCompleted ? 'Đã xong' : 'Hoàn thành'}
+                  </button>
+
+                  <button
+                    onClick={() => onUpdateProgress(node.id, isSkipped ? 'none' : 'skipped')}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${isSkipped
+                        ? 'bg-slate-700/50 text-slate-300 border border-slate-600'
+                        : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
+                      }`}
+                  >
+                    <XCircle size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -156,15 +167,15 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 custom-scrollbar">
-        
-        {/* Main Video (Unity Pathway Style) */}
+
+        {/* Main Video */}
         {embedVideoUrl && (
           <section className="rounded-xl overflow-hidden border border-white/[0.1] bg-black shadow-lg shadow-black/50">
             {embedVideoUrl.includes('youtube.com') ? (
-              <iframe 
-                src={embedVideoUrl} 
-                className="w-full aspect-video" 
-                allowFullScreen 
+              <iframe
+                src={embedVideoUrl}
+                className="w-full aspect-video"
+                allowFullScreen
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               />
@@ -183,14 +194,12 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
           </section>
         )}
 
-        {/* Dynamic Content Blocks */}
         {contentBlocks && contentBlocks.length > 0 && (
           <section className="pt-2">
             {contentBlocks.map((block, idx) => renderContentBlock(block, idx))}
           </section>
         )}
 
-        {/* Prerequisites */}
         {prerequisites && prerequisites.length > 0 && (
           <section className="pt-4 border-t border-white/[0.06]">
             <div className="flex items-center gap-2 mb-3">
@@ -205,6 +214,37 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
                 </li>
               ))}
             </ul>
+          </section>
+        )}
+
+        {/* Tasks Checklist */}
+        {tasks && tasks.length > 0 && (
+          <section className="pt-4 border-t border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-4">
+              <CheckCircle2 className="w-4 h-4 text-blue-500" />
+              <span className="text-[12px] font-bold uppercase tracking-widest text-slate-400">Nhiệm vụ cần làm</span>
+            </div>
+            <div className="space-y-3">
+              {tasks.map((task, idx) => (
+                <div
+                  key={task.id || idx}
+                  className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.05] transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-5 h-5 rounded border-2 border-white/20 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 opacity-0 group-hover:opacity-20 transition-opacity" />
+                    </div>
+                    <div>
+                      <p className="text-[14px] font-bold text-white leading-none mb-1">{task.title}</p>
+                      <p className="text-[11px] text-slate-500">{task.description || 'Hoàn thành nhiệm vụ này để nhận XP'}</p>
+                    </div>
+                  </div>
+                  <div className="px-2 py-1 bg-blue-600/10 rounded text-[10px] font-black text-blue-400 uppercase tracking-widest">
+                    +{task.xpReward || task.XPReward || 50} XP
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
         )}
 

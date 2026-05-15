@@ -52,17 +52,18 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
           </Link>
 
           <nav ref={navRef} className="hidden items-center gap-6 text-[15px] md:flex">
-            {['Lộ trình của tôi', 'Lộ trình học tập', 'Công việc', ...(user?.role === 0 ? ['Admin'] : [])]
+            {['Lộ trình của tôi', 'Roadmap', 'Khóa học', 'Công việc', ...(user?.role === 0 ? ['Admin'] : [])]
               .filter(menuName => menuName !== 'Lộ trình của tôi' || isAuthenticated)
               .map((menuName) => {
-                const isJobs = menuName === 'Công việc';
                 const isMyRoadMap = menuName === 'Lộ trình của tôi';
                 const isAdmin = menuName === 'Admin';
-                const path = isJobs ? '/Jobs' : isMyRoadMap ? '/profile' : isAdmin ? '/admin' : '/';
+                const isCourse = menuName === 'Khóa học';
+                const isJobs = menuName === 'Công việc';
+                const path = isMyRoadMap ? '/profile' : isAdmin ? '/admin' : isCourse ? '/courses' : isJobs ? '/jobs' : '/';
 
                 return (
                   <div key={menuName} className="relative">
-                    {isJobs || isMyRoadMap || isAdmin ? (
+                    {isMyRoadMap || isAdmin || isCourse || isJobs ? (
                       <Link
                         to={path}
                         state={isMyRoadMap ? { activeTab: 'MyRoadMap' } : undefined}
@@ -90,8 +91,8 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
                                 type="button"
                                 onClick={() => {
                                   setOpenMenu(null);
-                                  const roadmapId = item === 'Unity' 
-                                    ? '69fdb2106948642b07c610e6' 
+                                  const roadmapId = item === 'Unity'
+                                    ? '6a06f3df9b18cc78e251bf39'
                                     : '69fda7ba6633f920faa1bd18';
                                   navigate(`/roadmap/${roadmapId}`);
                                 }}
@@ -154,14 +155,14 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
                   onClick={onOpenLogin}
                   className="text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
-                  Log in
+                  Đăng nhập
                 </button>
                 <button
                   type="button"
                   onClick={onOpenRegister}
                   className="rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-blue-500 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-600/20"
                 >
-                  Join Now
+                  Đăng ký ngay
                 </button>
               </div>
             )}

@@ -40,28 +40,29 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
   const [settings, setSettings] = useState(getSiteSettings())
 
   useEffect(() => {
-    const fetchRoadmaps = async () => {
+    const fetchPathways = async () => {
       try {
-        const response = await apiClient.get('/roadmaps?onlyOfficial=true') // Only official roadmaps
+        const response = await apiClient.get('/Pathways')
         if (response.data && response.data.length > 0) {
-          const mappedRoadmaps = response.data.map((rm, idx) => ({
-            id: rm._id || rm.id || Math.random(),
-            title: rm.title,
-            description: rm.description,
+          const mappedPathways = response.data.map((p, idx) => ({
+            id: p.id,
+            slug: p.slug,
+            title: p.title,
+            description: p.description,
             accent: accentColors[idx % accentColors.length]
           }))
-          setRoadmaps(mappedRoadmaps)
+          setRoadmaps(mappedPathways)
         } else {
           setRoadmaps(fallbackRoadmaps)
         }
       } catch (error) {
-        console.error("Lỗi khi tải Example Roadmaps:", error)
+        console.error("Lỗi khi tải Pathways:", error)
         setRoadmaps(fallbackRoadmaps)
       } finally {
         setLoading(false)
       }
     }
-    fetchRoadmaps()
+    fetchPathways()
   }, [])
 
   const handleBrowseJobs = () => {
@@ -142,7 +143,9 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode }) => {
                   <button
                     type="button"
                     onClick={() => {
-                      if (roadmap.id && roadmap.id !== Math.random() && typeof roadmap.id === 'string') {
+                      if (roadmap.slug) {
+                        navigate(`/roadmap/${roadmap.slug}`)
+                      } else if (roadmap.id) {
                         navigate(`/roadmap/${roadmap.id}`)
                       }
                     }}

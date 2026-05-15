@@ -39,8 +39,8 @@ const UserManager = () => {
   const openEdit = (user) => {
     setEditTarget(user)
     setEditForm({
-      userName: user.userName || user.username || '',
-      fullName: user.fullName || '',
+      userName: user.userName || '',
+      displayName: user.displayName || '',
       email: user.email || '',
       role: user.role ?? 1,
       bio: user.bio || '',
@@ -142,8 +142,8 @@ const UserManager = () => {
       ),
     },
     {
-      key: 'fullName',
-      label: 'Họ tên',
+      key: 'displayName',
+      label: 'Tên hiển thị',
       width: 180,
       render: (val) => (
         <span style={{ color: val ? '#e2e8f0' : 'var(--admin-text-dim)' }}>
@@ -166,8 +166,8 @@ const UserManager = () => {
       label: 'Vai trò',
       width: 120,
       render: (val, row) => {
-        const isAdmin = val === 0 || val === 'admin'
-        const isRecruiter = val === 2 || val === 'recruiter'
+        const isAdmin = val === 0 || val === 'Admin'
+        const isRecruiter = val === 2 || val === 'Recruiter'
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <span
@@ -207,7 +207,7 @@ const UserManager = () => {
       sortable: false,
       width: 130,
       render: (_, row) => {
-        const isRecruiter = row.role === 2 || row.role === 'recruiter'
+        const isRecruiter = row.role === 2 || row.role === 'Recruiter'
         return (
           <div
             style={{ display: 'flex', gap: 6 }}
@@ -334,12 +334,12 @@ const UserManager = () => {
             />
           </div>
           <div>
-            <label className="admin-label">Họ tên</label>
+            <label className="admin-label">Tên hiển thị</label>
             <input
               className="admin-input"
-              value={editForm.fullName}
+              value={editForm.displayName}
               onChange={(e) =>
-                setEditForm((f) => ({ ...f, fullName: e.target.value }))
+                setEditForm((f) => ({ ...f, displayName: e.target.value }))
               }
             />
           </div>
@@ -370,17 +370,6 @@ const UserManager = () => {
               </button>
               <button
                 type="button"
-                className={`admin-btn ${editForm.role === 0 ? 'admin-btn-primary' : 'admin-btn-ghost'
-                  }`}
-                onClick={() =>
-                  setEditForm((f) => ({ ...f, role: 0 }))
-                }
-              >
-                <Shield size={14} />
-                Admin
-              </button>
-              <button
-                type="button"
                 className={`admin-btn ${editForm.role === 2 ? 'admin-btn-primary' : 'admin-btn-ghost'
                   }`}
                 onClick={() =>
@@ -389,6 +378,17 @@ const UserManager = () => {
               >
                 <Users size={14} />
                 Tuyển dụng
+              </button>
+              <button
+                type="button"
+                className={`admin-btn ${editForm.role === 0 ? 'admin-btn-primary' : 'admin-btn-ghost'
+                  }`}
+                onClick={() =>
+                  setEditForm((f) => ({ ...f, role: 0 }))
+                }
+              >
+                <Shield size={14} />
+                Admin
               </button>
             </div>
           </div>

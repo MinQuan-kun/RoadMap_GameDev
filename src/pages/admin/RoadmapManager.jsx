@@ -1,46 +1,81 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Trash2, Eye, Pencil, Map, Loader2 } from 'lucide-react'
+import { Plus, Trash2, Eye, Pencil, Map, Loader2, BookOpen, ShieldCheck, Globe, Save } from 'lucide-react'
 import AdminTable from '../../components/admin/AdminTable'
 import AdminModal from '../../components/admin/AdminModal'
-import { getAllRoadmaps, deleteRoadmap } from '../../services/adminApi'
+import { getAllPathways, deletePathway, createPathway, updatePathway } from '../../services/adminApi'
+import toast from 'react-hot-toast'
 
-const RoadmapManager = () => {
+const PathwayManager = () => {
   const navigate = useNavigate()
-  const [roadmaps, setRoadmaps] = useState([])
+  const [pathways, setPathways] = useState([])
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [editTarget, setEditTarget] = useState(null)
+  const [form, setForm] = useState({ title: '', slug: '', description: '', difficulty: 'beginner', isOfficial: true })
+  const [saving, setSaving] = useState(false)
 
-  const fetchRoadmaps = async () => {
+  const fetchPathways = async () => {
     setLoading(true)
     try {
-      const data = await getAllRoadmaps()
-      setRoadmaps(Array.isArray(data) ? data : [])
+      const data = await getAllPathways()
+      setPathways(Array.isArray(data) ? data : [])
     } catch (e) {
-      console.error('Failed to fetch roadmaps:', e)
-      setRoadmaps([])
+      console.error('Failed to fetch pathways:', e)
+      setPathways([])
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchRoadmaps()
+    fetchPathways()
   }, [])
+
+  const handleOpenEdit = (pathway = null) => {
+    if (pathway) {
+      setEditTarget(pathway)
+      setForm({
+        title: pathway.title || '',
+        slug: pathway.slug || '',
+        description: pathway.description || '',
+        difficulty: pathway.difficulty || 'beginner',
+        isOfficial: pathway.isOfficial ?? true
+      })
+    } else {
+      setEditTarget(null)
+      setForm({ title: '', slug: '', description: '', difficulty: 'beginner', isOfficial: true })
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setSaving(true)
+    try {
+      if (editTarget) {
+        await updatePathway(editTarget.id, form)
+        toast.success('Đã cập nhật Pathway')
+      } else {
+        await createPathway(form)
+        toast.success('Đã tạo Pathway mới')
+      }
+      fetchPathways()
+      setEditTarget(null)
+    } catch (err) {
+      toast.error('Thao tác thất bại')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const handleDelete = async () => {
     if (!deleteTarget) return
     try {
-      await deleteRoadmap(deleteTarget.id || deleteTarget._id)
-      setRoadmaps((prev) =>
-        prev.filter(
-          (r) =>
-            (r.id || r._id) !== (deleteTarget.id || deleteTarget._id)
-        )
-      )
+      await deletePathway(deleteTarget.id || deleteTarget._id)
+      toast.success('Đã xóa Pathway')
+      fetchPathways()
     } catch (e) {
-      console.error('Failed to delete roadmap:', e)
-      alert('Xóa thất bại. Vui lòng thử lại.')
+      toast.error('Xóa thất bại')
     }
     setDeleteTarget(null)
   }
@@ -50,71 +85,58 @@ const RoadmapManager = () => {
       key: 'title',
       label: 'Tiêu đề',
       width: 220,
-      render: (val) => (
-        <span style={{ fontWeight: 600, color: '#e2e8f0' }}>{val || '—'}</span>
+      render: (val, row) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <BookOpen size={16} style={{ color: '#818cf8' }} />
+          </div>
+          <div>
+            <span style={{ fontWeight: 600, color: '#e2e8f0', display: 'block' }}>{val || '—'}</span>
+            <span style={{ fontSize: 10, color: 'var(--admin-text-dim)' }}>/{row.slug}</span>
+          </div>
+        </div>
       ),
     },
     {
-      key: 'engine',
-      label: 'Engine',
+      key: 'difficulty',
+      label: 'Độ khó',
       width: 120,
-      render: (val) =>
-        val ? (
-          <span className="admin-badge admin-badge-info">{val}</span>
-        ) : (
-          <span style={{ color: 'var(--admin-text-dim)' }}>—</span>
-        ),
-    },
-    {
-      key: 'description',
-      label: 'Mô tả',
       render: (val) => (
-        <span
-          style={{
-            color: 'var(--admin-text-muted)',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            maxWidth: 300,
-          }}
-        >
-          {val || '—'}
+        <span className={`admin-badge ${val === 'beginner' ? 'admin-badge-success' : val === 'intermediate' ? 'admin-badge-primary' : 'admin-badge-warning'}`}>
+          {val}
         </span>
       ),
     },
     {
-      key: 'createdAt',
-      label: 'Ngày tạo',
-      width: 130,
+      key: 'isOfficial',
+      label: 'Loại',
+      width: 120,
       render: (val) => (
-        <span style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>
-          {val ? new Date(val).toLocaleDateString('vi-VN') : '—'}
-        </span>
+        val ? (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#10b981', fontSize: 12, fontWeight: 600 }}>
+            <ShieldCheck size={14} /> Chính thức
+          </span>
+        ) : (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--admin-text-dim)', fontSize: 12 }}>
+            <Globe size={14} /> Cộng đồng
+          </span>
+        )
       ),
     },
     {
       key: 'actions',
       label: '',
       sortable: false,
-      width: 120,
+      width: 150,
       render: (_, row) => (
-        <div
-          style={{ display: 'flex', gap: 6 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            className="admin-btn admin-btn-ghost admin-btn-sm"
-            onClick={() => navigate(`/roadmap/${row.id || row._id}`)}
-            title="Xem"
-          >
-            <Eye size={14} />
+        <div style={{ display: 'flex', gap: 6 }} onClick={(e) => e.stopPropagation()}>
+          <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => navigate(`/roadmap/${row.slug}`)} title="Xem đồ thị">
+            <Map size={14} />
           </button>
-          <button
-            className="admin-btn admin-btn-danger admin-btn-sm"
-            onClick={() => setDeleteTarget(row)}
-            title="Xóa"
-          >
+          <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => navigate(`/admin/pathways/edit/${row.id || row._id}`)} title="Chỉnh sửa chuyên sâu">
+            <Pencil size={14} />
+          </button>
+          <button className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => setDeleteTarget(row)} title="Xóa">
             <Trash2 size={14} />
           </button>
         </div>
@@ -122,104 +144,85 @@ const RoadmapManager = () => {
     },
   ]
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: 300,
-        }}
-      >
-        <Loader2
-          size={32}
-          style={{ animation: 'spin 1s linear infinite', color: '#6366f1' }}
-        />
-      </div>
-    )
-  }
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
+      <Loader2 size={32} className="animate-spin" style={{ color: '#6366f1' }} />
+    </div>
+  )
 
   return (
     <div>
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 28,
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
-          <h1
-            style={{
-              fontSize: 26,
-              fontWeight: 800,
-              color: '#f1f5f9',
-              margin: 0,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Roadmaps
-          </h1>
-          <p
-            style={{
-              fontSize: 14,
-              color: 'var(--admin-text-muted)',
-              marginTop: 6,
-            }}
-          >
-            Quản lý {roadmaps.length} lộ trình học tập
-          </p>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Lộ Trình Học Tập</h1>
+          <p style={{ fontSize: 14, color: 'var(--admin-text-muted)', marginTop: 6 }}>Quản lý {pathways.length} Pathways</p>
         </div>
-        <button
-          className="admin-btn admin-btn-primary"
-          onClick={() => navigate('/roadmap/builder')}
-        >
-          <Plus size={16} />
-          Tạo roadmap mới
+        <button className="admin-btn admin-btn-primary" onClick={() => navigate('/admin/pathways/create')}>
+          <Plus size={16} /> Tạo Pathway mới
         </button>
       </div>
 
-      {/* Table */}
       <AdminTable
         columns={columns}
-        data={roadmaps}
-        searchPlaceholder="Tìm theo tiêu đề, engine..."
-        searchKeys={['title', 'engine', 'description']}
+        data={pathways}
+        searchPlaceholder="Tìm theo tiêu đề, slug..."
+        searchKeys={['title', 'slug', 'description']}
         pageSize={10}
-        emptyMessage="Chưa có roadmap nào"
+        emptyMessage="Chưa có lộ trình nào"
       />
 
-      {/* Delete confirmation modal */}
-      <AdminModal
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        title="Xác nhận xóa"
-      >
+      {/* Edit Modal */}
+      <AdminModal isOpen={!!editTarget || (saving && !editTarget)} onClose={() => setEditTarget(null)} title={editTarget ? 'Chỉnh sửa Pathway' : 'Tạo Pathway mới'}>
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16 }}>
+          <div>
+            <label className="admin-label">Tiêu đề</label>
+            <input className="admin-input" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} required />
+          </div>
+          <div>
+            <label className="admin-label">Slug (đường dẫn)</label>
+            <input className="admin-input" value={form.slug} onChange={(e) => setForm({...form, slug: e.target.value})} required />
+          </div>
+          <div>
+            <label className="admin-label">Mô tả</label>
+            <textarea className="admin-textarea" rows={3} value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+             <div>
+                <label className="admin-label">Độ khó</label>
+                <select className="admin-input" value={form.difficulty} onChange={(e) => setForm({...form, difficulty: e.target.value})}>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+             </div>
+             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 24 }}>
+                <input type="checkbox" id="isOfficial" checked={form.isOfficial} onChange={(e) => setForm({...form, isOfficial: e.target.checked})} />
+                <label htmlFor="isOfficial" className="admin-label" style={{ margin: 0 }}>Lộ trình chính thức</label>
+             </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
+            <button type="button" className="admin-btn admin-btn-ghost" onClick={() => setEditTarget(null)}>Hủy</button>
+            <button type="submit" className="admin-btn admin-btn-primary" disabled={saving}>
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {editTarget ? 'Cập nhật' : 'Tạo mới'}
+            </button>
+          </div>
+        </form>
+      </AdminModal>
+
+      {/* Delete confirmation */}
+      <AdminModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Xác nhận xóa">
         <p style={{ fontSize: 14, color: 'var(--admin-text-muted)', margin: '0 0 20px' }}>
-          Bạn có chắc chắn muốn xóa roadmap{' '}
-          <strong style={{ color: '#f87171' }}>
-            "{deleteTarget?.title}"
-          </strong>
-          ? Hành động này không thể hoàn tác.
+          Bạn có chắc chắn muốn xóa pathway <strong style={{ color: '#f87171' }}>"{deleteTarget?.title}"</strong>? 
+          Tất cả dữ liệu khóa học liên quan vẫn sẽ tồn tại nhưng không còn thuộc về lộ trình này.
         </p>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <button
-            className="admin-btn admin-btn-ghost"
-            onClick={() => setDeleteTarget(null)}
-          >
-            Hủy
-          </button>
-          <button className="admin-btn admin-btn-danger" onClick={handleDelete}>
-            <Trash2 size={14} />
-            Xóa
-          </button>
+          <button className="admin-btn admin-btn-ghost" onClick={() => setDeleteTarget(null)}>Hủy</button>
+          <button className="admin-btn admin-btn-danger" onClick={handleDelete}><Trash2 size={14} /> Xóa</button>
         </div>
       </AdminModal>
     </div>
   )
 }
 
-export default RoadmapManager
+export default PathwayManager

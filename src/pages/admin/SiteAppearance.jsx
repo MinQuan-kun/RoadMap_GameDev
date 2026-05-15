@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { Save, RotateCcw, Image, Type, FileText } from 'lucide-react'
-import { getSiteSettings, updateSiteSettings } from '../../services/adminApi'
+import { getSiteSettings, updateSiteSettings, uploadFile } from '../../services/adminApi'
+import { Loader2, Save, RotateCcw, Image, Type, FileText, Upload } from 'lucide-react'
 
 const SiteAppearance = () => {
   const [settings, setSettings] = useState(getSiteSettings())
   const [saved, setSaved] = useState(false)
   const [activeTab, setActiveTab] = useState('banner')
+  const [uploading, setUploading] = useState({ light: false, dark: false })
 
   const handleChange = (key, value) => {
     setSettings((prev) => ({ ...prev, [key]: value }))
@@ -22,6 +23,21 @@ const SiteAppearance = () => {
     localStorage.removeItem('gamenode-site-settings')
     setSettings(getSiteSettings())
     setSaved(false)
+  }
+
+  const handleImageUpload = async (e, type) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    setUploading(prev => ({ ...prev, [type]: true }))
+    try {
+      const data = await uploadFile(file, 'appearance')
+      handleChange(type === 'light' ? 'bannerLightImage' : 'bannerDarkImage', data.url)
+    } catch (err) {
+      console.error('Upload failed:', err)
+    } finally {
+      setUploading(prev => ({ ...prev, [type]: false }))
+    }
   }
 
   const tabs = [
@@ -157,25 +173,39 @@ const SiteAppearance = () => {
             </div>
             <div>
               <label className="admin-label">Ảnh nền Light Mode</label>
-              <input
-                className="admin-input"
-                value={settings.bannerLightImage}
-                onChange={(e) =>
-                  handleChange('bannerLightImage', e.target.value)
-                }
-                placeholder="/Img/ligh_bg.png"
-              />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  className="admin-input"
+                  style={{ flex: 1 }}
+                  value={settings.bannerLightImage}
+                  onChange={(e) =>
+                    handleChange('bannerLightImage', e.target.value)
+                  }
+                  placeholder="/Img/ligh_bg.png"
+                />
+                <label className="admin-btn admin-btn-ghost" style={{ cursor: 'pointer' }}>
+                  {uploading.light ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'light')} disabled={uploading.light} />
+                </label>
+              </div>
             </div>
             <div>
               <label className="admin-label">Ảnh nền Dark Mode</label>
-              <input
-                className="admin-input"
-                value={settings.bannerDarkImage}
-                onChange={(e) =>
-                  handleChange('bannerDarkImage', e.target.value)
-                }
-                placeholder="/Img/dark_bg.png"
-              />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  className="admin-input"
+                  style={{ flex: 1 }}
+                  value={settings.bannerDarkImage}
+                  onChange={(e) =>
+                    handleChange('bannerDarkImage', e.target.value)
+                  }
+                  placeholder="/Img/dark_bg.png"
+                />
+                <label className="admin-btn admin-btn-ghost" style={{ cursor: 'pointer' }}>
+                  {uploading.dark ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'dark')} disabled={uploading.dark} />
+                </label>
+              </div>
             </div>
           </div>
 

@@ -10,15 +10,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Gamepad2,
+  Plus
 } from 'lucide-react'
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/admin/appearance', icon: Palette, label: 'Giao diện' },
-  { to: '/admin/roadmaps', icon: Map, label: 'Roadmaps' },
-  { to: '/admin/nodes', icon: Boxes, label: 'Nodes / Kỹ năng' },
-  { to: '/admin/lessons', icon: BookOpen, label: 'Bài học' },
-  { to: '/admin/users', icon: Users, label: 'Tài khoản' },
+  { to: '/admin/roadmaps', icon: Map, label: 'Quản lý lộ trình' },
+  { to: '/admin/pathways/create', icon: Plus, label: 'Thiết kế lộ trình' },
+  { to: '/admin/users', icon: Users, label: 'Quản lý tài khoản' },
 ]
 
 const AdminSidebar = ({ collapsed, onToggle }) => {
