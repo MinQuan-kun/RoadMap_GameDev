@@ -36,7 +36,7 @@ const CourseListPage = ({ isDarkMode }) => {
 
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-[#0f1115]' : 'bg-slate-50'}`}>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0f1115]">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="animate-spin text-blue-500" size={48} />
           <p className="text-slate-500 font-medium animate-pulse">Đang tải dữ liệu...</p>
@@ -48,7 +48,7 @@ const CourseListPage = ({ isDarkMode }) => {
   // --- RENDER PATHWAY LIST ---
   if (!pathwayId) {
     return (
-      <div className={`min-h-screen ${isDarkMode ? 'bg-[#0f1115] text-white' : 'bg-slate-50 text-slate-900'} pb-20`}>
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0f1115] text-slate-900 dark:text-white pb-20 transition-colors duration-300">
         <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-[#0f1115] py-28 px-4 md:px-8 relative overflow-hidden">
           <div className="max-w-6xl mx-auto relative z-10 text-center">
              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-widest mb-8">
@@ -68,7 +68,7 @@ const CourseListPage = ({ isDarkMode }) => {
               <div
                 key={pathway.id || pathway.Id}
                 onClick={() => navigate(`/courses/${pathway.slug || pathway.id || pathway.Id}`)}
-                className={`group cursor-pointer relative flex flex-col rounded-[32px] overflow-hidden transition-all duration-500 hover:shadow-[0_40px_80px_rgba(0,0,0,0.5)] hover:-translate-y-3 ${isDarkMode ? 'bg-[#1a1c23] border border-white/5' : 'bg-white border border-slate-200 shadow-2xl'}`}
+                className="group cursor-pointer relative flex flex-col rounded-[32px] overflow-hidden transition-all duration-500 hover:shadow-[0_40px_80px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_40px_80px_rgba(0,0,0,0.5)] hover:-translate-y-3 bg-white dark:bg-[#1a1c23] border border-slate-200 dark:border-white/5 shadow-xl"
               >
                 <div className="h-56 relative overflow-hidden bg-slate-800">
                   <img 
@@ -87,9 +87,9 @@ const CourseListPage = ({ isDarkMode }) => {
                   </div>
                 </div>
                 <div className="p-10">
-                  <h3 className="text-3xl font-black mb-4 text-white group-hover:text-blue-400 transition-colors tracking-tight">{pathway.title}</h3>
-                  <p className="text-slate-400 leading-relaxed line-clamp-2 mb-8">{pathway.description}</p>
-                  <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                  <h3 className="text-3xl font-black mb-4 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors tracking-tight">{pathway.title}</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 mb-8">{pathway.description}</p>
+                  <div className="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-white/5">
                     <div className="flex items-center gap-4 text-xs font-bold text-slate-500 uppercase">
                       <span className="flex items-center gap-1.5"><Clock size={14} /> {pathway.estimatedHours}H</span>
                       <span className="flex items-center gap-1.5"><Star size={14} className="text-yellow-500 fill-yellow-500" /> {pathway.difficulty}</span>
@@ -107,8 +107,8 @@ const CourseListPage = ({ isDarkMode }) => {
 
   // --- RENDER COURSE LIST WITHIN PATHWAY ---
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-[#0f1115] text-white' : 'bg-slate-50 text-slate-900'} pb-20`}>
-      <div className="bg-slate-950 py-20 px-4 md:px-8 relative border-b border-white/5">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0f1115] text-slate-900 dark:text-white pb-20 transition-colors duration-300">
+      <div className="bg-slate-900 dark:bg-slate-950 py-20 px-4 md:px-8 relative border-b border-white/5">
         <div className="max-w-6xl mx-auto">
           <button 
             onClick={() => navigate('/courses')}
@@ -135,7 +135,7 @@ const CourseListPage = ({ isDarkMode }) => {
             <Link
               to={`/learn/${course.id || course.Id}`}
               key={course.id || course.Id}
-              className={`group flex flex-col md:flex-row items-center gap-8 p-8 rounded-[32px] transition-all duration-300 border ${isDarkMode ? 'bg-[#1a1c23] border-white/5 hover:border-blue-500/50 hover:bg-blue-500/5' : 'bg-white border-slate-200 shadow-xl'}`}
+              className="group flex flex-col md:flex-row items-center gap-8 p-8 rounded-[32px] transition-all duration-300 border bg-white dark:bg-[#1a1c23] border-slate-200 dark:border-white/5 shadow-xl hover:shadow-2xl hover:border-blue-500/50 dark:hover:bg-blue-500/5"
             >
               <div className="w-full md:w-48 h-32 rounded-2xl overflow-hidden bg-slate-800 flex-shrink-0">
                 <img 
@@ -149,8 +149,8 @@ const CourseListPage = ({ isDarkMode }) => {
                   <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest px-2 py-0.5 bg-blue-500/10 rounded">KHÓA HỌC {idx + 1}</span>
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{course.difficulty || 'Cơ bản'}</span>
                 </div>
-                <h3 className="text-2xl font-black text-white mb-2 group-hover:text-blue-400 transition-colors">{course.title}</h3>
-                <p className="text-slate-400 line-clamp-1 text-sm">{course.description}</p>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{course.title}</h3>
+                <p className="text-slate-600 dark:text-slate-400 line-clamp-1 text-sm">{course.description}</p>
               </div>
               <div className="flex flex-col items-end gap-4">
                 <div className="flex items-center gap-4 text-xs font-bold text-slate-500">

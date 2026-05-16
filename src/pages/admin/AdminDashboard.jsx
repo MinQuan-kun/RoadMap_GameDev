@@ -76,7 +76,7 @@ const AdminDashboard = () => {
           style={{
             fontSize: 26,
             fontWeight: 800,
-            color: '#f1f5f9',
+            color: 'var(--admin-text)',
             margin: 0,
             letterSpacing: '-0.02em',
           }}
@@ -117,13 +117,7 @@ const AdminDashboard = () => {
           color="blue"
           delay={2}
         />
-        <StatCard
-          icon={Boxes}
-          label="Skill Nodes"
-          value={loading ? '—' : stats.totalNodes}
-          color="emerald"
-          delay={3}
-        />
+
       </div>
 
       {/* Quick Actions */}
@@ -132,7 +126,7 @@ const AdminDashboard = () => {
           style={{
             fontSize: 16,
             fontWeight: 700,
-            color: '#e2e8f0',
+            color: 'var(--admin-text)',
             marginBottom: 16,
           }}
         >
@@ -181,7 +175,7 @@ const AdminDashboard = () => {
                   style={{
                     fontSize: 14,
                     fontWeight: 600,
-                    color: '#e2e8f0',
+                    color: 'var(--admin-text)',
                     margin: 0,
                   }}
                 >
@@ -212,7 +206,7 @@ const AdminDashboard = () => {
           style={{
             fontSize: 16,
             fontWeight: 700,
-            color: '#e2e8f0',
+            color: 'var(--admin-text)',
             marginBottom: 16,
             margin: 0,
           }}

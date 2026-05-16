@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactFlow, {
   addEdge,
@@ -37,7 +37,7 @@ import {
   Play
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { createFullPathway, updateFullPathway, getFullPathway, uploadFile } from '../../services/adminApi'
+import { createFullPathway, updateFullPathway, getFullPathway, uploadFile, getTask } from '../../services/adminApi'
 
 const steps = [
   { id: 1, label: 'Thông tin chung', icon: Info },
@@ -48,12 +48,13 @@ const steps = [
   { id: 6, label: 'Hoàn tất', icon: Share2 },
 ]
 
-const nodeTypes = {}
-const edgeTypes = {}
-
 const PathwayBuilder = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+
+  const nodeTypes = useMemo(() => ({}), [])
+  const edgeTypes = useMemo(() => ({}), [])
+
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -514,13 +515,27 @@ const PathwayBuilder = () => {
                             />
                             <div className="flex items-center gap-2">
                               <button 
-                                onClick={() => setEditingTask({
-                                  courseId: course.id,
-                                  moduleId: module.id,
-                                  lessonId: lesson.id,
-                                  taskIdx: tIdx,
-                                  task: task
-                                })}
+                                onClick={async () => {
+                                  let fullTask = task;
+                                  if (task.id) {
+                                    try {
+                                       setLoading(true);
+                                       const data = await getTask(task.id);
+                                       fullTask = data;
+                                    } catch (err) {
+                                       console.error("Failed to fetch task details", err);
+                                    } finally {
+                                       setLoading(false);
+                                    }
+                                  }
+                                  setEditingTask({
+                                    courseId: course.id,
+                                    moduleId: module.id,
+                                    lessonId: lesson.id,
+                                    taskIdx: tIdx,
+                                    task: fullTask
+                                  });
+                                }}
                                 className="p-1.5 text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all"
                                 title="Chỉnh sửa chi tiết"
                               >

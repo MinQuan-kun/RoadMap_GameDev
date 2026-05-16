@@ -14,9 +14,12 @@ import {
   Award,
   CheckSquare,
   Square,
-  Trophy
+  Trophy,
+  MessageSquare
 } from 'lucide-react';
 import apiClient from '../services/apiClient';
+import { getUserProfile } from '../services/adminApi';
+import { completeTask } from '../services/userApi';
 import AuthContext from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -32,6 +35,10 @@ const LessonPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [completing, setCompleting] = useState(false);
   const [completedLessonIds, setCompletedLessonIds] = useState([]);
+  const [completedTaskIds, setCompletedTaskIds] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     const fetchPathwayContent = async () => {
       try {
@@ -48,12 +55,26 @@ const LessonPage = () => {
         
         // Flatten courses into a "node-like" structure for the existing UI
         const flattenedData = {
+          id: pathway.id || pathway._id,
           name: pathway.title || pathway.Title,
           modules: (courses || []).flatMap(c => c.modules || c.Modules || [])
         };
 
         setNodeData(flattenedData);
         
+        // Fetch progress
+        try {
+          const profile = await getUserProfile();
+          setCompletedLessonIds(profile.completedLessonIds || []);
+          setCompletedTaskIds(profile.completedTaskIds || []);
+        } catch (e) {
+          console.warn("Could not fetch user progress", e);
+          if (e.response?.status === 401) {
+             // onOpenLogin(); // If we had access to it
+             toast.error("Bạn cần đăng nhập để lưu tiến độ học tập.");
+          }
+        }
+
         if (flattenedData.modules && flattenedData.modules.length > 0) {
           setActiveModule(flattenedData.modules[0]);
           if (flattenedData.modules[0].lessons && flattenedData.modules[0].lessons.length > 0) {
@@ -71,20 +92,46 @@ const LessonPage = () => {
     if (pathwaySlug) fetchPathwayContent();
   }, [pathwaySlug]);
 
+  const handleSaveContent = async () => {
+    if (!user || user.role !== 'Admin') return;
+    try {
+      setIsSaving(true);
+      // Example: Save active lesson changes
+      await apiClient.put(`/admin/lessons/${activeLesson.id}`, activeLesson);
+      toast.success("Đã cập nhật nội dung thành công!");
+      setIsEditMode(false);
+    } catch (e) {
+      toast.error("Lỗi khi cập nhật nội dung.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleCompleteLesson = async () => {
     if (!activeLesson || completing) return;
     try {
       setCompleting(true);
-      // Mock call or real call if we have roadmapId
-      // await apiClient.post('/lesson/complete-lesson', { nodeId, lessonId: activeLesson.id, roadmapId: '...' });
-      
+      await apiClient.post(`/lesson/complete/${activeLesson.id}`);
       setCompletedLessonIds(prev => [...prev, activeLesson.id]);
       toast.success("Đã hoàn thành bài học!");
-      
-      // Auto navigate to next lesson
       navigateToNext();
     } catch (e) {
       toast.error("Lỗi khi cập nhật tiến độ.");
+    } finally {
+      setCompleting(false);
+    }
+  };
+
+  const handleCompleteTask = async (taskId) => {
+    if (isEditMode) return; // Prevent completion while editing
+    if (completing || completedTaskIds.includes(taskId)) return;
+    try {
+      setCompleting(true);
+      const res = await completeTask(taskId);
+      setCompletedTaskIds(res.completedTaskIds || []);
+      toast.success("Đã hoàn thành nhiệm vụ!");
+    } catch (e) {
+      toast.error("Lỗi khi cập nhật nhiệm vụ.");
     } finally {
       setCompleting(false);
     }
@@ -127,22 +174,19 @@ const LessonPage = () => {
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-slate-950 text-slate-300 font-sans overflow-hidden">
+    <div className="flex h-[calc(100vh-64px)] bg-slate-50 dark:bg-[#050505] text-slate-700 dark:text-slate-300 font-sans overflow-hidden transition-colors duration-300">
       {/* Sidebar Navigation */}
-      <div 
-        className={`${isSidebarOpen ? 'w-80' : 'w-0'} flex-shrink-0 bg-[#0f1117] border-r border-slate-800 transition-all duration-300 relative overflow-y-auto no-scrollbar flex flex-col`}
-      >
-        <div className="p-4 border-b border-slate-800">
+      <div className={`${isSidebarOpen ? 'w-80' : 'w-0'} flex flex-col bg-white dark:bg-[#0a0d14] border-r border-slate-200 dark:border-white/[0.06] transition-all duration-300 overflow-hidden`}>
+        <div className="p-4 border-b border-slate-100 dark:border-white/[0.06]">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 bg-indigo-600/20 rounded flex items-center justify-center">
-              <Award size={18} className="text-indigo-400" />
+            <div className="w-8 h-8 bg-indigo-600/10 rounded flex items-center justify-center">
+              <Award size={18} className="text-indigo-600 dark:text-indigo-400" />
             </div>
-            <h2 className="font-bold text-sm text-white line-clamp-1">{nodeData.name}</h2>
+            <h2 className="font-bold text-sm text-slate-900 dark:text-white line-clamp-1">{nodeData.name}</h2>
           </div>
-          <div className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">Nội dung khóa học</div>
         </div>
 
-        <div className="flex-1 p-2">
+        <div className="flex-1 p-2 overflow-y-auto no-scrollbar">
           {nodeData.modules?.map((mod, mIdx) => (
             <div key={mIdx} className="mb-2">
               <div className="px-3 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
@@ -160,15 +204,17 @@ const LessonPage = () => {
                         setActiveModule(mod);
                         setActiveLesson(lesson);
                       }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
-                        isActive ? 'bg-indigo-600/10 text-white border border-indigo-500/20' : 'hover:bg-slate-800/50'
+                      className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all ${
+                        isActive 
+                        ? 'bg-blue-600/10 text-blue-600 dark:text-blue-400 border-r-4 border-blue-600' 
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-100'
                       }`}
                     >
                       <div className="flex-shrink-0">
                         {isCompleted ? (
                           <CheckCircle2 size={16} className="text-green-500" />
                         ) : (
-                          lesson.type === 'video' ? <PlayCircle size={16} className="text-slate-500" /> : <FileText size={16} className="text-slate-500" />
+                          lesson.type === 'video' ? <PlayCircle size={16} className="opacity-50" /> : <FileText size={16} className="opacity-50" />
                         )}
                       </div>
                       <span className={`text-xs ${isActive ? 'font-bold' : 'font-medium'}`}>{lesson.title}</span>
@@ -182,20 +228,44 @@ const LessonPage = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col relative overflow-hidden bg-[#0a0d14]">
+      <div className="flex-1 flex flex-col relative overflow-hidden bg-slate-50 dark:bg-[#0a0d14]">
         {/* Top bar controls */}
-        <div className="h-14 border-b border-slate-800 flex items-center justify-between px-6 bg-[#0f1117]/80 backdrop-blur-md z-10">
-          <button 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 hover:bg-slate-800 rounded-md transition-colors text-slate-400"
-          >
-            <Menu size={20} />
-          </button>
+        <div className="h-16 flex items-center justify-between px-8 bg-white/80 dark:bg-[#0a0d14]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] z-10 transition-colors duration-300">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 transition-colors"
+            >
+              <Menu size={20} />
+            </button>
+            
+            {user?.role === 'Admin' && (
+              <button 
+                onClick={() => isEditMode ? handleSaveContent() : setIsEditMode(true)}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                  isEditMode 
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
+                    : 'bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600/20'
+                }`}
+              >
+                {isSaving ? <Loader2 className="animate-spin" size={14} /> : (isEditMode ? <CheckSquare size={14} /> : <Settings size={14} />)}
+                {isEditMode ? 'LƯU NỘI DUNG' : 'CHỈNH SỬA NỘI DUNG'}
+              </button>
+            )}
+            {isEditMode && (
+               <button 
+                onClick={() => setIsEditMode(false)}
+                className="text-[10px] font-black text-slate-400 hover:text-red-500 transition-colors"
+               >
+                 HỦY
+               </button>
+            )}
+          </div>
           
           <div className="flex items-center gap-4">
              <button 
                 onClick={() => navigate(-1)}
-                className="text-xs font-bold text-slate-400 hover:text-white flex items-center gap-1 transition-colors"
+                className="text-xs font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors"
              >
                <ArrowLeft size={14} /> THOÁT
              </button>
@@ -203,115 +273,184 @@ const LessonPage = () => {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-[#050505]">
           {activeLesson ? (
             <div className="max-w-4xl mx-auto px-8 py-12 pb-32">
-              <div className="flex items-center gap-2 text-indigo-400 font-bold text-[10px] tracking-widest uppercase mb-4">
-                <span>{activeModule.title}</span>
-                <ChevronRight size={12} />
-                <span>BÀI {activeModule.lessons.indexOf(activeLesson) + 1}</span>
-              </div>
-              
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-8 tracking-tight">
-                {activeLesson.title}
-              </h1>
-
-              {/* Lesson Specifics */}
-              <div className="flex items-center gap-6 mb-10 text-xs text-slate-500 font-medium border-y border-slate-800/50 py-4">
-                 <div className="flex items-center gap-2">
-                   <Clock size={14} /> <span>{activeLesson.duration_minutes || 5} phút</span>
-                 </div>
-                 <div className="flex items-center gap-2">
-                   {activeLesson.type === 'video' ? <PlayCircle size={14} /> : <FileText size={14} />}
-                   <span className="capitalize">{activeLesson.type}</span>
-                 </div>
-              </div>
-
-              {/* Video Player */}
-              {activeLesson.type === 'video' && activeLesson.video_url && (
-                <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl mb-12 border border-slate-800">
-                  <iframe 
-                    src={activeLesson.video_url.includes('youtube.com/watch') ? activeLesson.video_url.replace('watch?v=', 'embed/') : activeLesson.video_url} 
-                    className="w-full h-full"
-                    allowFullScreen
-                    title={activeLesson.title}
-                  />
+              {/* Task Header */}
+              <div className="mb-12">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-[10px] tracking-widest uppercase mb-4">
+                  <span>{activeModule.title}</span>
+                  <ChevronRight size={12} />
+                  <span>BÀI {activeModule.lessons.indexOf(activeLesson) + 1}</span>
                 </div>
-              )}
-
-              {/* Main Content Body */}
-              <div className="prose prose-invert prose-indigo max-w-none mb-16">
-                {activeLesson.content ? (
-                  <div 
-                    className="text-slate-300 leading-relaxed text-lg space-y-6"
-                    dangerouslySetInnerHTML={{ __html: activeLesson.content.replace(/\n/g, '<br/>') }}
+                
+                {isEditMode ? (
+                  <input 
+                    type="text"
+                    value={activeLesson.title}
+                    onChange={(e) => setActiveLesson({...activeLesson, title: e.target.value})}
+                    className="w-full text-4xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight bg-transparent border-b-2 border-indigo-600 outline-none"
                   />
                 ) : (
-                  <div className="py-20 text-center border-2 border-dashed border-slate-800 rounded-3xl">
-                     <FileText size={48} className="mx-auto text-slate-700 mb-4" />
-                     <p className="text-slate-500">Nội dung bài học đang được cập nhật...</p>
+                  <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight">
+                    {activeLesson.title}
+                  </h1>
+                )}
+
+                {/* Legacy description if no tasks */}
+                {(!activeLesson.tasks || activeLesson.tasks.length === 0) && (
+                  isEditMode ? (
+                    <textarea 
+                      value={activeLesson.description || ''}
+                      onChange={(e) => setActiveLesson({...activeLesson, description: e.target.value})}
+                      className="w-full text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8 bg-transparent border border-slate-200 dark:border-white/10 rounded-xl p-4 outline-none min-h-[100px]"
+                      placeholder="Mô tả bài học..."
+                    />
+                  ) : activeLesson.description && (
+                    <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
+                      {activeLesson.description}
+                    </p>
+                  )
+                )}
+              </div>
+
+              {/* TASKS LIST */}
+              <div className="space-y-20">
+                {activeLesson.tasks && activeLesson.tasks.length > 0 ? (
+                  activeLesson.tasks.map((task, tIdx) => (
+                    <div key={task.id || tIdx} className="animate-fade-in">
+                      {/* Task UI based on Unity Design */}
+                      <div className="space-y-6">
+                        <div className="flex flex-col gap-1">
+                           {isEditMode ? (
+                            <input 
+                              type="text"
+                              value={task.title}
+                              onChange={(e) => {
+                                const newTasks = [...activeLesson.tasks];
+                                newTasks[tIdx] = {...task, title: e.target.value};
+                                setActiveLesson({...activeLesson, tasks: newTasks});
+                              }}
+                              className="text-3xl font-bold text-slate-900 dark:text-white bg-transparent border-b border-indigo-600 outline-none w-full"
+                            />
+                          ) : (
+                            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+                              {tIdx + 1}. {task.title}
+                            </h2>
+                          )}
+                          <div className="flex items-center gap-2 mt-1">
+                            <MessageSquare size={16} className="text-slate-400 dark:text-slate-500" />
+                            <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Q&A (0)</span>
+                          </div>
+                        </div>
+ 
+                        {isEditMode ? (
+                          <textarea 
+                            value={task.description || ''}
+                            onChange={(e) => {
+                              const newTasks = [...activeLesson.tasks];
+                              newTasks[tIdx] = {...task, description: e.target.value};
+                              setActiveLesson({...activeLesson, tasks: newTasks});
+                            }}
+                            className="w-full text-lg text-slate-700 dark:text-slate-300 leading-relaxed bg-transparent border border-slate-200 dark:border-white/10 rounded-xl p-4 outline-none min-h-[150px]"
+                            placeholder="Mô tả nhiệm vụ..."
+                          />
+                        ) : task.description && (
+                          <div className="prose prose-slate dark:prose-invert max-w-none">
+                            <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                              {task.description}
+                            </p>
+                          </div>
+                        )}
+ 
+                        {/* Media Section */}
+                        {task.mediaUrl && (
+                          <div className="rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-white/5">
+                            {(task.mediaType === 'video' || (task.mediaUrl && (task.mediaUrl.includes('youtube') || task.mediaUrl.includes('vimeo')))) ? (
+                              <div className="aspect-video bg-black">
+                                <iframe 
+                                  src={task.mediaUrl.includes('youtube.com/watch') ? task.mediaUrl.replace('watch?v=', 'embed/') : task.mediaUrl} 
+                                  className="w-full h-full"
+                                  allowFullScreen
+                                  title={task.title}
+                                />
+                              </div>
+                            ) : (
+                              <img src={task.mediaUrl} alt={task.title} className="w-full h-auto object-cover" />
+                            )}
+                          </div>
+                        )}
+
+                        {isEditMode && (
+                          <div className="flex gap-2">
+                            <input 
+                              type="text"
+                              value={task.mediaUrl || ''}
+                              onChange={(e) => {
+                                const newTasks = [...activeLesson.tasks];
+                                newTasks[tIdx] = {...task, mediaUrl: e.target.value};
+                                setActiveLesson({...activeLesson, tasks: newTasks});
+                              }}
+                              className="flex-1 text-xs p-2 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none"
+                              placeholder="Media URL (Image or YouTube)..."
+                            />
+                          </div>
+                        )}
+
+                        {/* Task Completion Button */}
+                        <div className="pt-4">
+                          <button
+                            onClick={() => handleCompleteTask(task.id)}
+                            disabled={completing || completedTaskIds.includes(task.id)}
+                            className={`w-full py-4 rounded-lg font-black text-sm uppercase tracking-widest transition-all ${
+                              completedTaskIds.includes(task.id)
+                                ? 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500 cursor-default border border-slate-200 dark:border-white/5'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 active:scale-[0.98]'
+                            }`}
+                          >
+                            {completedTaskIds.includes(task.id) ? 'Completed' : 'Mark Step As Complete'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  /* Fallback to Lesson Content if no tasks */
+                  <div className="space-y-12">
+                     {activeLesson.video_url && (
+                        <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-white/5">
+                           <iframe 
+                             src={activeLesson.video_url.includes('youtube.com/watch') ? activeLesson.video_url.replace('watch?v=', 'embed/') : activeLesson.video_url} 
+                             className="w-full h-full"
+                             allowFullScreen
+                           />
+                        </div>
+                     )}
+                     <div className="prose prose-slate dark:prose-invert max-w-none">
+                        <div dangerouslySetInnerHTML={{ __html: activeLesson.content?.replace(/\n/g, '<br/>') }} className="text-slate-700 dark:text-slate-300" />
+                     </div>
                   </div>
                 )}
               </div>
 
-              {/* TASKS SECTION */}
-              {activeLesson.tasks && activeLesson.tasks.length > 0 && (
-                <div className="mt-12 p-8 rounded-3xl bg-white/[0.02] border border-white/10">
-                  <div className="flex items-center gap-3 mb-8">
-                    <div className="p-2.5 bg-emerald-500/20 rounded-xl">
-                      <CheckSquare className="text-emerald-400" size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">Nhiệm vụ cần làm</h3>
-                      <p className="text-sm text-slate-500">Hoàn thành các nhiệm vụ bên dưới để nhận thêm XP</p>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4">
-                    {activeLesson.tasks.map((task, idx) => (
-                      <div 
-                        key={task.id || idx}
-                        className="group flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/[0.08] hover:border-white/10 transition-all duration-300"
-                      >
-                        <button className="mt-1 text-slate-600 hover:text-emerald-400 transition-colors">
-                          <Square size={20} />
-                        </button>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-bold text-slate-200">{task.title}</h4>
-                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
-                              <Trophy size={10} />
-                              +{task.xpReward} XP
-                            </div>
-                          </div>
-                          <p className="text-sm text-slate-500 leading-relaxed">
-                            {task.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Footer Actions */}
-              <div className="mt-20 pt-10 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+              {/* Lesson Footer Actions */}
+              <div className="mt-24 pt-10 border-t border-slate-100 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
                 <button
                   onClick={handleCompleteLesson}
                   disabled={completing || completedLessonIds.includes(activeLesson.id)}
-                  className={`w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold transition-all shadow-lg ${
+                  className={`w-full md:w-auto flex items-center justify-center gap-2 px-10 py-4 rounded-full font-bold transition-all ${
                     completedLessonIds.includes(activeLesson.id)
-                      ? 'bg-green-600/20 text-green-500 border border-green-500/30 cursor-default'
-                      : 'bg-indigo-600 hover:bg-indigo-500 text-white hover:scale-105 active:scale-95'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-600/20'
                   }`}
                 >
                   {completing ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle2 size={20} />}
-                  {completedLessonIds.includes(activeLesson.id) ? 'Đã Hoàn Thành' : 'Đánh dấu hoàn thành'}
+                  {completedLessonIds.includes(activeLesson.id) ? 'Bài học đã hoàn thành' : 'Hoàn thành bài học'}
                 </button>
 
                 <button
                   onClick={navigateToNext}
-                  className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-full transition-all border border-slate-700"
+                  className="w-full md:w-auto flex items-center justify-center gap-2 px-10 py-4 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-bold rounded-full transition-all border border-slate-200 dark:border-white/10"
                 >
                   Bài tiếp theo <ChevronRight size={20} />
                 </button>

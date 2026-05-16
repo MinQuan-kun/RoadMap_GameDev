@@ -56,7 +56,7 @@ const AdminLayout = () => {
             padding: '0 28px',
             height: 56,
             borderBottom: '1px solid var(--admin-border)',
-            background: 'rgba(10, 13, 22, 0.8)',
+            background: 'var(--admin-header-bg)',
             backdropFilter: 'blur(12px)',
             position: 'sticky',
             top: 0,
@@ -118,7 +118,7 @@ const AdminLayout = () => {
                   style={{
                     fontSize: 13,
                     fontWeight: 600,
-                    color: '#e2e8f0',
+                    color: 'var(--admin-text)',
                     margin: 0,
                     lineHeight: 1.2,
                   }}

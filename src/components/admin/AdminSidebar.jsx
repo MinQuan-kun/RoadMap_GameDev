@@ -74,7 +74,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
               style={{
                 fontSize: 16,
                 fontWeight: 800,
-                color: '#e2e8f0',
+                color: 'var(--admin-text)',
                 letterSpacing: '-0.02em',
               }}
             >

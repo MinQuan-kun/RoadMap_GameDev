@@ -4,6 +4,28 @@
    ═══════════════════════════════════════════════════ */
 
 :root {
+  /* ─── Light Mode Admin Colors ─── */
+  --admin-bg: #f8fafc;
+  --admin-sidebar: #ffffff;
+  --admin-card: #ffffff;
+  --admin-card-hover: #f1f5f9;
+  --admin-border: rgba(0, 0, 0, 0.06);
+  --admin-border-hover: rgba(0, 0, 0, 0.1);
+  --admin-text: #0f172a;
+  --admin-text-muted: #64748b;
+  --admin-text-dim: #94a3b8;
+  --admin-accent: #4f46e5;
+  --admin-accent-light: #6366f1;
+  --admin-accent-glow: rgba(79, 70, 229, 0.1);
+  --admin-success: #10b981;
+  --admin-warning: #f59e0b;
+  --admin-danger: #ef4444;
+  --admin-info: #3b82f6;
+  --admin-header-bg: rgba(255, 255, 255, 0.8);
+}
+
+.dark {
+  /* ─── Dark Mode Admin Colors ─── */
   --admin-bg: #06080f;
   --admin-sidebar: #0a0d16;
   --admin-card: #0f1219;
@@ -11,15 +33,12 @@
   --admin-border: rgba(255, 255, 255, 0.06);
   --admin-border-hover: rgba(255, 255, 255, 0.12);
   --admin-text: #e2e8f0;
-  --admin-text-muted: #64748b;
+  --admin-text-muted: #94a3b8;
   --admin-text-dim: #475569;
   --admin-accent: #6366f1;
   --admin-accent-light: #818cf8;
   --admin-accent-glow: rgba(99, 102, 241, 0.15);
-  --admin-success: #10b981;
-  --admin-warning: #f59e0b;
-  --admin-danger: #ef4444;
-  --admin-info: #3b82f6;
+  --admin-header-bg: rgba(10, 13, 22, 0.8);
 }
 
 /* ─── Sidebar ──────────────────────────────────── */

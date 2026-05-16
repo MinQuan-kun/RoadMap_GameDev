@@ -11,29 +11,29 @@ const CoursePanel = ({
   
   if (!pathwayContent || pathwayContent.length === 0) {
     return (
-      <aside className="h-full flex flex-col bg-[#050505] border-r border-white/[0.04]" style={{ width: 340, flexShrink: 0 }}>
+      <aside className="h-full flex flex-col bg-white dark:bg-[#050505] border-r border-slate-200 dark:border-white/[0.04]" style={{ width: 340, flexShrink: 0 }}>
         <div className="p-12 text-center">
-          <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10 animate-pulse">
-            <MonitorPlay className="w-6 h-6 text-slate-600" />
+          <div className="w-12 h-12 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200 dark:border-white/10 animate-pulse">
+            <MonitorPlay className="w-6 h-6 text-slate-400 dark:text-slate-600" />
           </div>
           <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Đang tải nội dung...</p>
-          <p className="text-[10px] text-slate-700 mt-1 italic">Vui lòng chờ trong giây lát</p>
+          <p className="text-[10px] text-slate-400 dark:text-slate-700 mt-1 italic">Vui lòng chờ trong giây lát</p>
         </div>
       </aside>
     )
   }
 
   return (
-    <aside className="h-full flex flex-col bg-[#050505] border-r border-white/[0.04] shadow-2xl z-30" style={{ width: 340, flexShrink: 0 }}>
+    <aside className="h-full flex flex-col bg-white dark:bg-[#050505] border-r border-slate-200 dark:border-white/[0.04] shadow-2xl z-30 transition-colors duration-300" style={{ width: 340, flexShrink: 0 }}>
       {/* Header */}
-      <div className="px-6 py-8 border-b border-white/[0.04] bg-[#0a0a0f]/50 backdrop-blur-md">
+      <div className="px-6 py-8 border-b border-slate-100 dark:border-white/[0.04] bg-slate-50/50 dark:bg-[#0a0a0f]/50 backdrop-blur-md">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-blue-600/10 rounded-2xl flex items-center justify-center border border-blue-500/20">
             <MonitorPlay className="w-5 h-5 text-blue-500" />
           </div>
           <div>
-            <span className="text-sm font-black text-white tracking-tight block">Lộ trình học tập</span>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Cấu trúc bài học</span>
+            <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight block">Lộ trình học tập</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-500 font-bold uppercase tracking-widest">Cấu trúc bài học</span>
           </div>
         </div>
       </div>
@@ -47,7 +47,7 @@ const CoursePanel = ({
               <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-black text-white">
                 {cIdx + 1}
               </div>
-              <h3 className="text-xs font-black text-slate-200 uppercase tracking-wider truncate">
+              <h3 className="text-xs font-black text-slate-900 dark:text-slate-200 uppercase tracking-wider truncate">
                 {course.Title || course.title}
               </h3>
             </div>
@@ -64,17 +64,17 @@ const CoursePanel = ({
                     <div
                       className={`group flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 cursor-pointer border
                         ${isExpanded 
-                          ? 'bg-white/[0.04] border-white/5 shadow-lg' 
-                          : 'bg-transparent border-transparent hover:bg-white/[0.02]'}`}
+                          ? 'bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/5 shadow-lg' 
+                          : 'bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-white/[0.02]'}`}
                       onClick={() => onToggleModule && onToggleModule(modId)}
                     >
                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all
-                        ${isExpanded ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-white/5 text-slate-600'}`}>
+                        ${isExpanded ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-600'}`}>
                         <Box size={16} />
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <p className={`text-[13px] font-black truncate transition-colors ${isExpanded ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
+                        <p className={`text-[13px] font-black truncate transition-colors ${isExpanded ? 'text-blue-600 dark:text-white' : 'text-slate-700 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-slate-300'}`}>
                           {module.Title || module.title}
                         </p>
                         <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tight mt-0.5">
@@ -82,7 +82,7 @@ const CoursePanel = ({
                         </p>
                       </div>
 
-                      <div className={`transition-transform duration-500 ${isExpanded ? 'rotate-180 text-blue-500' : 'text-slate-700'}`}>
+                      <div className={`transition-transform duration-500 ${isExpanded ? 'rotate-180 text-blue-500' : 'text-slate-400 dark:text-slate-700'}`}>
                         <ChevronDown size={18} />
                       </div>
                     </div>
@@ -111,10 +111,10 @@ const CoursePanel = ({
                                 } 
                               })}
                               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all group relative
-                                ${isActive ? 'bg-blue-600/10 text-blue-400' : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.03]'}`}
+                                ${isActive ? 'bg-blue-600/10 text-blue-600 dark:text-blue-400' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/[0.03]'}`}
                             >
                               <div className={`flex-shrink-0 w-2 h-2 rounded-full transition-all
-                                ${isActive ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-slate-800 group-hover:bg-slate-600'}`} />
+                                ${isActive ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-slate-300 dark:bg-slate-800 group-hover:bg-slate-500 dark:group-hover:bg-slate-600'}`} />
                               
                               <div className="flex-1 min-w-0">
                                 <p className="text-[12px] font-bold truncate leading-tight">{lesson.Title || lesson.title}</p>
@@ -139,14 +139,14 @@ const CoursePanel = ({
       </div>
 
       {/* Footer Info */}
-      <div className="p-6 bg-[#0a0a0f]/80 border-t border-white/[0.04]">
-        <div className="flex items-center gap-4 p-4 bg-white/[0.02] rounded-2xl border border-white/[0.04]">
+      <div className="p-6 bg-slate-50 dark:bg-[#0a0a0f]/80 border-t border-slate-200 dark:border-white/[0.04]">
+        <div className="flex items-center gap-4 p-4 bg-white dark:bg-white/[0.02] rounded-2xl border border-slate-200 dark:border-white/[0.04]">
           <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20">
              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
           </div>
           <div>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">Tiến độ</p>
-            <p className="text-xs font-black text-white">Bắt đầu ngay</p>
+            <p className="text-xs font-black text-slate-900 dark:text-white">Bắt đầu ngay</p>
           </div>
         </div>
       </div>

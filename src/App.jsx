@@ -36,7 +36,7 @@ import RecruiterApplicants from './pages/recruiter/RecruiterApplicants'
 import RecruiterRoadmapBuilder from './pages/recruiter/RecruiterRoadmapBuilder'
 
 // Wrapper to conditionally show Header/Footer (hide on /admin routes)
-const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterModal, closeAuthModals, showLoginModal, showRegisterModal }) => {
+const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterModal, closeAuthModals, showLoginModal, showRegisterModal, user, isAuthenticated }) => {
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/recruiter')
 
@@ -60,7 +60,10 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
               <HomePage
                 onOpenLogin={openLoginModal}
                 onOpenRegister={openRegisterModal}
-                isDarkMode={isDarkMode} />}
+                isDarkMode={isDarkMode} 
+                user={user}
+                isAuthenticated={isAuthenticated}
+              />}
           />
           <Route
             path="/roadmap/builder"
@@ -223,6 +226,8 @@ function App() {
             closeAuthModals={closeAuthModals}
             showLoginModal={showLoginModal}
             showRegisterModal={showRegisterModal}
+            user={authValue.user}
+            isAuthenticated={authValue.isAuthenticated}
           />
         )}
       </Router>

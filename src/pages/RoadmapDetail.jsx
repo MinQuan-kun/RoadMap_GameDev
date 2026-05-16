@@ -46,18 +46,18 @@ const ModuleNode = ({ data }) => {
   )
 }
 
-const nodeTypes = {
-  moduleNode: ModuleNode,
-  rootNode: ModuleNode, // Unified
-}
-const edgeTypes = {}
-
-/* ═══ Main Component ═════════════════════════════ */
 const RoadmapDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user, setUser } = useContext(AuthContext)
   
+  const nodeTypes = useMemo(() => ({
+    moduleNode: ModuleNode,
+    rootNode: ModuleNode,
+  }), [])
+
+  const edgeTypes = useMemo(() => ({}), [])
+
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   
@@ -214,7 +214,7 @@ const RoadmapDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#050505] flex items-center justify-center transition-colors duration-300">
         <Loader2 className="animate-spin text-blue-500" size={48} />
       </div>
     )
@@ -222,22 +222,22 @@ const RoadmapDetail = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center text-red-400">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#050505] flex items-center justify-center text-red-500 dark:text-red-400 transition-colors duration-300">
         {error}
       </div>
     )
   }
 
   return (
-    <div className="w-screen h-screen flex flex-col bg-[#050505] overflow-hidden">
+    <div className="w-screen h-screen flex flex-col bg-slate-50 dark:bg-[#050505] overflow-hidden transition-colors duration-300">
       {/* Top Header */}
-      <div className="h-16 flex items-center gap-4 px-6 bg-[#0a0a0f]/95 backdrop-blur-md border-b border-white/[0.06] z-50">
-        <button onClick={() => navigate('/')} className="p-2 text-slate-400 hover:text-white transition-colors">
+      <div className="h-16 flex items-center gap-4 px-6 bg-white/95 dark:bg-[#0a0a0f]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] z-50">
+        <button onClick={() => navigate('/')} className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
           <ArrowLeft size={20} />
         </button>
         <div className="flex flex-col">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold text-white tracking-tight">{metadata.title}</h1>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">{metadata.title}</h1>
             {metadata.engine && (
               <span className="text-[10px] font-black px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase">
                 {metadata.engine}
@@ -272,12 +272,12 @@ const RoadmapDetail = () => {
             fitView
             fitViewOptions={{ padding: 0.4 }}
           >
-            <Background color="#1e293b" gap={24} size={1} variant="dots" />
-            <Controls position="bottom-left" className="!bg-[#0f0f18] !border-[#1e293b] !fill-slate-400" />
+            <Background color={document.documentElement.classList.contains('dark') ? "#1e293b" : "#cbd5e1"} gap={24} size={1} variant="dots" />
+            <Controls position="bottom-left" className="!bg-white dark:!bg-[#0f0f18] !border-slate-200 dark:!border-[#1e293b] !fill-slate-600 dark:!fill-slate-400" />
             <MiniMap 
               nodeColor={() => '#1e40af'} 
               maskColor="rgba(0,0,0,0.7)" 
-              className="!bg-[#0a0a0f] !border-white/5" 
+              className="!bg-white dark:!bg-[#0a0a0f] !border-slate-200 dark:!border-white/5" 
             />
           </ReactFlow>
 

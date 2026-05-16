@@ -16,6 +16,16 @@ export const updateProfile = async (payload) => {
   return response.data
 }
 
+export const changePassword = async (oldPassword, newPassword) => {
+  const response = await apiClient.put('/users/change-password', { oldPassword, newPassword })
+  return response.data
+}
+
+export const deleteAccount = async () => {
+  const response = await apiClient.delete('/users/profile')
+  return response.data
+}
+
 export const uploadAvatar = async (file) => {
   const formData = new FormData()
   formData.append('file', file)
@@ -25,19 +35,6 @@ export const uploadAvatar = async (file) => {
     },
     timeout: 60000,
   })
-  return response.data
-}
-
-export const changePassword = async (oldPassword, newPassword) => {
-  const response = await apiClient.put('/users/change-password', {
-    oldPassword,
-    newPassword,
-  })
-  return response.data
-}
-
-export const getMyApplications = async () => {
-  const response = await apiClient.get('/users/my-applications')
   return response.data
 }
 
@@ -56,45 +53,19 @@ export const deleteUser = async (id) => {
   return response.data
 }
 
-export const approveRecruiter = async (id) => {
-  const response = await apiClient.put(`/admin/recruiters/${id}/approve`)
+export const approveRecruiter = async (userId) => {
+  const response = await apiClient.post(`/admin/users/${userId}/approve-recruiter`)
   return response.data
 }
 
-export const rejectRecruiter = async (id) => {
-  const response = await apiClient.put(`/admin/recruiters/${id}/reject`)
+export const rejectRecruiter = async (userId) => {
+  const response = await apiClient.post(`/admin/users/${userId}/reject-recruiter`)
   return response.data
 }
 
-// ═══ Roadmaps API ════════════════════════════════
-export const getAllRoadmaps = async () => {
-  const response = await apiClient.get('/roadmaps')
-  return response.data
-}
-
-export const getRoadmapById = async (id) => {
-  const response = await apiClient.get(`/roadmaps/${id}`)
-  return response.data
-}
-
-export const deleteRoadmap = async (id) => {
-  const response = await apiClient.delete(`/admin/roadmaps/${id}`)
-  return response.data
-}
-
-export const updateRoadmap = async (id, payload) => {
-  const response = await apiClient.put(`/roadmaps/${id}`, payload)
-  return response.data
-}
-
-// ═══ Nodes API (Admin) ═══════════════════════════
+// ═══ Nodes API (Legacy Support) ═══════════════════════════
 export const getAllNodes = async () => {
   const response = await apiClient.get('/admin/nodes')
-  return response.data
-}
-
-export const getNodeById = async (id) => {
-  const response = await apiClient.get(`/admin/nodes/${id}`)
   return response.data
 }
 
@@ -113,7 +84,133 @@ export const deleteNode = async (id) => {
   return response.data
 }
 
-// ═══ Site Settings ════════
+// ═══ Pathways API (Admin) ════════════════════════════════
+export const getAllPathways = async () => {
+  const response = await apiClient.get('/Admin/pathways')
+  return response.data
+}
+
+export const createPathway = (data) => apiClient.post('/admin/pathways', data)
+export const createFullPathway = (data) => apiClient.post('/admin/pathways/full', data, { timeout: 60000 })
+export const getFullPathway = async (id) => {
+  const response = await apiClient.get(`/admin/pathways/full/${id}`)
+  return response.data
+}
+export const updateFullPathway = async (id, data) => {
+  const response = await apiClient.put(`/admin/pathways/full/${id}`, data, { timeout: 60000 })
+  return response.data
+}
+
+export const getPathwayById = async (id) => {
+  const response = await apiClient.get(`/Admin/pathways/${id}`)
+  return response.data
+}
+
+export const updatePathway = async (id, payload) => {
+  const response = await apiClient.put(`/Admin/pathways/${id}`, payload)
+  return response.data
+}
+
+export const deletePathway = async (id) => {
+  const response = await apiClient.delete(`/Admin/pathways/${id}`)
+  return response.data
+}
+
+// ═══ Courses API (Admin) ════════════════════════════════
+export const getAllCourses = async () => {
+  const response = await apiClient.get('/Admin/courses')
+  return response.data
+}
+
+export const getCourseById = async (id) => {
+  const response = await apiClient.get(`/Admin/courses/${id}`)
+  return response.data
+}
+
+export const createCourse = async (payload) => {
+  const response = await apiClient.post('/Admin/courses', payload)
+  return response.data
+}
+
+export const updateCourse = async (id, payload) => {
+  const response = await apiClient.put(`/Admin/courses/${id}`, payload)
+  return response.data
+}
+
+export const deleteCourse = async (id) => {
+  const response = await apiClient.delete(`/Admin/courses/${id}`)
+  return response.data
+}
+
+// ═══ Modules API (Admin) ═══════════════════════════
+export const getModuleById = async (id) => {
+  const response = await apiClient.get(`/Admin/modules/${id}`)
+  return response.data
+}
+
+export const createModule = async (payload) => {
+  const response = await apiClient.post('/Admin/modules', payload)
+  return response.data
+}
+
+export const updateModule = async (id, payload) => {
+  const response = await apiClient.put(`/Admin/modules/${id}`, payload)
+  return response.data
+}
+
+export const deleteModule = async (id) => {
+  const response = await apiClient.delete(`/Admin/modules/${id}`)
+  return response.data
+}
+
+// ═══ Lessons API (Admin) ═══════════════════════════
+export const getLessonById = async (id) => {
+  const response = await apiClient.get(`/Admin/lessons/${id}`)
+  return response.data
+}
+
+export const createLesson = async (payload) => {
+  const response = await apiClient.post('/Admin/lessons', payload)
+  return response.data
+}
+
+export const updateLesson = async (id, payload) => {
+  const response = await apiClient.put(`/Admin/lessons/${id}`, payload)
+  return response.data
+}
+
+export const deleteLesson = async (id) => {
+  const response = await apiClient.delete(`/Admin/lessons/${id}`)
+  return response.data
+}
+
+// ═══ Tasks API (Admin) ═══════════════════════════
+export const createLearningTask = async (payload) => {
+  const response = await apiClient.post('/Admin/tasks', payload)
+  return response.data
+}
+
+export const updateLearningTask = async (id, payload) => {
+  const response = await apiClient.put(`/Admin/tasks/${id}`, payload)
+  return response.data
+}
+
+export const deleteLearningTask = async (id) => {
+  const response = await apiClient.delete(`/Admin/tasks/${id}`)
+  return response.data
+}
+
+export const getTask = async (id) => {
+  const response = await apiClient.get(`/admin/tasks/${id}`)
+  return response.data
+}
+
+export const updateTask = async (id, payload) => {
+  const response = await apiClient.put(`/admin/tasks/${id}`, payload)
+  return response.data
+}
+
+// ─── Site Management ────────────────────────────────
 const SITE_SETTINGS_KEY = 'gamenode-site-settings'
 
 const defaultSettings = {
@@ -149,27 +246,30 @@ export const updateSiteSettings = (settings) => {
   return merged
 }
 
+// ═══ Upload API ════════════════════════════════
+export const uploadFile = async (file, subFolder = 'general') => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await apiClient.post(`/admin/upload?subFolder=${subFolder}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+  return response.data
+}
+
 // ═══ Dashboard Stats ═════════════════════════════
 export const getDashboardStats = async () => {
   try {
     const response = await apiClient.get('/admin/stats')
     return response.data
   } catch {
-    // Fallback: try counting individually
-    try {
-      const [roadmapsRes] = await Promise.allSettled([
-        apiClient.get('/roadmaps'),
-      ])
-      return {
-        totalUsers: 0,
-        totalRoadmaps:
-          roadmapsRes.status === 'fulfilled'
-            ? (roadmapsRes.value.data?.length ?? 0)
-            : 0,
-        totalNodes: 0,
-      }
-    } catch {
-      return { totalUsers: 0, totalRoadmaps: 0, totalNodes: 0 }
-    }
+    return { totalUsers: 0, totalPathways: 0, totalCourses: 0 }
   }
+}
+
+// ═══ Applications API ═════════════════════════════
+export const getMyApplications = async () => {
+  const response = await apiClient.get('/Jobs/my-applications')
+  return response.data
 }

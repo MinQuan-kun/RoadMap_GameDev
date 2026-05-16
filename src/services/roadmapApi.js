@@ -4,8 +4,8 @@ import apiClient from './apiClient'
 // PATHWAY LAYER (High Level)
 // =========================
 
-export const getPathways = async () => {
-  const response = await apiClient.get('/Pathways')
+export const getPathways = async (params = {}) => {
+  const response = await apiClient.get('/Pathways', { params })
   return response.data
 }
 
@@ -127,6 +127,15 @@ export const mapGraphToFlow = (graph) => {
 // LEGACY SUPPORT & ALIASES
 export const getRoadmaps = getPathways
 export const getRoadmapById = getRoadmapGraph
-export const createRoadmap = createRoadmapGraph
-export const updateRoadmap = updateRoadmapGraph
-export const deleteRoadmap = deleteRoadmapGraph
+export const createRoadmap = async (payload) => {
+  const response = await apiClient.post('/Roadmaps', payload)
+  return response.data
+}
+export const updateRoadmap = async (id, payload) => {
+  const response = await apiClient.put(`/Roadmaps/${id}`, payload)
+  return response.data
+}
+export const deleteRoadmap = async (id) => {
+  const response = await apiClient.delete(`/Admin/pathways/${id}`)
+  return response.data
+}

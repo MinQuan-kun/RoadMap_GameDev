@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import {
   Search, Filter, ChevronRight,
-  ChevronLeft, Clock, Banknote
+  ChevronLeft, Clock, Banknote, CheckCircle2
 } from 'lucide-react'
 import AuthContext from '../context/AuthContext'
 import { applyJob, getJobFilters, getJobs } from '../services/jobsApi'
@@ -133,11 +133,11 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
   }
 
   return (
-    <div className={`${isDarkMode ? 'dark' : ''} min-h-screen font-sans transition-colors duration-300`}>
+    <div className="min-h-screen font-sans transition-colors duration-300">
       <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#121212] dark:text-slate-100">
 
         {/* Top Search Bar */}
-        <div className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 py-4 shadow-sm dark:border-white/10 dark:bg-[#1e1e1e]/80">
+        <div className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-md px-4 py-4 shadow-sm dark:border-white/10">
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <div className="relative flex flex-1 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all dark:border-white/10 dark:bg-white/5">
@@ -281,8 +281,8 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
                           <div className="min-w-0 flex-1">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-blue-600">{job.companyName}</h3>
-                            <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">{job.title}</h2>
+                            <h3 className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">{job.companyName}</h3>
+                            <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{job.title}</h2>
                             <div className="mt-2 flex items-center gap-3 w-full">
                               <p className="text-xs font-semibold text-slate-400">{job.location}</p>
                               <p className="ml-auto inline-flex rounded-full bg-blue-50 px-3 py-1 text-[11px] font-bold text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
@@ -315,14 +315,20 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
                           </div>
                           <button
                             onClick={() => handleApplyJob(job.id)}
-                            disabled={applyingJobId === job.id || isRecruiter}
-                            className="w-full sm:w-auto flex items-center justify-center gap-1 rounded-xl bg-slate-900 px-8 py-2.5 text-sm font-black text-white hover:bg-blue-600 transition-all dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                            disabled={applyingJobId === job.id || isRecruiter || job.hasApplied}
+                            className={`w-full sm:w-auto flex items-center justify-center gap-1 rounded-xl px-8 py-2.5 text-sm font-black text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
+                              job.hasApplied 
+                              ? 'bg-emerald-500' 
+                              : 'bg-slate-900 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700'
+                            }`}
                           >
                             {isRecruiter
                               ? 'Chế độ nhà tuyển dụng'
-                              : applyingJobId === job.id
-                                ? 'Đang xử lý...'
-                                : 'Ứng tuyển'} <ChevronRight size={16} />
+                              : job.hasApplied
+                                ? 'Đã ứng tuyển'
+                                : applyingJobId === job.id
+                                  ? 'Đang xử lý...'
+                                  : 'Ứng tuyển'} {job.hasApplied ? <CheckCircle2 size={16} /> : <ChevronRight size={16} />}
                           </button>
                         </div>
                       </div>

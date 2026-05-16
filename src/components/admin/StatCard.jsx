@@ -27,9 +27,9 @@ const StatCard = ({ icon: Icon, label, value, color = 'indigo', suffix = '', del
           <p style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
             {label}
           </p>
-          <p style={{ fontSize: 32, fontWeight: 800, color: '#e2e8f0', margin: '8px 0 0 0', lineHeight: 1, letterSpacing: '-0.02em' }}>
+          <p style={{ fontSize: 32, fontWeight: 800, color: 'var(--admin-text)', margin: '8px 0 0 0', lineHeight: 1, letterSpacing: '-0.02em' }}>
             {value}
-            {suffix && <span style={{ fontSize: 14, fontWeight: 500, color: '#64748b', marginLeft: 4 }}>{suffix}</span>}
+            {suffix && <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--admin-text-muted)', marginLeft: 4 }}>{suffix}</span>}
           </p>
         </div>
         {Icon && (

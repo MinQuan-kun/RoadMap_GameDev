@@ -59,7 +59,7 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
                 const isAdmin = menuName === 'Admin';
                 const isCourse = menuName === 'Khóa học';
                 const isJobs = menuName === 'Công việc';
-                const path = isMyRoadMap ? '/profile' : isAdmin ? '/admin' : isCourse ? '/courses' : isJobs ? '/jobs' : '/';
+                const path = isMyRoadMap ? '/profile' : isAdmin ? '/admin' : isCourse ? '/courses' : isJobs ? '/Jobs' : '/';
 
                 return (
                   <div key={menuName} className="relative">
@@ -92,8 +92,8 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
                                 onClick={() => {
                                   setOpenMenu(null);
                                   const roadmapId = item === 'Unity'
-                                    ? '6a06f3df9b18cc78e251bf39'
-                                    : '69fda7ba6633f920faa1bd18';
+                                    ? '6a07f4efab3cc513a2cac340'
+                                    : '6a07f4efab3cc513a2cac340';
                                   navigate(`/roadmap/${roadmapId}`);
                                 }}
                                 className="block w-full rounded-lg px-4 py-2.5 text-left text-sm text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
@@ -122,14 +122,9 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
 
-          <div className="h-6 w-px bg-slate-200 dark:bg-white/10 mx-1 hidden sm:block"></div>
-
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
-                <button className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                  <Grid className="h-5 w-5" />
-                </button>
                 <Link
                   to="/profile"
                   className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-sm font-bold text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-all"

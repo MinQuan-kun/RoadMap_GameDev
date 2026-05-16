@@ -103,12 +103,12 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
   const embedVideoUrl = videoUrl ? getEmbedUrl(videoUrl) : null;
 
   return (
-    <aside className="h-full flex flex-col bg-[#0a0a12] border-l border-white/[0.08]" style={{ width: 520, flexShrink: 0 }}>
+    <aside className="h-full flex flex-col bg-white dark:bg-[#0a0a12] border-l border-slate-200 dark:border-white/[0.08] shadow-2xl transition-colors duration-300" style={{ width: 520, flexShrink: 0 }}>
       {/* Header */}
-      <div className="px-6 py-5 border-b border-white/[0.08] bg-white/[0.02]">
+      <div className="px-6 py-5 border-b border-slate-100 dark:border-white/[0.08] bg-slate-50/50 dark:bg-white/[0.02]">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-xl font-bold text-white truncate leading-tight tracking-wide">{label}</h2>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white truncate leading-tight tracking-wide">{label}</h2>
             {category && (
               <span
                 className="inline-block mt-2.5 px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-widest"
@@ -135,8 +135,8 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
                   <button
                     onClick={() => onUpdateProgress(node.id, isCompleted ? 'none' : 'completed')}
                     className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${isCompleted
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-500/30'
+                        : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-slate-200'
                       }`}
                   >
                     <CheckCircle2 size={14} />
@@ -146,8 +146,8 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
                   <button
                     onClick={() => onUpdateProgress(node.id, isSkipped ? 'none' : 'skipped')}
                     className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${isSkipped
-                        ? 'bg-slate-700/50 text-slate-300 border border-slate-600'
-                        : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
+                        ? 'bg-slate-200 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-600'
+                        : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-slate-200'
                       }`}
                   >
                     <XCircle size={14} />
@@ -158,7 +158,7 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/15 transition-colors flex-shrink-0"
+            className="p-1.5 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/15 transition-colors flex-shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
@@ -188,7 +188,7 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
         {/* Description */}
         {description && (
           <section>
-            <p className="text-[15px] text-slate-300 leading-relaxed font-medium">
+            <p className="text-[15px] text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               {description}
             </p>
           </section>
@@ -208,7 +208,7 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
             </div>
             <ul className="space-y-2">
               {prerequisites.map((prereq, idx) => (
-                <li key={idx} className="flex items-start gap-2.5 text-[14px] text-slate-300 bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
+                <li key={idx} className="flex items-start gap-2.5 text-[14px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-white/[0.02] p-3 rounded-lg border border-slate-200 dark:border-white/[0.04]">
                   <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
                   {prereq}
                 </li>
@@ -228,18 +228,18 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
               {tasks.map((task, idx) => (
                 <div
                   key={task.id || idx}
-                  className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.05] transition-all group"
+                  className="flex items-center justify-between p-4 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-5 h-5 rounded border-2 border-white/20 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
+                    <div className="w-5 h-5 rounded border-2 border-slate-300 dark:border-white/20 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
                       <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 opacity-0 group-hover:opacity-20 transition-opacity" />
                     </div>
                     <div>
-                      <p className="text-[14px] font-bold text-white leading-none mb-1">{task.title}</p>
+                      <p className="text-[14px] font-bold text-slate-900 dark:text-white leading-none mb-1">{task.title}</p>
                       <p className="text-[11px] text-slate-500">{task.description || 'Hoàn thành nhiệm vụ này để nhận XP'}</p>
                     </div>
                   </div>
-                  <div className="px-2 py-1 bg-blue-600/10 rounded text-[10px] font-black text-blue-400 uppercase tracking-widest">
+                  <div className="px-2 py-1 bg-blue-600/10 rounded text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
                     +{task.xpReward || task.XPReward || 50} XP
                   </div>
                 </div>
@@ -265,13 +265,13 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
                         href={res}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-[14px] text-blue-400 hover:text-blue-300 transition-colors break-all bg-white/[0.02] p-3 rounded-lg border border-blue-500/20 hover:border-blue-500/40 hover:bg-blue-500/10"
+                        className="flex items-center gap-2.5 text-[14px] text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors break-all bg-blue-50 dark:bg-white/[0.02] p-3 rounded-lg border border-blue-500/10 hover:border-blue-500/40 hover:bg-blue-500/5 dark:hover:bg-blue-500/10"
                       >
                         <Link2 className="w-4 h-4 flex-shrink-0" />
                         {res}
                       </a>
                     ) : (
-                      <span className="flex items-start gap-2.5 text-[14px] text-slate-300 bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
+                      <span className="flex items-start gap-2.5 text-[14px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-white/[0.02] p-3 rounded-lg border border-slate-200 dark:border-white/[0.04]">
                         <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
                         {res}
                       </span>

@@ -28,17 +28,15 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  @apply bg-slate-100 dark:bg-[#0f172a];
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 10px;
-  border: 2px solid #0f172a;
+  @apply bg-slate-300 dark:bg-[#334155] border-2 border-slate-100 dark:border-[#0f172a] rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  @apply bg-slate-400 dark:bg-[#475569];
 }
 
 .glass {
