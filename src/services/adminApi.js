@@ -53,6 +53,11 @@ export const deleteUser = async (id) => {
   return response.data
 }
 
+export const resetUserPassword = async (id, newPassword) => {
+  const response = await apiClient.post(`/admin/users/${id}/reset-password`, { newPassword })
+  return response.data
+}
+
 export const approveRecruiter = async (userId) => {
   const response = await apiClient.post(`/admin/users/${userId}/approve-recruiter`)
   return response.data

@@ -143,15 +143,15 @@ const Dashboard = () => {
           <div className="p-7 rounded-[2.5rem] bg-white dark:bg-blue-600/5 border border-slate-200 dark:border-blue-500/20 shadow-inner">
             <h3 className="text-lg font-bold mb-4">Lộ trình của bạn</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed font-medium">
-              {roadmapCount > 0
-                ? `Bạn đang theo dõi ${roadmapCount} lộ trình. Hãy tiếp tục hoàn thành!`
+              {(roadmapCount > 0 || user?.hasCompletedQuiz)
+                ? `Bạn đang theo học lộ trình phát triển. Hãy tiếp tục hoàn thành!`
                 : 'Bạn chưa có lộ trình nào. Bắt đầu bằng bài khảo sát!'}
             </p>
             <button
-              onClick={() => navigate(roadmapCount > 0 ? '/profile' : '/quiz')}
+              onClick={() => navigate((roadmapCount > 0 || user?.hasCompletedQuiz) ? '/profile' : '/quiz')}
               className="w-full py-3.5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-black font-extrabold text-xs tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg"
             >
-              {roadmapCount > 0 ? 'XEM ROADMAP' : 'LÀM KHẢO SÁT NGAY'}
+              {(roadmapCount > 0 || user?.hasCompletedQuiz) ? 'XEM ROADMAP' : 'LÀM KHẢO SÁT NGAY'}
             </button>
           </div>
         </div>

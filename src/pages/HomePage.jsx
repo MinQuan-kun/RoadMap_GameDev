@@ -143,12 +143,14 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode, user, isAuthenticat
               : (settings.bannerDescription || "Hệ thống lộ trình chi tiết giúp bạn làm chủ Unity, Unreal Engine và các công nghệ phát triển game hiện đại.")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={() => navigate('/survey')}
-              className="px-8 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 hover:-translate-y-1 flex items-center gap-2 group"
-            >
-              Làm Khảo Sát Định Hướng <Rocket size={20} className="group-hover:translate-x-1 transition-transform" />
-            </button>
+            {(!isAuthenticated || !user?.hasCompletedQuiz) && (
+              <button
+                onClick={() => navigate('/survey')}
+                className="px-8 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 hover:-translate-y-1 flex items-center gap-2 group"
+              >
+                Làm Khảo Sát Định Hướng <Rocket size={20} className="group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
             <button
               onClick={() => navigate('/Jobs')}
               className="px-8 py-4 rounded-2xl bg-white dark:bg-white/5 text-slate-900 dark:text-white font-bold border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all flex items-center gap-2"
