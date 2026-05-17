@@ -144,10 +144,10 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode, user, isAuthenticat
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
-              onClick={() => navigate('/roadmap/builder')}
+              onClick={() => navigate('/survey')}
               className="px-8 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 hover:-translate-y-1 flex items-center gap-2 group"
             >
-              Tạo Lộ Trình <Rocket size={20} className="group-hover:translate-x-1 transition-transform" />
+              Làm Khảo Sát Định Hướng <Rocket size={20} className="group-hover:translate-x-1 transition-transform" />
             </button>
             <button
               onClick={() => navigate('/Jobs')}

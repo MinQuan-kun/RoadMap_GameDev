@@ -10,8 +10,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Gamepad2,
-  Plus
+  Plus,
+  FileQuestionIcon
 } from 'lucide-react'
+
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -19,6 +21,7 @@ const navItems = [
   { to: '/admin/roadmaps', icon: Map, label: 'Quản lý lộ trình' },
   { to: '/admin/pathways/create', icon: Plus, label: 'Thiết kế lộ trình' },
   { to: '/admin/users', icon: Users, label: 'Quản lý tài khoản' },
+  { to: '/admin/quiz-manager', icon: FileQuestionIcon, label: 'Quản lý khảo sát' },
 ]
 
 const AdminSidebar = ({ collapsed, onToggle }) => {

@@ -1,82 +1,76 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Sparkles, Rocket, Loader2, Gamepad2, Target, Cpu, CheckCircle2 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
-import apiClient from '../services/apiClient';
+import { getActiveQuiz, submitQuiz } from '../services/roadmapApi';
 
 const CareerQuiz = () => {
   const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [quizInfo, setQuizInfo] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [direction, setDirection] = useState(1);
-  const timeoutRef = React.useRef(null);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const response = await apiClient.get('/quiz/questions');
-        setQuestions(response.data);
-        setLoading(false);
+        const data = await getActiveQuiz();
+        setQuizInfo(data);
+        setQuestions(data.questions || []);
       } catch (error) {
         console.error("Lỗi kết nối API:", error);
+      } finally {
         setLoading(false);
       }
     };
     fetchQuiz();
   }, []);
 
-  const getVisibleQuestions = (currentAnswers = userAnswers) => {
-    const visibleIds = new Set();
-    const currentVisible = questions.filter(q => !q.parentQuestionId);
-    currentVisible.forEach(q => visibleIds.add(q.id));
-
-    let added = true;
-    while (added) {
-      added = false;
-      for (const q of questions) {
-        if (!visibleIds.has(q.id) && q.parentQuestionId && visibleIds.has(q.parentQuestionId)) {
-          const parentAnswer = currentAnswers[q.parentQuestionId];
-          if (parentAnswer && parentAnswer.text === q.requiredOptionText) {
-            visibleIds.add(q.id);
-            added = true;
-          }
-        }
-      }
-    }
-    return questions.filter(q => visibleIds.has(q.id));
-  };
-
-  const visibleQuestions = getVisibleQuestions();
-  const currentQuestion = visibleQuestions[currentIndex];
+  const currentQuestion = questions[currentIndex];
 
   const handleOptionSelect = (option) => {
-    // Cập nhật đáp án
-    const newAnswers = {
-      ...userAnswers,
-      [currentQuestion.id]: option
-    };
-
-    setUserAnswers(newAnswers);
-
-    // Ngăn chặn lỗi nhảy/giật câu hỏi: Nếu mảng visibleQuestions thay đổi thứ tự, 
-    // chúng ta cần giữ currentIndex ở đúng vị trí của câu hỏi hiện tại.
-    const newVisibleQuestions = getVisibleQuestions(newAnswers);
-    const newIndex = newVisibleQuestions.findIndex(q => q.id === currentQuestion.id);
-    if (newIndex !== -1 && newIndex !== currentIndex) {
-      setCurrentIndex(newIndex);
+    if (currentQuestion.type === 'multi_choice') {
+      const currentAnswersStr = userAnswers[currentQuestion.id] || "";
+      let currentAnswers = currentAnswersStr ? currentAnswersStr.split(',').map(s => s.trim()) : [];
+      
+      if (currentAnswers.includes(option.text)) {
+        currentAnswers = currentAnswers.filter(a => a !== option.text);
+      } else {
+        currentAnswers.push(option.text);
+      }
+      
+      const newAnswers = { ...userAnswers };
+      if (currentAnswers.length > 0) {
+        newAnswers[currentQuestion.id] = currentAnswers.join(',');
+      } else {
+        delete newAnswers[currentQuestion.id];
+      }
+      setUserAnswers(newAnswers);
+    } else {
+      const newAnswers = {
+        ...userAnswers,
+        [currentQuestion.id]: option.text
+      };
+      setUserAnswers(newAnswers);
     }
   };
 
   const handleNext = () => {
     if (timeoutRef.current) return;
 
-    const newVisibleQuestions = getVisibleQuestions(userAnswers);
-    if (currentIndex < newVisibleQuestions.length - 1) {
+    const currentAnswer = userAnswers[currentQuestion.id];
+    if (currentAnswer === "Tìm việc làm") {
+      navigate('/Jobs');
+      return;
+    }
+
+    if (currentIndex < questions.length - 1) {
       setDirection(1);
       setCurrentIndex(prev => prev + 1);
     }
@@ -95,45 +89,30 @@ const CareerQuiz = () => {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    const finalVisibleQuestions = getVisibleQuestions(userAnswers);
-    const finalNodeIds = [];
-
-    finalVisibleQuestions.forEach(q => {
-      const ans = userAnswers[q.id];
-      if (ans && ans.mappingNodes) {
-        finalNodeIds.push(...ans.mappingNodes);
-      }
-    });
-
-    const uniqueNodeIds = [...new Set(finalNodeIds)];
-
-    if (uniqueNodeIds.length === 0) {
-      alert("Không thể tạo lộ trình: Bạn chưa chọn các đáp án có bài học tương ứng, hoặc dữ liệu hệ thống chưa được liên kết đầy đủ. Vui lòng thử lại!");
+    
+    // Check if all questions are answered
+    const unansweredCount = questions.length - Object.keys(userAnswers).length;
+    if (unansweredCount > 0) {
+      alert(`Vui lòng trả lời đầy đủ các câu hỏi! (Còn ${unansweredCount} câu)`);
       setIsSubmitting(false);
       return;
     }
 
     const payload = {
-      userId: user?.id,
-      selectedNodeIds: uniqueNodeIds,
-      skipBasics: userAnswers[finalVisibleQuestions[0]?.id]?.text !== "Beginner (chưa từng làm game)"
+      quizId: quizInfo.id,
+      answers: userAnswers
     };
 
     try {
-      const res = await apiClient.post('/quiz/submit', payload);
-      if (res.status === 200 || res.status === 201) {
-        if (user) {
-          setUser({ ...user, hasCompletedQuiz: true });
-        }
-        if (res.data?.roadmapId) {
-          navigate(`/roadmap/${res.data.roadmapId}`);
-        } else {
-          navigate('/');
-        }
+      const res = await submitQuiz(payload);
+      if (user) {
+        setUser({ ...user, hasCompletedQuiz: true });
       }
+      // Navigate to the result page with the result ID
+      navigate(`/survey/result/${res.id}`, { state: { result: res } });
     } catch (error) {
-      console.error("Lỗi khi lưu lộ trình:", error);
-      alert("Đã xảy ra lỗi khi tạo lộ trình của bạn!");
+      console.error("Lỗi khi nộp bài khảo sát:", error);
+      alert("Đã xảy ra lỗi khi tính toán lộ trình của bạn!");
       setIsSubmitting(false);
     }
   };
@@ -170,7 +149,7 @@ const CareerQuiz = () => {
   }
 
   // Progress chỉ đạt 100% khi isSubmitting = true
-  const progress = isSubmitting ? 100 : Math.max(5, (currentIndex / visibleQuestions.length) * 100);
+  const progress = isSubmitting ? 100 : Math.max(5, (currentIndex / (questions.length || 1)) * 100);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-white flex items-center justify-center p-4 md:p-8 lg:p-12 relative overflow-hidden transition-colors duration-500">
@@ -192,9 +171,9 @@ const CareerQuiz = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest text-xs mb-3"
               >
-                <Sparkles size={12} /> Bước {currentIndex + 1} / {visibleQuestions.length}
+                <Sparkles size={12} /> Bước {currentIndex + 1} / {questions.length}
               </motion.span>
-              <h2 className="text-slate-500 dark:text-slate-400 text-sm md:text-base font-bold uppercase tracking-widest">Thiết Kế Lộ Trình</h2>
+              <h2 className="text-slate-500 dark:text-slate-400 text-sm md:text-base font-bold uppercase tracking-widest">{quizInfo?.title || "Thiết Kế Lộ Trình"}</h2>
             </div>
             <div className="text-right">
               <span className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
@@ -228,12 +207,14 @@ const CareerQuiz = () => {
               className="space-y-8 md:space-y-12"
             >
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight md:leading-snug text-slate-800 dark:text-white drop-shadow-sm">
-                {currentQuestion?.questionText}
+                {currentQuestion?.question}
               </h1>
 
               <div className="flex flex-col gap-4">
                 {currentQuestion?.options.map((opt, idx) => {
-                  const isSelected = userAnswers[currentQuestion.id]?.text === opt.text;
+                  const isSelected = currentQuestion.type === 'multi_choice' 
+                    ? (userAnswers[currentQuestion.id] && userAnswers[currentQuestion.id].split(',').map(s => s.trim()).includes(opt.text))
+                    : userAnswers[currentQuestion.id] === opt.text;
                   return (
                     <motion.button
                       key={idx}
@@ -297,7 +278,7 @@ const CareerQuiz = () => {
             <ChevronLeft size={20} /> Quay Lại
           </button>
 
-          {currentIndex < visibleQuestions.length - 1 ? (
+          {currentIndex < questions.length - 1 ? (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

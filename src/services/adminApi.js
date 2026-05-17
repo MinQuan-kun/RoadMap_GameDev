@@ -210,6 +210,60 @@ export const updateTask = async (id, payload) => {
   return response.data
 }
 
+// ─── Quiz Management ────────────────────────────────
+
+export const getQuizzes = async () => {
+  const response = await apiClient.get('/admin/quizzes')
+  return response.data
+}
+
+export const getQuiz = async (id) => {
+  const response = await apiClient.get(`/admin/quizzes/${id}`)
+  return response.data
+}
+
+export const createQuiz = async (payload) => {
+  const response = await apiClient.post('/admin/quizzes', payload)
+  return response.data
+}
+
+export const updateQuiz = async (id, payload) => {
+  const response = await apiClient.put(`/admin/quizzes/${id}`, payload)
+  return response.data
+}
+
+export const deleteQuiz = async (id) => {
+  const response = await apiClient.delete(`/admin/quizzes/${id}`)
+  return response.data
+}
+
+// ─── Question Management ────────────────────────────
+
+export const getQuestions = async () => {
+  const response = await apiClient.get('/admin/questions')
+  return response.data
+}
+
+export const getQuestion = async (id) => {
+  const response = await apiClient.get(`/admin/questions/${id}`)
+  return response.data
+}
+
+export const createQuestion = async (payload) => {
+  const response = await apiClient.post('/admin/questions', payload)
+  return response.data
+}
+
+export const updateQuestion = async (id, payload) => {
+  const response = await apiClient.put(`/admin/questions/${id}`, payload)
+  return response.data
+}
+
+export const deleteQuestion = async (id) => {
+  const response = await apiClient.delete(`/admin/questions/${id}`)
+  return response.data
+}
+
 // ─── Site Management ────────────────────────────────
 const SITE_SETTINGS_KEY = 'gamenode-site-settings'
 

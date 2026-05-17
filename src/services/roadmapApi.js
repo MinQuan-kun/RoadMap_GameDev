@@ -14,6 +14,11 @@ export const getPathwayBySlug = async (slug) => {
   return response.data
 }
 
+export const getCourses = async () => {
+  const response = await apiClient.get('/Pathways/courses')
+  return response.data
+}
+
 // =========================
 // ROADMAP GRAPH LAYER (Visualization)
 // =========================
@@ -54,6 +59,30 @@ export const getLesson = async (lessonId) => {
 
 export const completeLesson = async (lessonId) => {
   const response = await apiClient.post(`/Lesson/complete/${lessonId}`)
+  return response.data
+}
+
+export const completeTask = async (taskId) => {
+  const response = await apiClient.post(`/UserProgress/task/${taskId}/complete`)
+  return response.data
+}
+
+// =========================
+// SURVEY / QUIZ
+// =========================
+
+export const getActiveQuiz = async () => {
+  const response = await apiClient.get('/quiz/active')
+  return response.data
+}
+
+export const submitQuiz = async (payload) => {
+  const response = await apiClient.post('/quiz/submit', payload)
+  return response.data
+}
+
+export const getQuizResult = async (resultId) => {
+  const response = await apiClient.get(`/quiz/result/${resultId}`)
   return response.data
 }
 

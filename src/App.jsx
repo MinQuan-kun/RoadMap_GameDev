@@ -27,6 +27,7 @@ import NodeManager from './pages/admin/NodeManager'
 import LessonManager from './pages/admin/LessonManager'
 import UserManager from './pages/admin/UserManager'
 import PathwayBuilder from './pages/admin/PathwayBuilder'
+import QuizManager from './pages/admin/tabs/QuizManager'
 
 // Recruiter imports
 import RecruiterLayout from './components/recruiter/RecruiterLayout'
@@ -34,6 +35,9 @@ import RecruiterDashboard from './pages/recruiter/RecruiterDashboard'
 import RecruiterJobManager from './pages/recruiter/RecruiterJobManager'
 import RecruiterApplicants from './pages/recruiter/RecruiterApplicants'
 import RecruiterRoadmapBuilder from './pages/recruiter/RecruiterRoadmapBuilder'
+
+// Page imports
+import SurveyResultPage from './pages/SurveyResultPage'
 
 // Wrapper to conditionally show Header/Footer (hide on /admin routes)
 const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterModal, closeAuthModals, showLoginModal, showRegisterModal, user, isAuthenticated }) => {
@@ -77,7 +81,9 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
             path="/Jobs"
             element={<JobSearch isDarkMode={isDarkMode} onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
           />
+          <Route path="/survey" element={<CareerQuiz />} />
           <Route path="/quiz" element={<CareerQuiz />} />
+          <Route path="/survey/result/:id" element={<SurveyResultPage />} />
           <Route path="/roadmap/:id" element={<RoadmapDetail />} />
           <Route path="/roadmap/:roadmapId/node/:nodeId" element={<PathwayViewer />} />
           <Route path="/roadmap/:roadmapId/learn" element={<PathwayViewer />} />
@@ -94,6 +100,7 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
             <Route path="pathways/create" element={<PathwayBuilder />} />
             <Route path="pathways/edit/:id" element={<PathwayBuilder />} />
             <Route path="users" element={<UserManager />} />
+            <Route path="quiz-manager" element={<QuizManager />} />
           </Route>
 
           {/* ─── Recruiter routes ─── */}

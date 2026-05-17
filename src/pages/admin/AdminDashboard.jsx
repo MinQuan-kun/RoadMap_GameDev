@@ -37,6 +37,13 @@ const quickActions = [
     color: '#10b981',
   },
   {
+    icon: Activity,
+    label: 'Khảo sát nghề nghiệp',
+    desc: 'Quản lý Quiz và kết quả',
+    to: '/admin/quiz-manager',
+    color: '#ec4899',
+  },
+  {
     icon: Users,
     label: 'Quản lý Users',
     desc: 'Xem, phân quyền tài khoản',
