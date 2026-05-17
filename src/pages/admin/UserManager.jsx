@@ -165,7 +165,7 @@ const UserManager = () => {
       label: 'Username',
       width: 150,
       render: (val, row) => (
-        <span style={{ fontWeight: 600, color: '#e2e8f0' }}>
+        <span style={{ fontWeight: 600, color: 'var(--admin-text)' }}>
           {val || row.username || '—'}
         </span>
       ),
@@ -175,7 +175,7 @@ const UserManager = () => {
       label: 'Tên hiển thị',
       width: 180,
       render: (val) => (
-        <span style={{ color: val ? '#e2e8f0' : 'var(--admin-text-dim)' }}>
+        <span style={{ color: val ? 'var(--admin-text)' : 'var(--admin-text-dim)' }}>
           {val || '—'}
         </span>
       ),
@@ -327,7 +327,7 @@ const UserManager = () => {
             style={{
               fontSize: 26,
               fontWeight: 800,
-              color: '#f1f5f9',
+              color: 'var(--admin-text)',
               margin: 0,
               letterSpacing: '-0.02em',
             }}

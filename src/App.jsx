@@ -23,7 +23,6 @@ import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import SiteAppearance from './pages/admin/SiteAppearance'
 import RoadmapManager from './pages/admin/RoadmapManager'
-import NodeManager from './pages/admin/NodeManager'
 import LessonManager from './pages/admin/LessonManager'
 import UserManager from './pages/admin/UserManager'
 import PathwayBuilder from './pages/admin/PathwayBuilder'
@@ -64,7 +63,7 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
               <HomePage
                 onOpenLogin={openLoginModal}
                 onOpenRegister={openRegisterModal}
-                isDarkMode={isDarkMode} 
+                isDarkMode={isDarkMode}
                 user={user}
                 isAuthenticated={isAuthenticated}
               />}

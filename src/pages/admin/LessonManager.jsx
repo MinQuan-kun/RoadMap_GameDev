@@ -51,7 +51,7 @@ const SectionHeader = ({ title, icon: Icon, onAdd, addLabel }) => (
       <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Icon size={16} style={{ color: '#818cf8' }} />
       </div>
-      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#f1f5f9', margin: 0 }}>{title}</h3>
+      <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--admin-text)', margin: 0 }}>{title}</h3>
     </div>
     {onAdd && (
       <button className="admin-btn admin-btn-ghost" onClick={onAdd} style={{ fontSize: 11, padding: '4px 12px' }}>
@@ -196,7 +196,7 @@ const LessonManager = () => {
   return (
     <div className="admin-container" style={{ padding: '0 20px 20px' }}>
       <div style={{ marginBottom: 24, borderBottom: '1px solid var(--admin-border)', paddingBottom: 20 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Quản Lý Nội Dung Học Tập</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--admin-text)', margin: 0 }}>Quản Lý Nội Dung Học Tập</h1>
         <p style={{ fontSize: 13, color: 'var(--admin-text-muted)', marginTop: 4 }}>
           Xây dựng Pathway &gt; Course &gt; Module &gt; Lesson &gt; Task
         </p>
@@ -439,8 +439,8 @@ const LessonManager = () => {
           margin: 2px 0;
         }
         .tree-item:hover {
-          background: rgba(255,255,255,0.03);
-          color: #f1f5f9;
+          background: var(--admin-card-hover);
+          color: var(--admin-text);
         }
         .tree-item.active {
           background: rgba(99, 102, 241, 0.1);

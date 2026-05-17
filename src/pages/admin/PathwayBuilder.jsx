@@ -60,6 +60,7 @@ const PathwayBuilder = () => {
   const [uploading, setUploading] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [editingTask, setEditingTask] = useState(null) // { courseId, moduleId, lessonId, taskIdx, task }
+  const [expandedCourseIdx, setExpandedCourseIdx] = useState(0)
 
   // MAIN STATE
   const [form, setForm] = useState({
@@ -247,24 +248,41 @@ const PathwayBuilder = () => {
     }
   }
 
+  const handleCourseMediaUpload = async (e, courseIdx, field) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const data = await uploadFile(file, 'courses')
+      const next = [...form.courses]
+      next[courseIdx][field] = data.url
+      setForm({ ...form, courses: next })
+      toast.success('Đã tải ảnh lên thành công!')
+    } catch (err) {
+      toast.error('Lỗi khi tải ảnh')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   // STEP RENDERERS
   const renderStep1 = () => (
     <div className="animate-fade-in space-y-6">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm">
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Tiêu đề Lộ trình</label>
+            <label className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tiêu đề Lộ trình</label>
             <input
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
               value={form.title}
               onChange={e => setForm({ ...form, title: e.target.value })}
               placeholder="VD: Unity Game Developer"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Slug (URL)</label>
+            <label className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Slug (URL)</label>
             <input
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
               value={form.slug}
               onChange={e => setForm({ ...form, slug: e.target.value })}
               placeholder="unity-game-developer"
@@ -272,9 +290,9 @@ const PathwayBuilder = () => {
           </div>
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Mô tả tổng quan</label>
+          <label className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mô tả tổng quan</label>
           <textarea
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
             rows={4}
             value={form.description}
             onChange={e => setForm({ ...form, description: e.target.value })}
@@ -282,18 +300,18 @@ const PathwayBuilder = () => {
         </div>
         <div className="grid grid-cols-3 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Độ khó</label>
-            <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white" value={form.difficulty} onChange={e => setForm({ ...form, difficulty: e.target.value })}>
+            <label className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Độ khó</label>
+            <select className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white" value={form.difficulty} onChange={e => setForm({ ...form, difficulty: e.target.value })}>
               <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
               <option value="advanced">Advanced</option>
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Thời gian (Giờ)</label>
+            <label className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Thời gian (Giờ)</label>
             <input 
               type="number" 
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white" 
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white" 
               value={isNaN(form.estimatedHours) ? '' : form.estimatedHours} 
               onChange={e => {
                 const val = parseInt(e.target.value);
@@ -302,8 +320,8 @@ const PathwayBuilder = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Ảnh nền</label>
-            <label className="flex items-center justify-center w-full h-[50px] bg-slate-950 border border-slate-800 border-dashed rounded-xl cursor-pointer hover:border-indigo-500/50">
+            <label className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ảnh nền</label>
+            <label className="flex items-center justify-center w-full h-[50px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 border-dashed rounded-xl cursor-pointer hover:border-indigo-500/50">
               <span className="text-xs text-slate-500">{form.thumbnail ? 'Đã có ảnh' : 'Chọn ảnh...'}</span>
               <input type="file" className="hidden" accept="image/*" onChange={handleThumbnailUpload} />
             </label>
@@ -311,21 +329,21 @@ const PathwayBuilder = () => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Tags (Kỹ năng, Công nghệ)</label>
-          <div className="flex flex-wrap gap-2 p-3 bg-slate-950 border border-slate-800 rounded-xl min-h-[60px] focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all">
+          <label className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tags (Kỹ năng, Công nghệ)</label>
+          <div className="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl min-h-[60px] focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all">
             {form.tags.map(tag => (
-              <span key={tag} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/20 text-indigo-400 text-xs font-bold rounded-lg border border-indigo-600/30 animate-scale-in">
+              <span key={tag} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-400 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-600/30 animate-scale-in">
                 {tag}
                 <button
                   onClick={() => setForm({ ...form, tags: form.tags.filter(t => t !== tag) })}
-                  className="hover:text-white transition-colors"
+                  className="hover:text-red-500 dark:hover:text-white transition-colors"
                 >
                   <X size={14} />
                 </button>
               </span>
             ))}
             <input
-              className="flex-1 bg-transparent border-none text-white text-sm outline-none px-2 min-w-[150px]"
+              className="flex-1 bg-transparent border-none text-slate-900 dark:text-white text-sm outline-none px-2 min-w-[150px]"
               placeholder="Gõ tag và nhấn Enter để thêm..."
               onKeyDown={e => {
                 if (e.key === 'Enter' && e.target.value.trim() !== '') {
@@ -347,35 +365,131 @@ const PathwayBuilder = () => {
   const renderStep2 = () => (
     <div className="animate-fade-in space-y-4">
       {form.courses.map((course, idx) => (
-        <div key={course.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-between group">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-indigo-500/10 text-indigo-400 rounded-xl flex items-center justify-center font-bold">{idx + 1}</div>
-            <div>
-              <input
-                className="bg-transparent border-none text-white font-bold text-lg p-0 focus:ring-0"
-                value={course.title}
-                onChange={e => {
-                  const next = [...form.courses]; next[idx].title = e.target.value; setForm({ ...form, courses: next })
+        <div 
+          key={course.id} 
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col transition-all duration-300"
+        >
+          {/* Header Row */}
+          <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedCourseIdx(expandedCourseIdx === idx ? null : idx)}>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center font-bold">{idx + 1}</div>
+              <div className="text-left">
+                <h4 className="text-slate-900 dark:text-white font-bold text-lg">{course.title || 'Chưa đặt tên giai đoạn'}</h4>
+                <p className="text-xs text-slate-500">{course.modules.length} Học phần</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
+              <button 
+                onClick={() => setExpandedCourseIdx(expandedCourseIdx === idx ? null : idx)}
+                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-all"
+              >
+                {expandedCourseIdx === idx ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+              </button>
+              <button 
+                onClick={() => {
+                  if (window.confirm(`Bạn có chắc muốn xóa giai đoạn "${course.title}"?`)) {
+                    setForm({...form, courses: form.courses.filter((_, i) => i !== idx)})
+                    if (expandedCourseIdx === idx) setExpandedCourseIdx(null)
+                  }
                 }}
-              />
-              <p className="text-xs text-slate-500">{course.modules.length} Học phần</p>
+                className="p-2 text-slate-400 hover:text-red-500 transition-all"
+              >
+                <Trash2 size={18} />
+              </button>
             </div>
           </div>
-          <button 
-            onClick={() => {
-              if (window.confirm(`Bạn có chắc muốn xóa giai đoạn "${course.title}"?`)) {
-                setForm({...form, courses: form.courses.filter((_, i) => i !== idx)})
-              }
-            }}
-            className="p-2 text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-          >
-            <Trash2 size={18} />
-          </button>
+
+          {/* Expandable fields */}
+          {expandedCourseIdx === idx && (
+            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in text-left">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tiêu đề Giai đoạn</label>
+                  <input
+                    type="text"
+                    value={course.title}
+                    onChange={e => {
+                      const next = [...form.courses]; next[idx].title = e.target.value; setForm({ ...form, courses: next })
+                    }}
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                    placeholder="Nhập tiêu đề..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Mô tả Giai đoạn</label>
+                  <textarea
+                    rows={3}
+                    value={course.description || ''}
+                    onChange={e => {
+                      const next = [...form.courses]; next[idx].description = e.target.value; setForm({ ...form, courses: next })
+                    }}
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                    placeholder="Mô tả tóm tắt nội dung..."
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Ảnh thu nhỏ (Thumbnail)</label>
+                    <div className="relative group border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl p-3 flex flex-col items-center justify-center h-28 cursor-pointer hover:border-indigo-500/50 overflow-hidden">
+                      {course.thumbnail ? (
+                        <>
+                          <img src={course.thumbnail} className="w-full h-full object-cover rounded-lg" alt="" />
+                          <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-black uppercase">Đổi ảnh</div>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1.5 text-slate-400">
+                          <ImageIcon size={20} />
+                          <span className="text-[10px] font-black uppercase">Tải ảnh</span>
+                        </div>
+                      )}
+                      <input 
+                        type="file" 
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                        accept="image/*" 
+                        onChange={e => handleCourseMediaUpload(e, idx, 'thumbnail')} 
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Ảnh bìa (Cover URL)</label>
+                    <div className="relative group border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl p-3 flex flex-col items-center justify-center h-28 cursor-pointer hover:border-indigo-500/50 overflow-hidden">
+                      {course.coverUrl ? (
+                        <>
+                          <img src={course.coverUrl} className="w-full h-full object-cover rounded-lg" alt="" />
+                          <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-black uppercase">Đổi ảnh</div>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1.5 text-slate-400">
+                          <ImageIcon size={20} />
+                          <span className="text-[10px] font-black uppercase">Tải ảnh bìa</span>
+                        </div>
+                      )}
+                      <input 
+                        type="file" 
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                        accept="image/*" 
+                        onChange={e => handleCourseMediaUpload(e, idx, 'coverUrl')} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ))}
       <button
-        onClick={() => setForm({ ...form, courses: [...form.courses, { id: 'c-' + Date.now(), title: 'Giai đoạn mới', modules: [] }] })}
-        className="w-full py-4 bg-slate-900/30 border-2 border-dashed border-slate-800 rounded-2xl text-slate-500 hover:text-indigo-400 hover:border-indigo-500/30 flex items-center justify-center gap-2 font-bold transition-all"
+        onClick={() => {
+          const newCourse = { id: 'c-' + Date.now(), title: 'Giai đoạn mới', description: '', thumbnail: '', coverUrl: '', modules: [] };
+          setForm({ ...form, courses: [...form.courses, newCourse] });
+          setExpandedCourseIdx(form.courses.length);
+        }}
+        className="w-full py-4 bg-slate-50 dark:bg-slate-900/30 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-500/30 flex items-center justify-center gap-2 font-bold transition-all"
       >
         <Plus size={20} /> Thêm Giai đoạn mới
       </button>
@@ -385,9 +499,9 @@ const PathwayBuilder = () => {
   const renderStep3 = () => (
     <div className="animate-fade-in space-y-6">
       {form.courses.map((course, cIdx) => (
-        <div key={course.id} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-          <div className="p-4 bg-slate-800/30 border-b border-slate-800 flex items-center justify-between">
-            <h3 className="font-bold text-indigo-400 flex items-center gap-2">
+        <div key={course.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-4 bg-slate-100/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <h3 className="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
               <Layers size={16} /> {course.title}
             </h3>
             <button
@@ -396,18 +510,18 @@ const PathwayBuilder = () => {
                 next[cIdx].modules.push({ id: 'm-' + Date.now(), title: 'Học phần mới', lessons: [] })
                 setForm({ ...form, courses: next })
               }}
-              className="text-xs bg-indigo-600/20 text-indigo-400 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-600/30"
+              className="text-xs bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-600/30"
             >
               + Thêm Học phần
             </button>
           </div>
           <div className="p-6 space-y-6">
-            {course.modules.length === 0 ? <p className="text-center text-slate-600 py-4 text-sm">Chưa có học phần nào</p> :
+            {course.modules.length === 0 ? <p className="text-center text-slate-400 py-4 text-sm">Chưa có học phần nào</p> :
               course.modules.map((module, mIdx) => (
-                <div key={module.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-4">
+                <div key={module.id} className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <input
-                      className="bg-transparent border-none text-white font-semibold p-0 focus:ring-0 w-full"
+                      className="bg-transparent border-none text-slate-900 dark:text-white font-semibold p-0 focus:ring-0 w-full"
                       value={module.title}
                       onChange={e => {
                         const next = [...form.courses]; next[cIdx].modules[mIdx].title = e.target.value; setForm({ ...form, courses: next })
@@ -416,7 +530,7 @@ const PathwayBuilder = () => {
                     <div className="flex items-center gap-2">
                       <button onClick={() => {
                         const next = [...form.courses]; next[cIdx].modules[mIdx].lessons.push({ id: 'l-' + Date.now(), title: 'Bài học mới' }); setForm({ ...form, courses: next })
-                      }} className="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded hover:bg-slate-700">
+                      }} className="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-1 rounded hover:bg-slate-300 dark:hover:bg-slate-700">
                         + Thêm Bài học
                       </button>
                       <button 
@@ -425,7 +539,7 @@ const PathwayBuilder = () => {
                           next[cIdx].modules = next[cIdx].modules.filter((_, i) => i !== mIdx);
                           setForm({...form, courses: next});
                         }}
-                        className="p-1 text-slate-600 hover:text-red-400 transition-all"
+                        className="p-1 text-slate-400 hover:text-red-500 transition-all"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -433,10 +547,10 @@ const PathwayBuilder = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     {module.lessons.map((lesson, lIdx) => (
-                      <div key={lesson.id} className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg border border-slate-800 group">
-                        <FileText size={14} className="text-slate-500" />
+                      <div key={lesson.id} className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 group shadow-sm">
+                        <FileText size={14} className="text-slate-400 dark:text-slate-50" />
                         <input
-                          className="bg-transparent border-none text-slate-300 text-xs p-0 focus:ring-0 w-full"
+                          className="bg-transparent border-none text-slate-700 dark:text-slate-300 text-xs p-0 focus:ring-0 w-full"
                           value={lesson.title}
                           onChange={e => {
                             const next = [...form.courses]; next[cIdx].modules[mIdx].lessons[lIdx].title = e.target.value; setForm({ ...form, courses: next })
@@ -448,7 +562,7 @@ const PathwayBuilder = () => {
                             next[cIdx].modules[mIdx].lessons = next[cIdx].modules[mIdx].lessons.filter((_, i) => i !== lIdx);
                             setForm({...form, courses: next});
                           }}
-                          className="text-slate-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                          className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                         >
                           <X size={12} />
                         </button>
@@ -467,21 +581,21 @@ const PathwayBuilder = () => {
   const renderStep4 = () => (
     <div className="animate-fade-in space-y-6">
       {form.courses.map((course) => (
-        <div key={course.id} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-          <div className="p-4 bg-slate-800/30 border-b border-slate-800 flex items-center justify-between">
-            <h3 className="font-bold text-slate-400 text-sm flex items-center gap-2">
+        <div key={course.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-4 bg-slate-100/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <h3 className="font-bold text-slate-600 dark:text-slate-400 text-sm flex items-center gap-2">
               <Layers size={14} /> {course.title}
             </h3>
           </div>
           <div className="p-6 space-y-4">
             {course.modules.map((module) => (
               <div key={module.id} className="space-y-3">
-                <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">{module.title}</h4>
+                <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{module.title}</h4>
                 <div className="grid grid-cols-1 gap-4">
                   {module.lessons.map((lesson, lIdx) => (
-                    <div key={lesson.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                    <div key={lesson.id} className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm font-bold text-indigo-400 flex items-center gap-2">
+                        <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
                           <FileText size={14} /> {lesson.title}
                         </span>
                         <button 
@@ -493,17 +607,17 @@ const PathwayBuilder = () => {
                             next[cIdx].modules[mIdx].lessons[lIdx].tasks.push({ id: 't-' + Date.now(), title: 'Nhiệm vụ mới', type: 'practice' });
                             setForm({ ...form, courses: next });
                           }}
-                          className="text-[10px] bg-indigo-600/10 text-indigo-400 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-600/20"
+                          className="text-[10px] bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-600/20"
                         >
                           + Thêm Nhiệm vụ
                         </button>
                       </div>
                       <div className="space-y-2">
                         {lesson.tasks?.map((task, tIdx) => (
-                          <div key={task.id} className="flex items-center gap-3 p-3 bg-slate-900 border border-slate-800 rounded-lg group">
+                          <div key={task.id} className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg group shadow-sm animate-fade-in">
                             <Target size={14} className="text-amber-500" />
                             <input 
-                              className="bg-transparent border-none text-slate-300 text-xs p-0 focus:ring-0 w-full" 
+                              className="bg-transparent border-none text-slate-700 dark:text-slate-300 text-xs p-0 focus:ring-0 w-full" 
                               value={task.title}
                               onChange={e => {
                                 const next = [...form.courses];
@@ -536,7 +650,7 @@ const PathwayBuilder = () => {
                                     task: fullTask
                                   });
                                 }}
-                                className="p-1.5 text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all"
+                                className="p-1.5 text-slate-400 hover:text-indigo-500 hover:bg-indigo-500/10 rounded-lg transition-all"
                                 title="Chỉnh sửa chi tiết"
                               >
                                 <Settings size={14} />
@@ -549,7 +663,7 @@ const PathwayBuilder = () => {
                                   next[cIdx].modules[mIdx].lessons[lIdx].tasks = next[cIdx].modules[mIdx].lessons[lIdx].tasks.filter((_, i) => i !== tIdx);
                                   setForm({ ...form, courses: next });
                                 }}
-                                className="p-1.5 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                                className="p-1.5 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                               >
                                 <X size={14} />
                               </button>
@@ -569,7 +683,7 @@ const PathwayBuilder = () => {
   )
 
   const renderStep5 = () => (
-    <div className="h-[600px] bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden relative">
+    <div className="h-[600px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden relative">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -580,17 +694,17 @@ const PathwayBuilder = () => {
         edgeTypes={edgeTypes}
         fitView
       >
-        <Background color="#334155" gap={20} />
+        <Background color="#94a3b8" gap={20} />
         <Controls />
         <MiniMap nodeStrokeWidth={3} zoomable pannable />
-        <Panel position="top-right" className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+        <Panel position="top-right" className="bg-white/80 dark:bg-slate-900/80 p-2 rounded-lg border border-slate-200 dark:border-slate-800">
           <div className="flex flex-col gap-2">
             <span className="text-[10px] font-bold text-slate-500 uppercase">Hướng dẫn</span>
-            <div className="flex items-center gap-2 text-xs text-slate-300">
-              <MousePointer2 size={12} className="text-indigo-400" /> Kéo thả để sắp xếp
+            <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
+              <MousePointer2 size={12} className="text-indigo-500" /> Kéo thả để sắp xếp
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-300">
-              <GitBranch size={12} className="text-indigo-400" /> Nối các chấm để tạo liên kết
+            <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
+              <GitBranch size={12} className="text-indigo-500" /> Nối các chấm để tạo liên kết
             </div>
           </div>
         </Panel>
@@ -604,42 +718,42 @@ const PathwayBuilder = () => {
 
     return (
       <div className="animate-fade-in space-y-8">
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 relative overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 relative overflow-hidden shadow-sm">
           <div className="absolute top-0 right-0 p-8 opacity-10">
             <Share2 size={120} />
           </div>
           <div className="relative z-10 space-y-6">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center">
+              <div className="w-16 h-16 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center">
                 <CheckCircle2 size={32} />
               </div>
               <div>
-                <h3 className="text-2xl font-black text-white">Sẵn sàng xuất bản!</h3>
-                <p className="text-slate-400">Tất cả thông tin đã được kiểm tra và sẵn sàng đưa lên hệ thống.</p>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">Sẵn sàng xuất bản!</h3>
+                <p className="text-slate-500 dark:text-slate-400">Tất cả thông tin đã được kiểm tra và sẵn sàng đưa lên hệ thống.</p>
               </div>
             </div>
 
             <div className="grid grid-cols-4 gap-4">
               {[
-                { label: 'Giai đoạn', value: form.courses.length, icon: Layers, color: 'text-indigo-400' },
-                { label: 'Học phần', value: totalModules, icon: FileText, color: 'text-amber-400' },
-                { label: 'Bài học', value: totalLessons, icon: Eye, color: 'text-emerald-400' },
-                { label: 'Tổng thời gian', value: `${form.estimatedHours}h`, icon: Clock, color: 'text-indigo-400' },
+                { label: 'Giai đoạn', value: form.courses.length, icon: Layers, color: 'text-indigo-500' },
+                { label: 'Học phần', value: totalModules, icon: FileText, color: 'text-amber-500' },
+                { label: 'Bài học', value: totalLessons, icon: Eye, color: 'text-emerald-500' },
+                { label: 'Tổng thời gian', value: `${form.estimatedHours}h`, icon: Clock, color: 'text-indigo-500' },
               ].map((stat, i) => (
-                <div key={i} className="bg-slate-950/50 border border-slate-800 p-4 rounded-2xl">
+                <div key={i} className="bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl">
                   <stat.icon size={16} className={`${stat.color} mb-2`} />
-                  <p className="text-2xl font-black text-white">{stat.value}</p>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{stat.label}</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white">{stat.value}</p>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-3xl p-8 flex items-center justify-between">
+        <div className="bg-indigo-50 dark:bg-indigo-600/10 border border-indigo-100 dark:border-indigo-500/20 rounded-3xl p-8 flex items-center justify-between">
           <div className="space-y-1">
-            <h4 className="font-bold text-white">Xác nhận xuất bản</h4>
-            <p className="text-sm text-slate-400">Lộ trình sẽ hiển thị công khai cho tất cả người dùng.</p>
+            <h4 className="font-bold text-slate-900 dark:text-white">Xác nhận xuất bản</h4>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Lộ trình sẽ hiển thị công khai cho tất cả người dùng.</p>
           </div>
           <button 
             onClick={handlePublish}
@@ -651,7 +765,7 @@ const PathwayBuilder = () => {
         </div>
 
         <div className="text-center">
-          <p className="text-xs text-slate-600">Bạn có thể quay lại bất kỳ bước nào để chỉnh sửa trước khi hoàn tất.</p>
+          <p className="text-xs text-slate-500">Bạn có thể quay lại bất kỳ bước nào để chỉnh sửa trước khi hoàn tất.</p>
         </div>
       </div>
     );
@@ -666,7 +780,7 @@ const PathwayBuilder = () => {
       case 5: return renderStep5()
       case 6: return renderStep6()
       default: return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-400">
           <Zap size={48} className="mx-auto mb-4 opacity-20" />
           <p>Đang xây dựng nội dung cho bước này...</p>
         </div>
@@ -678,18 +792,18 @@ const PathwayBuilder = () => {
     <div className="max-w-7xl mx-auto min-h-screen pb-20">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-6">
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Thiết kế lộ trình</h1>
+          <h1 className="text-slate-900 dark:text-slate-100 font-extrabold text-3xl">Thiết kế lộ trình</h1>
         </div>
         <div className="flex items-center gap-3">
           <button 
             onClick={handleSaveDraft}
-            className="flex items-center gap-2 px-6 py-3 bg-slate-900/50 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold rounded-xl transition-all"
+            className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all shadow-sm"
           >
             <Save size={18} /> Lưu nháp
           </button>
           <button 
             onClick={() => setShowPreview(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all"
+            className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold rounded-xl transition-all shadow-sm"
           >
             <Eye size={18} /> Xem trước
           </button>
@@ -1075,11 +1189,11 @@ const PathwayBuilder = () => {
                 className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all text-left ${currentStep === step.id
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                   : isAvailable
-                    ? 'bg-slate-900/50 text-slate-500 hover:bg-slate-800/50 hover:text-slate-200'
-                    : 'bg-slate-900/20 text-slate-700 cursor-not-allowed opacity-50'
+                    ? 'bg-white dark:bg-slate-900/50 text-slate-700 dark:text-slate-500 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-slate-200 shadow-sm'
+                    : 'bg-slate-100 dark:bg-slate-900/20 text-slate-400 dark:text-slate-700 cursor-not-allowed opacity-50 border border-slate-100 dark:border-none'
                   }`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentStep === step.id ? 'bg-white/20' : 'bg-slate-800'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${currentStep === step.id ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                   <step.icon size={16} />
                 </div>
                 <div style={{ flex: 1 }}>
@@ -1094,13 +1208,13 @@ const PathwayBuilder = () => {
 
         <div className="space-y-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white flex items-center gap-3">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
               {steps.find(s => s.id === currentStep)?.label}
-              <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold uppercase">Phần {currentStep}</span>
+              <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase">Phần {currentStep}</span>
             </h2>
             <div className="flex items-center gap-2">
-              <button onClick={prevStep} disabled={currentStep === 1} className="p-2 text-slate-500 hover:text-white disabled:opacity-20"><ChevronLeft size={24} /></button>
-              <button onClick={nextStep} disabled={currentStep === steps.length} className="p-2 text-slate-500 hover:text-white disabled:opacity-20"><ChevronRight size={24} /></button>
+              <button onClick={prevStep} disabled={currentStep === 1} className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-20"><ChevronLeft size={24} /></button>
+              <button onClick={nextStep} disabled={currentStep === steps.length} className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-20"><ChevronRight size={24} /></button>
             </div>
           </div>
           <div className="min-h-[500px]">

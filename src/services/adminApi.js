@@ -121,6 +121,11 @@ export const deletePathway = async (id) => {
   return response.data
 }
 
+export const approvePathway = async (id, approve) => {
+  const response = await apiClient.put(`/admin/pathways/${id}/approve?approve=${approve}`)
+  return response.data
+}
+
 // ═══ Courses API (Admin) ════════════════════════════════
 export const getAllCourses = async () => {
   const response = await apiClient.get('/Admin/courses')

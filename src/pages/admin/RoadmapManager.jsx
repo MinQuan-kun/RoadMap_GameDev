@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Plus, Trash2, Eye, Pencil, Map, Loader2, BookOpen, ShieldCheck, Globe, Save } from 'lucide-react'
 import AdminTable from '../../components/admin/AdminTable'
 import AdminModal from '../../components/admin/AdminModal'
-import { getAllPathways, deletePathway, createPathway, updatePathway } from '../../services/adminApi'
+import { getAllPathways, deletePathway, createPathway, updatePathway, approvePathway } from '../../services/adminApi'
 import toast from 'react-hot-toast'
 
 const PathwayManager = () => {
@@ -91,7 +91,7 @@ const PathwayManager = () => {
             <BookOpen size={16} style={{ color: '#818cf8' }} />
           </div>
           <div>
-            <span style={{ fontWeight: 600, color: '#e2e8f0', display: 'block' }}>{val || '—'}</span>
+            <span style={{ fontWeight: 600, color: 'var(--admin-text)', display: 'block' }}>{val || '—'}</span>
             <span style={{ fontSize: 10, color: 'var(--admin-text-dim)' }}>/{row.slug}</span>
           </div>
         </div>
@@ -122,6 +122,52 @@ const PathwayManager = () => {
           </span>
         )
       ),
+    },
+    {
+      key: 'isApproved',
+      label: 'Phê duyệt',
+      width: 160,
+      render: (val, row) => {
+        if (row.isOfficial) {
+          return (
+            <span style={{ color: '#64748b', fontSize: 12, fontWeight: 500 }}>
+              Tự động duyệt
+            </span>
+          )
+        }
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span className={`admin-badge ${val ? 'admin-badge-success' : 'admin-badge-warning'}`}>
+              {val ? 'Đã duyệt' : 'Chưa duyệt'}
+            </span>
+            <button
+              onClick={async () => {
+                try {
+                  const targetApproved = !val
+                  await approvePathway(row.id || row._id, targetApproved)
+                  toast.success(targetApproved ? 'Đã phê duyệt lộ trình!' : 'Đã hủy phê duyệt!')
+                  fetchPathways()
+                } catch (e) {
+                  toast.error('Cập nhật trạng thái duyệt thất bại!')
+                }
+              }}
+              style={{
+                fontSize: 10,
+                padding: '4px 8px',
+                borderRadius: '6px',
+                border: 'none',
+                background: val ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                color: val ? '#f87171' : '#34d399',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                transition: 'all 0.2s'
+              }}
+            >
+              {val ? 'Hủy' : 'Duyệt'}
+            </button>
+          </div>
+        )
+      }
     },
     {
       key: 'actions',
@@ -176,29 +222,29 @@ const PathwayManager = () => {
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16 }}>
           <div>
             <label className="admin-label">Tiêu đề</label>
-            <input className="admin-input" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} required />
+            <input className="admin-input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
           </div>
           <div>
             <label className="admin-label">Slug (đường dẫn)</label>
-            <input className="admin-input" value={form.slug} onChange={(e) => setForm({...form, slug: e.target.value})} required />
+            <input className="admin-input" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} required />
           </div>
           <div>
             <label className="admin-label">Mô tả</label>
-            <textarea className="admin-textarea" rows={3} value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} />
+            <textarea className="admin-textarea" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-             <div>
-                <label className="admin-label">Độ khó</label>
-                <select className="admin-input" value={form.difficulty} onChange={(e) => setForm({...form, difficulty: e.target.value})}>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-             </div>
-             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 24 }}>
-                <input type="checkbox" id="isOfficial" checked={form.isOfficial} onChange={(e) => setForm({...form, isOfficial: e.target.checked})} />
-                <label htmlFor="isOfficial" className="admin-label" style={{ margin: 0 }}>Lộ trình chính thức</label>
-             </div>
+            <div>
+              <label className="admin-label">Độ khó</label>
+              <select className="admin-input" value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 24 }}>
+              <input type="checkbox" id="isOfficial" checked={form.isOfficial} onChange={(e) => setForm({ ...form, isOfficial: e.target.checked })} />
+              <label htmlFor="isOfficial" className="admin-label" style={{ margin: 0 }}>Lộ trình chính thức</label>
+            </div>
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
             <button type="button" className="admin-btn admin-btn-ghost" onClick={() => setEditTarget(null)}>Hủy</button>
@@ -213,7 +259,7 @@ const PathwayManager = () => {
       {/* Delete confirmation */}
       <AdminModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Xác nhận xóa">
         <p style={{ fontSize: 14, color: 'var(--admin-text-muted)', margin: '0 0 20px' }}>
-          Bạn có chắc chắn muốn xóa pathway <strong style={{ color: '#f87171' }}>"{deleteTarget?.title}"</strong>? 
+          Bạn có chắc chắn muốn xóa pathway <strong style={{ color: '#f87171' }}>"{deleteTarget?.title}"</strong>?
           Tất cả dữ liệu khóa học liên quan vẫn sẽ tồn tại nhưng không còn thuộc về lộ trình này.
         </p>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>

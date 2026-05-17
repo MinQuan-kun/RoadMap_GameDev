@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { User, LayoutDashboard, Briefcase, Map, Settings, PlusSquare } from 'lucide-react';
+import { User, LayoutDashboard, Briefcase, Map, Settings, PlusSquare, Star } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import ProfileSidebar from '../components/profile/ProfileSidebar';
 import ProfileInfo from '../components/profile/ProfileInfo';
@@ -10,6 +10,7 @@ import Setting from '../components/profile/Setting';
 import RoadmapBuilder from './RoadmapBuilder';
 import MyRoadMap from '../components/profile/MyRoadMap';
 import RecruiterManagement from '../components/profile/RecruiterManagement';
+import FollowedPathways from '../components/profile/FollowedPathways';
 
 const UserProfile = () => {
   const { user, setUser } = useContext(AuthContext);
@@ -24,6 +25,7 @@ const UserProfile = () => {
     { id: 'ProfileInfo', label: 'Hồ sơ của tôi', icon: User },
     { id: 'MyJob', label: isRecruiter ? 'Quản lý tuyển dụng' : 'Việc làm của tôi', icon: Briefcase },
     { id: 'MyRoadMap', label: 'Lộ trình của tôi', icon: Map },
+    { id: 'FollowedPathways', label: 'Tôi đã theo dõi', icon: Star },
     { id: 'CreateRoadmap', label: 'Tạo lộ trình', icon: PlusSquare },
     { id: 'Setting', label: 'Cài đặt', icon: Settings },
   ];
@@ -120,6 +122,7 @@ const UserProfile = () => {
           )}
 
           {activeTab === 'MyRoadMap' && <MyRoadMap onCreate={handleCreateRoadmap} onEdit={handleEditRoadmap} />}
+          {activeTab === 'FollowedPathways' && <FollowedPathways />}
           {activeTab === 'Setting' && <div className="flex-1 p-8 md:p-12 overflow-y-auto custom-scrollbar"><Setting /></div>}
 
         </main>

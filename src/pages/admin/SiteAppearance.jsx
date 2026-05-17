@@ -62,7 +62,7 @@ const SiteAppearance = () => {
             style={{
               fontSize: 26,
               fontWeight: 800,
-              color: '#f1f5f9',
+              color: 'var(--admin-text)',
               margin: 0,
               letterSpacing: '-0.02em',
             }}
@@ -114,7 +114,7 @@ const SiteAppearance = () => {
             style={{
               fontSize: 15,
               fontWeight: 700,
-              color: '#e2e8f0',
+              color: 'var(--admin-text)',
               marginBottom: 20,
             }}
           >
@@ -236,7 +236,7 @@ const SiteAppearance = () => {
                 style={{
                   fontSize: 28,
                   fontWeight: 800,
-                  color: '#e2e8f0',
+                  color: 'var(--admin-text)',
                   margin: 0,
                 }}
               >
@@ -266,7 +266,7 @@ const SiteAppearance = () => {
             style={{
               fontSize: 15,
               fontWeight: 700,
-              color: '#e2e8f0',
+              color: 'var(--admin-text)',
               marginBottom: 20,
             }}
           >
@@ -299,7 +299,7 @@ const SiteAppearance = () => {
             style={{
               fontSize: 15,
               fontWeight: 700,
-              color: '#e2e8f0',
+              color: 'var(--admin-text)',
               marginBottom: 20,
             }}
           >

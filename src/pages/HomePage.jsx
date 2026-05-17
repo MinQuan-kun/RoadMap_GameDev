@@ -112,7 +112,7 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode, user, isAuthenticat
 
   // Filter roadmaps (official/community)
   const officialRoadmaps = pathways.filter(p => p.isOfficial);
-  const communityRoadmaps = pathways.filter(p => !p.isOfficial);
+  const communityRoadmaps = pathways.filter(p => !p.isOfficial && p.isApproved);
 
   const HeroSection = () => (
     <section className="relative pt-32 pb-20 overflow-hidden">

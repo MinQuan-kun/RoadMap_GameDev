@@ -9,11 +9,11 @@
   --admin-sidebar: #ffffff;
   --admin-card: #ffffff;
   --admin-card-hover: #f1f5f9;
-  --admin-border: rgba(0, 0, 0, 0.06);
-  --admin-border-hover: rgba(0, 0, 0, 0.1);
+  --admin-border: rgba(0, 0, 0, 0.08);
+  --admin-border-hover: rgba(0, 0, 0, 0.15);
   --admin-text: #0f172a;
-  --admin-text-muted: #64748b;
-  --admin-text-dim: #94a3b8;
+  --admin-text-muted: #475569;
+  --admin-text-dim: #64748b;
   --admin-accent: #4f46e5;
   --admin-accent-light: #6366f1;
   --admin-accent-glow: rgba(79, 70, 229, 0.1);
@@ -21,7 +21,9 @@
   --admin-warning: #f59e0b;
   --admin-danger: #ef4444;
   --admin-info: #3b82f6;
-  --admin-header-bg: rgba(255, 255, 255, 0.8);
+  --admin-header-bg: rgba(255, 255, 255, 0.85);
+  --admin-input-bg: #ffffff;
+  --admin-input-border: #cbd5e1;
 }
 
 .dark {
@@ -39,6 +41,8 @@
   --admin-accent-light: #818cf8;
   --admin-accent-glow: rgba(99, 102, 241, 0.15);
   --admin-header-bg: rgba(10, 13, 22, 0.8);
+  --admin-input-bg: #0c0e14;
+  --admin-input-border: #1e293b;
 }
 
 /* ─── Sidebar ──────────────────────────────────── */
@@ -67,13 +71,13 @@
 
 .admin-sidebar-item:hover {
   color: var(--admin-text);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--admin-card-hover);
 }
 
 .admin-sidebar-item.active {
-  color: #fff;
-  background: linear-gradient(135deg, var(--admin-accent-glow), rgba(99, 102, 241, 0.06));
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #fff !important;
+  background: var(--admin-accent);
+  border: 1px solid var(--admin-accent-light);
 }
 
 .admin-sidebar-item.active::before {
@@ -271,8 +275,8 @@
 .admin-input {
   width: 100%;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--admin-border);
+  background: var(--admin-input-bg);
+  border: 1px solid var(--admin-input-border);
   border-radius: 10px;
   color: var(--admin-text);
   font-size: 13.5px;
@@ -293,8 +297,8 @@
   width: 100%;
   min-height: 100px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--admin-border);
+  background: var(--admin-input-bg);
+  border: 1px solid var(--admin-input-border);
   border-radius: 10px;
   color: var(--admin-text);
   font-size: 13.5px;
@@ -322,8 +326,8 @@
 .admin-select {
   width: 100%;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--admin-border);
+  background: var(--admin-input-bg);
+  border: 1px solid var(--admin-input-border);
   border-radius: 10px;
   color: var(--admin-text);
   font-size: 13.5px;
