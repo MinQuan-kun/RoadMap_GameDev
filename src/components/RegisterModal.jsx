@@ -22,7 +22,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
     if (formData.password.length < 8) {
       setError('Mật khẩu phải có ít nhất 8 ký tự.');
-      return; 
+      return;
     }
 
     try {
@@ -148,7 +148,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                 onChange={handleChange}
                 className="w-full appearance-none rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 py-3 pl-12 pr-4 text-slate-900 dark:text-white outline-none ring-blue-500/20 transition focus:ring-4"
               >
-                <option value={1} className="text-slate-900 dark:bg-slate-800 dark:text-white">Người tìm việc</option>
+                <option value={1} className="text-slate-900 dark:bg-slate-800 dark:text-white">Học viên/Người tìm việc</option>
                 <option value={2} className="text-slate-900 dark:bg-slate-800 dark:text-white">Nhà tuyển dụng</option>
               </select>
             </div>

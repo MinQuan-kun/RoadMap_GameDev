@@ -7,6 +7,7 @@ import {
 import AuthContext from '../../context/AuthContext'
 import { getMyJobPosts, createJob, updateJob, deleteJob } from '../../services/recruiterApi'
 import { getRoadmaps } from '../../services/roadmapApi'
+import { toast } from 'react-hot-toast'
 
 const EMPTY_FORM = {
   title: '',
@@ -91,18 +92,19 @@ const RecruiterJobManager = () => {
     if (!window.confirm('Bạn chắc chắn muốn xóa bài đăng này? Tất cả đơn ứng tuyển liên quan cũng sẽ bị xóa.')) return
     try {
       await deleteJob(jobId)
+      toast.success('Xóa bài đăng thành công!')
       await loadJobs()
     } catch (e) {
-      alert(e?.response?.data?.message || 'Xóa thất bại.')
+      toast.error(e?.response?.data?.message || 'Xóa thất bại.')
     }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.title.trim()) { alert('Vui lòng nhập tiêu đề vị trí.'); return }
+    if (!form.title.trim()) { toast.error('Vui lòng nhập tiêu đề vị trí.'); return }
     // Salary validation: disallow alphabetic characters to avoid accidental text inputs
     if (form.salary && /[a-zA-Z]/.test(form.salary)) {
-      alert('Mức lương không được chứa chữ cái. Vui lòng nhập số hoặc ký tự hợp lệ (ví dụ: $1,200 - $2,000).')
+      toast.error('Mức lương không được chứa chữ cái. Vui lòng nhập số hoặc ký tự hợp lệ (ví dụ: $1,200 - $2,000).')
       return
     }
     setSaving(true)
@@ -110,8 +112,10 @@ const RecruiterJobManager = () => {
     try {
       if (editingId) {
         await updateJob(editingId, form)
+        toast.success('Cập nhật bài đăng thành công!')
       } else {
         await createJob(form)
+        toast.success('Đăng bài mới thành công!')
       }
 
       // Reset and reload safely

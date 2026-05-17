@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'react-hot-toast'
 import { 
   Save, 
   Download, 
@@ -119,8 +120,9 @@ const RoadmapBuilderContent = ({ embedded = false, roadmapId = null, onSaved, on
           try {
             const data = JSON.parse(e.target.result)
             actions.importRoadmap(data)
+            toast.success('Đã nhập dữ liệu roadmap thành công!')
           } catch {
-            alert('Invalid JSON file')
+            toast.error('Định dạng tệp JSON không hợp lệ!')
           }
         }
         reader.readAsText(file)

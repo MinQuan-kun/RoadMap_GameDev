@@ -6,10 +6,12 @@ import {
   Shield,
   ShieldCheck,
   Users,
+  Key,
 } from 'lucide-react'
 import AdminTable from '../../components/admin/AdminTable'
 import AdminModal from '../../components/admin/AdminModal'
-import { getUsers, updateUser, deleteUser, approveRecruiter, rejectRecruiter } from '../../services/adminApi'
+import { getUsers, updateUser, deleteUser, approveRecruiter, rejectRecruiter, resetUserPassword } from '../../services/adminApi'
+import { toast } from 'react-hot-toast'
 
 const UserManager = () => {
   const [users, setUsers] = useState([])
@@ -18,6 +20,9 @@ const UserManager = () => {
   const [editTarget, setEditTarget] = useState(null)
   const [editForm, setEditForm] = useState({})
   const [saving, setSaving] = useState(false)
+  const [resetTarget, setResetTarget] = useState(null)
+  const [newPassword, setNewPassword] = useState('')
+  const [resetting, setResetting] = useState(false)
 
   const fetchUsers = async () => {
     setLoading(true)
@@ -63,7 +68,7 @@ const UserManager = () => {
       setEditTarget(null)
     } catch (e) {
       console.error('Failed to update user:', e)
-      alert('Cập nhật thất bại.')
+      toast.error('Cập nhật thất bại.')
     } finally {
       setSaving(false)
     }
@@ -79,9 +84,10 @@ const UserManager = () => {
             (u.id || u._id) !== (deleteTarget.id || deleteTarget._id)
         )
       )
+      toast.success('Xóa người dùng thành công!')
     } catch (e) {
       console.error('Failed to delete user:', e)
-      alert('Xóa thất bại.')
+      toast.error('Xóa thất bại.')
     }
     setDeleteTarget(null)
   }
@@ -90,8 +96,9 @@ const UserManager = () => {
     try {
       await approveRecruiter(user.id || user._id)
       setUsers((prev) => prev.map((u) => ((u.id || u._id) === (user.id || user._id) ? { ...u, isApproved: true } : u)))
+      toast.success('Đã duyệt tài khoản Nhà tuyển dụng!')
     } catch (e) {
-      alert('Duyệt thất bại.')
+      toast.error('Duyệt thất bại.')
     }
   }
 
@@ -99,8 +106,30 @@ const UserManager = () => {
     try {
       await rejectRecruiter(user.id || user._id)
       setUsers((prev) => prev.map((u) => ((u.id || u._id) === (user.id || user._id) ? { ...u, isApproved: false } : u)))
+      toast.success('Đã hủy duyệt tài khoản!')
     } catch (e) {
-      alert('Hủy duyệt thất bại.')
+      toast.error('Hủy duyệt thất bại.')
+    }
+  }
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault()
+    if (!resetTarget || !newPassword) return
+    if (newPassword.length < 8) {
+      toast.error('Mật khẩu phải có ít nhất 8 ký tự.')
+      return
+    }
+    setResetting(true)
+    try {
+      await resetUserPassword(resetTarget.id || resetTarget._id, newPassword)
+      toast.success('Đã đặt lại mật khẩu thành công!')
+      setResetTarget(null)
+      setNewPassword('')
+    } catch (e) {
+      console.error('Failed to reset password:', e)
+      toast.error(e.response?.data || 'Đặt lại mật khẩu thất bại.')
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -239,6 +268,17 @@ const UserManager = () => {
               title="Sửa"
             >
               <Pencil size={14} />
+            </button>
+            <button
+              className="admin-btn admin-btn-ghost admin-btn-sm"
+              onClick={() => {
+                setResetTarget(row)
+                setNewPassword('')
+              }}
+              title="Đặt lại mật khẩu"
+              style={{ color: '#fbbf24' }}
+            >
+              <Key size={14} />
             </button>
             <button
               className="admin-btn admin-btn-danger admin-btn-sm"
@@ -467,6 +507,70 @@ const UserManager = () => {
             Xóa
           </button>
         </div>
+      </AdminModal>
+
+      {/* Reset Password Modal */}
+      <AdminModal
+        isOpen={!!resetTarget}
+        onClose={() => setResetTarget(null)}
+        title="Đặt lại mật khẩu"
+      >
+        <form onSubmit={handleResetPassword} style={{ display: 'grid', gap: 16 }}>
+          <p
+            style={{
+              fontSize: 14,
+              color: 'var(--admin-text-muted)',
+              margin: '0',
+            }}
+          >
+            Đặt lại mật khẩu cho tài khoản{' '}
+            <strong style={{ color: '#38bdf8' }}>
+              "{resetTarget?.userName || resetTarget?.username}"
+            </strong>.
+          </p>
+          <div>
+            <label className="admin-label">Mật khẩu mới</label>
+            <input
+              className="admin-input"
+              type="password"
+              placeholder="Nhập mật khẩu mới (tối thiểu 8 ký tự)"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              justifyContent: 'flex-end',
+              marginTop: 8,
+            }}
+          >
+            <button
+              type="button"
+              className="admin-btn admin-btn-ghost"
+              onClick={() => setResetTarget(null)}
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="admin-btn admin-btn-primary"
+              disabled={resetting || !newPassword}
+              style={{ background: '#eab308', color: '#1e293b' }}
+            >
+              {resetting ? (
+                <Loader2
+                  size={14}
+                  style={{ animation: 'spin 1s linear infinite' }}
+                />
+              ) : (
+                'Đặt lại mật khẩu'
+              )}
+            </button>
+          </div>
+        </form>
       </AdminModal>
     </div>
   )

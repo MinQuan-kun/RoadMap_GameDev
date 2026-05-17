@@ -4,6 +4,7 @@ import {
   CheckCircle2, XCircle, Clock, MessageSquare, Award, User
 } from 'lucide-react'
 import { getMyJobPosts, getJobApplicants, updateApplicationStatus } from '../../services/recruiterApi'
+import { toast } from 'react-hot-toast'
 
 const STATUS_MAP = {
   Pending: { label: 'Đang chờ', badge: 'admin-badge-warning', icon: Clock },
@@ -66,8 +67,9 @@ const RecruiterApplicants = () => {
       setApplicants(prev =>
         prev.map(a => a.applicationId === applicationId ? { ...a, status: newStatus } : a)
       )
+      toast.success('Đã cập nhật trạng thái ứng viên thành công!')
     } catch (e) {
-      alert(e?.response?.data?.message || 'Cập nhật trạng thái thất bại.')
+      toast.error(e?.response?.data?.message || 'Cập nhật trạng thái thất bại.')
     } finally {
       setUpdatingId(null)
     }

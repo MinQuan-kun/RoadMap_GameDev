@@ -15,6 +15,7 @@ import {
   updateNode,
   deleteNode,
 } from '../../services/adminApi'
+import { toast } from 'react-hot-toast'
 
 const emptyForm = {
   name: '',
@@ -107,14 +108,16 @@ const NodeManager = () => {
               : n
           )
         )
+        toast.success('Cập nhật node thành công!')
       } else {
         const created = await createNode(payload)
         setNodes((prev) => [...prev, created])
+        toast.success('Tạo node mới thành công!')
       }
       setModalOpen(false)
     } catch (e) {
       console.error('Failed to save node:', e)
-      alert('Lưu thất bại. Vui lòng thử lại.')
+      toast.error('Lưu thất bại. Vui lòng thử lại.')
     } finally {
       setSaving(false)
     }
@@ -130,9 +133,10 @@ const NodeManager = () => {
             (n.id || n._id) !== (deleteTarget.id || deleteTarget._id)
         )
       )
+      toast.success('Xóa node thành công!')
     } catch (e) {
       console.error('Failed to delete node:', e)
-      alert('Xóa thất bại. Vui lòng thử lại.')
+      toast.error('Xóa thất bại. Vui lòng thử lại.')
     }
     setDeleteTarget(null)
   }

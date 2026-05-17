@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Sparkles, Rocket, Loader2, Gamepad2, Target, Cpu, CheckCircle2 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import { getActiveQuiz, submitQuiz } from '../services/roadmapApi';
+import { toast } from 'react-hot-toast';
 
 const CareerQuiz = () => {
   const { user, setUser } = useContext(AuthContext);
@@ -93,7 +94,7 @@ const CareerQuiz = () => {
     // Check if all questions are answered
     const unansweredCount = questions.length - Object.keys(userAnswers).length;
     if (unansweredCount > 0) {
-      alert(`Vui lòng trả lời đầy đủ các câu hỏi! (Còn ${unansweredCount} câu)`);
+      toast.error(`Vui lòng trả lời đầy đủ các câu hỏi! (Còn ${unansweredCount} câu)`);
       setIsSubmitting(false);
       return;
     }
@@ -108,11 +109,12 @@ const CareerQuiz = () => {
       if (user) {
         setUser({ ...user, hasCompletedQuiz: true });
       }
+      toast.success('Đã nộp khảo sát thành công!');
       // Navigate to the result page with the result ID
       navigate(`/survey/result/${res.id}`, { state: { result: res } });
     } catch (error) {
       console.error("Lỗi khi nộp bài khảo sát:", error);
-      alert("Đã xảy ra lỗi khi tính toán lộ trình của bạn!");
+      toast.error("Đã xảy ra lỗi khi tính toán lộ trình của bạn!");
       setIsSubmitting(false);
     }
   };

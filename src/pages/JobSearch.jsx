@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import AuthContext from '../context/AuthContext'
 import { applyJob, getJobFilters, getJobs } from '../services/jobsApi'
+import { toast } from 'react-hot-toast'
 
 const DEFAULT_SKILLS = ['Unity', 'Unreal', 'C#', 'C++']
 const DEFAULT_EXPERIENCE_LEVELS = ['Intern/Fresher', '1-3 năm', '3-5 năm']
@@ -118,7 +119,7 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
     }
 
     if (isRecruiter) {
-      alert('Tài khoản nhà tuyển dụng không thể ứng tuyển công việc.')
+      toast.error('Tài khoản nhà tuyển dụng không thể ứng tuyển công việc.')
       return
     }
 
@@ -126,12 +127,12 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
     try {
       await applyJob(jobId)
       await loadJobs()
-      alert('Ứng tuyển thành công!')
+      toast.success('Ứng tuyển thành công!')
     } catch (e) {
       const serverMessage = typeof e?.response?.data === 'string'
         ? e.response.data
         : 'Ứng tuyển thất bại. Vui lòng thử lại.'
-      alert(serverMessage)
+      toast.error(serverMessage)
     } finally {
       setApplyingJobId(null)
     }

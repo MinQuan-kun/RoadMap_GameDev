@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Plus, Pencil, Trash2, Map, Search } from 'lucide-react'
 import AuthContext from '../../context/AuthContext'
 import { deleteRoadmap, getRoadmaps } from '../../services/roadmapApi'
+import { toast } from 'react-hot-toast'
 
 const MyRoadMap = ({ onCreate, onEdit }) => {
 	const { user } = useContext(AuthContext)
@@ -43,9 +44,10 @@ const MyRoadMap = ({ onCreate, onEdit }) => {
 
 		try {
 			await deleteRoadmap(roadmapId)
+			toast.success('Xóa lộ trình thành công!')
 			await loadRoadmaps()
 		} catch (e) {
-			alert(e?.response?.data || 'Xóa roadmap thất bại.')
+			toast.error(e?.response?.data || 'Xóa roadmap thất bại.')
 		}
 	}
 

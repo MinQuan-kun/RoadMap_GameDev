@@ -3,6 +3,7 @@ import { User, Lock, Bell, Globe, Info, ChevronRight, Eye, EyeOff, Loader2 } fro
 import AuthContext from "../../context/AuthContext";
 import { changePassword, deleteAccount } from '../../services/adminApi';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 const Setting = () => {
     const { user, logout } = useContext(AuthContext);
@@ -44,11 +45,11 @@ const Setting = () => {
         try {
             setLoading(true);
             await deleteAccount();
-            alert('Tài khoản của bạn đã bị xóa.');
+            toast.success('Tài khoản của bạn đã bị xóa thành công.');
             logout();
             navigate('/');
         } catch (e) {
-            alert(e?.response?.data || 'Xóa tài khoản thất bại.');
+            toast.error(e?.response?.data || 'Xóa tài khoản thất bại.');
         } finally {
             setLoading(false);
         }
