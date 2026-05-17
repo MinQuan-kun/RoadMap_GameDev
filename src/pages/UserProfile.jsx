@@ -9,15 +9,7 @@ import MyJobs from '../components/profile/MyJobs';
 import Setting from '../components/profile/Setting';
 import RoadmapBuilder from './RoadmapBuilder';
 import MyRoadMap from '../components/profile/MyRoadMap';
-
-const sideMenu = [
-  { id: 'DashBoard', label: 'Bảng điều khiển', icon: LayoutDashboard },
-  { id: 'ProfileInfo', label: 'Hồ sơ của tôi', icon: User },
-  { id: 'MyJob', label: 'Việc làm của tôi', icon: Briefcase },
-  { id: 'MyRoadMap', label: 'Lộ trình của tôi', icon: Map },
-  { id: 'CreateRoadmap', label: 'Tạo lộ trình', icon: PlusSquare },
-  { id: 'Setting', label: 'Cài đặt', icon: Settings },
-];
+import RecruiterManagement from '../components/profile/RecruiterManagement';
 
 const UserProfile = () => {
   const { user, setUser } = useContext(AuthContext);
@@ -25,6 +17,16 @@ const UserProfile = () => {
   const [editingRoadmapId, setEditingRoadmapId] = useState(null);
   const [builderSessionKey, setBuilderSessionKey] = useState(0);
   const location = useLocation();
+  const isRecruiter = user?.role === 2;
+
+  const sideMenu = [
+    { id: 'DashBoard', label: 'Bảng điều khiển', icon: LayoutDashboard },
+    { id: 'ProfileInfo', label: 'Hồ sơ của tôi', icon: User },
+    { id: 'MyJob', label: isRecruiter ? 'Quản lý tuyển dụng' : 'Việc làm của tôi', icon: Briefcase },
+    { id: 'MyRoadMap', label: 'Lộ trình của tôi', icon: Map },
+    { id: 'CreateRoadmap', label: 'Tạo lộ trình', icon: PlusSquare },
+    { id: 'Setting', label: 'Cài đặt', icon: Settings },
+  ];
 
   useEffect(() => {
     if (location.state?.activeTab) {
@@ -98,7 +100,11 @@ const UserProfile = () => {
           {activeTab === 'DashBoard' && <div className="p-8 md:p-12 overflow-y-auto flex-1"><Dashboard /></div>}
           {activeTab === 'ProfileInfo' && <ProfileInfo profile={profileData} onProfileUpdated={handleProfileUpdated} />}
 
-          {activeTab === 'MyJob' && <div className="flex-1 p-8 md:p-12 overflow-y-auto"><MyJobs /></div>}
+          {activeTab === 'MyJob' && (
+            isRecruiter
+              ? <RecruiterManagement />
+              : <div className="flex-1 p-8 md:p-12 overflow-y-auto"><MyJobs /></div>
+          )}
 
           {activeTab === 'CreateRoadmap' && (
             <div className="flex-1 overflow-hidden p-4 md:p-6">

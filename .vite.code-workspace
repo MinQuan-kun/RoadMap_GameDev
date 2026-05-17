@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../.vite"
+		},
+		{
+			"path": "../BackendRoadMap"
+		},
+		{
+			"path": "."
+		}
+	]
+}

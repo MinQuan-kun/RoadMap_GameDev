@@ -156,7 +156,7 @@ const MyRoadMap = ({ onCreate, onEdit }) => {
 									>
 										HỌC NGAY
 									</button>
-									{roadmap.createdBy === creatorId && (
+									{roadmap.isOfficial && roadmap.createdBy === creatorId && (
 										<>
 											<button
 												onClick={() => onEdit(roadmap.id)}

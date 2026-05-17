@@ -231,7 +231,7 @@ const RoadmapDetail = () => {
   return (
     <div className="w-screen h-screen flex flex-col bg-slate-50 dark:bg-[#050505] overflow-hidden transition-colors duration-300">
       {/* Top Header */}
-      <div className="h-16 flex items-center gap-4 px-6 bg-white/95 dark:bg-[#0a0a0f]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] z-50">
+      <div className="h-16 flex items-center gap-4 px-6 bg-white/95 dark:bg-[#0a0a0f]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] z-10">
         <button onClick={() => navigate('/')} className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
           <ArrowLeft size={20} />
         </button>

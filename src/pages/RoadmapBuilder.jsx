@@ -95,9 +95,15 @@ const RoadmapBuilderContent = ({ embedded = false, roadmapId = null, onSaved, on
     link.href = url
     link.download = `${state.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`
     document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    try {
+      link.click()
+    } finally {
+      // remove only if still attached
+      if (link.parentNode) {
+        link.parentNode.removeChild(link)
+      }
+      URL.revokeObjectURL(url)
+    }
   }
 
   // Handle import JSON

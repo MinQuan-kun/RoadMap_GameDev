@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState, useCallback } from 'react'
 import {
   Search, Filter, ChevronRight,
   ChevronLeft, Clock, Banknote, CheckCircle2
@@ -63,34 +63,38 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
     loadFilterMeta()
   }, [])
 
+  const loadJobs = useCallback(async () => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await getJobs({
+        search: searchTerm.trim() || undefined,
+        skills: selectedSkills.length ? selectedSkills.join(',') : undefined,
+        experience: experienceLevel || undefined,
+        sortBy,
+        page,
+        pageSize,
+      })
+
+      setJobs(response?.data ?? [])
+      setTotal(response?.total ?? 0)
+    } catch (e) {
+      setJobs([])
+      setTotal(0)
+      setError(e?.response?.data || 'Không thể tải danh sách việc làm. Vui lòng thử lại.')
+    } finally {
+      setLoading(false)
+    }
+  }, [searchTerm, selectedSkills, experienceLevel, sortBy, page, pageSize])
+
   useEffect(() => {
-    const timeout = setTimeout(async () => {
-      setLoading(true)
-      setError('')
-
-      try {
-        const response = await getJobs({
-          search: searchTerm.trim() || undefined,
-          skills: selectedSkills.length ? selectedSkills.join(',') : undefined,
-          experience: experienceLevel || undefined,
-          sortBy,
-          page,
-          pageSize,
-        })
-
-        setJobs(response?.data ?? [])
-        setTotal(response?.total ?? 0)
-      } catch (e) {
-        setJobs([])
-        setTotal(0)
-        setError(e?.response?.data || 'Không thể tải danh sách việc làm. Vui lòng thử lại.')
-      } finally {
-        setLoading(false)
-      }
+    const timeout = setTimeout(() => {
+      loadJobs()
     }, 350)
 
     return () => clearTimeout(timeout)
-  }, [searchTerm, selectedSkills, experienceLevel, sortBy, page, pageSize])
+  }, [loadJobs])
 
   const handleSkillToggle = (skill) => {
     setSelectedSkills((prev) => (
@@ -121,6 +125,7 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
     setApplyingJobId(jobId)
     try {
       await applyJob(jobId)
+      await loadJobs()
       alert('Ứng tuyển thành công!')
     } catch (e) {
       const serverMessage = typeof e?.response?.data === 'string'

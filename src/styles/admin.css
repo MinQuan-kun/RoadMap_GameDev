@@ -172,6 +172,46 @@
   vertical-align: middle;
 }
 
+.recruiter-tight-table thead th,
+.recruiter-tight-table tbody td {
+  border-right: 1px solid var(--admin-border);
+}
+
+.recruiter-tight-table thead th:last-child,
+.recruiter-tight-table tbody td:last-child {
+  border-right: none;
+}
+
+.recruiter-tight-table thead th,
+.recruiter-tight-table tbody td {
+  padding: 8px 10px;
+}
+
+.recruiter-tight-table tbody td {
+  font-size: 12px;
+}
+
+/* ─── Recruiter Compact Tables ─────────────────── */
+.recruiter-tight-table thead th {
+  padding: 8px 10px;
+  font-size: 10px;
+  border-right: 1px solid var(--admin-border);
+}
+
+.recruiter-tight-table thead th:last-child {
+  border-right: none;
+}
+
+.recruiter-tight-table tbody td {
+  padding: 8px 10px;
+  font-size: 11px;
+  border-right: 1px solid var(--admin-border);
+}
+
+.recruiter-tight-table tbody td:last-child {
+  border-right: none;
+}
+
 /* ─── Buttons ──────────────────────────────────── */
 .admin-btn {
   display: inline-flex;

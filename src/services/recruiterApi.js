@@ -1,5 +1,18 @@
 import apiClient from './apiClient'
 
+const normalizeJobPayload = (payload = {}) => ({
+  title: payload.title || '',
+  description: payload.description || '',
+  companyName: payload.companyName || payload.company || '',
+  location: payload.location || '',
+  jobType: payload.jobType || 'remote',
+  salary: payload.salary || '',
+  experienceLevel: payload.experienceLevel || '',
+  requiredSkillTags: payload.requiredSkillTags || payload.skills || [],
+  requiredCourseIds: payload.requiredCourseIds || [],
+  roadmapGraphId: payload.roadmapGraphId || payload.targetRoadmapId || '',
+})
+
 
 export const getMyJobPosts = async () => {
   const response = await apiClient.get('/jobs/my-posts')
@@ -7,12 +20,12 @@ export const getMyJobPosts = async () => {
 }
 
 export const createJob = async (payload) => {
-  const response = await apiClient.post('/jobs', payload)
+  const response = await apiClient.post('/jobs', normalizeJobPayload(payload))
   return response.data
 }
 
 export const updateJob = async (jobId, payload) => {
-  const response = await apiClient.put(`/jobs/${jobId}`, payload)
+  const response = await apiClient.put(`/jobs/${jobId}`, normalizeJobPayload(payload))
   return response.data
 }
 

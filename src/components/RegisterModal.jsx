@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { Eye, EyeOff, X, User, Mail, Lock } from 'lucide-react'
+import { Eye, EyeOff, X, User, Mail, Lock, BriefcaseBusiness } from 'lucide-react'
 import AuthContext from '../context/AuthContext'
 import apiClient from '../services/apiClient';
 import toast from 'react-hot-toast';
@@ -13,6 +13,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
     userName: '',
     email: '',
     password: '',
+    role: 1,
   });
 
   const handleSubmit = async (event) => {
@@ -44,7 +45,13 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
       toast.error(msg);
     }
   };
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData({
+      ...formData,
+      [name]: name === 'role' ? Number(value) : value,
+    })
+  }
 
   if (!isOpen) return null
 
@@ -128,6 +135,26 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
+          </div>
+
+          {/* Role */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">Vai trò</label>
+            <div className="relative">
+              <BriefcaseBusiness className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full appearance-none rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 py-3 pl-12 pr-4 text-slate-900 dark:text-white outline-none ring-blue-500/20 transition focus:ring-4"
+              >
+                <option value={1}>Người tìm việc</option>
+                <option value={2}>Nhà tuyển dụng</option>
+              </select>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 ml-1">
+              Nhà tuyển dụng có thể cần admin duyệt trước khi sử dụng đầy đủ tính năng.
+            </p>
           </div>
 
           <button

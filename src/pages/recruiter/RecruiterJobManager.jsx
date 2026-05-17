@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import {
   PlusCircle, Pencil, Trash2, Search, X, Save,
   Briefcase, MapPin, DollarSign, Users, ChevronDown, Loader2
@@ -32,10 +32,11 @@ const RecruiterJobManager = () => {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState({ ...EMPTY_FORM })
   const [saving, setSaving] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [roadmaps, setRoadmaps] = useState([])
   const [skillInput, setSkillInput] = useState('')
   const [tagInput, setTagInput] = useState('')
-  const navigate = require('react-router-dom').useNavigate()
+  const navigate = useNavigate()
 
   const loadJobs = async () => {
     try {
@@ -99,19 +100,36 @@ const RecruiterJobManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.title.trim()) { alert('Vui lòng nhập tiêu đề vị trí.'); return }
+    // Salary validation: disallow alphabetic characters to avoid accidental text inputs
+    if (form.salary && /[a-zA-Z]/.test(form.salary)) {
+      alert('Mức lương không được chứa chữ cái. Vui lòng nhập số hoặc ký tự hợp lệ (ví dụ: $1,200 - $2,000).')
+      return
+    }
     setSaving(true)
+    setSubmitError('')
     try {
       if (editingId) {
         await updateJob(editingId, form)
       } else {
         await createJob(form)
       }
+
+      // Reset and reload safely
       setShowForm(false)
       setEditingId(null)
       setForm({ ...EMPTY_FORM })
-      await loadJobs()
-    } catch (e) {
-      alert(e?.response?.data?.message || 'Lưu thất bại.')
+      try {
+        await loadJobs()
+      } catch (loadErr) {
+        // show non-fatal load error
+        console.error('Failed to refresh job list after submit', loadErr)
+        setSubmitError('Lưu thành công nhưng không thể làm mới danh sách (vui lòng tải lại trang).')
+      }
+    } catch (err) {
+      console.error('Job save failed', err)
+      // Prefer server-provided message when available
+      const serverMsg = err?.response?.data?.message || err?.message || 'Lưu thất bại.'
+      setSubmitError(serverMsg)
     } finally {
       setSaving(false)
     }
@@ -146,17 +164,26 @@ const RecruiterJobManager = () => {
     setForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }))
   }
 
-  const filteredJobs = jobs.filter(j =>
-    j.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    j.location?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredJobs = jobs.filter(j => {
+    const title = (j.title || '').toString().toLowerCase()
+    const location = (j.location || '').toString().toLowerCase()
+    const term = (searchTerm || '').toString().toLowerCase()
+    return title.includes(term) || location.includes(term)
+  })
 
   // ─── Form Modal ───
   if (showForm) {
     return (
       <div>
+        {submitError && (
+          <div style={{ marginBottom: 12 }}>
+            <div className="admin-card" style={{ padding: 12, border: '1px solid rgba(239,68,68,0.12)', background: 'rgba(239,68,68,0.04)', color: '#ef4444' }}>
+              <strong>Lỗi:</strong> {submitError}
+            </div>
+          </div>
+        )}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--admin-text)', margin: 0 }}>
             {editingId ? 'Chỉnh sửa bài đăng' : 'Tạo bài đăng mới'}
           </h1>
           <button onClick={() => { setShowForm(false); setEditingId(null) }} className="admin-btn admin-btn-ghost">
@@ -195,7 +222,11 @@ const RecruiterJobManager = () => {
                 <input
                   className="admin-input"
                   value={form.salary}
-                  onChange={e => setForm(p => ({ ...p, salary: e.target.value }))}
+                  onChange={e => {
+                    // allow digits, currency symbols, dots, commas, dashes and spaces; strip other letters
+                    const cleaned = e.target.value.replace(/[^0-9\$\.,\-\s]/g, '')
+                    setForm(p => ({ ...p, salary: cleaned }))
+                  }}
                   placeholder="VD: $1,200 - $2,000"
                 />
               </div>
@@ -333,7 +364,7 @@ const RecruiterJobManager = () => {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Quản lý tuyển dụng</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--admin-text)', margin: 0 }}>Quản lý tuyển dụng</h1>
           <p style={{ fontSize: 13, color: 'var(--admin-text-muted)', marginTop: 4 }}>
             {filteredJobs.length} bài đăng
           </p>
@@ -354,7 +385,7 @@ const RecruiterJobManager = () => {
       </div>
 
       {/* Table */}
-      <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="admin-card" style={{ padding: 0, overflowX: 'auto', overflowY: 'hidden' }}>
         {loading ? (
           <div className="admin-empty"><div className="admin-loader" /></div>
         ) : filteredJobs.length === 0 ? (
@@ -365,57 +396,53 @@ const RecruiterJobManager = () => {
             </p>
           </div>
         ) : (
-          <table className="admin-table">
+          <table className="admin-table recruiter-tight-table" style={{ minWidth: 838, tableLayout: 'fixed' }}>
             <thead>
               <tr>
-                <th>Vị trí</th>
-                <th>Địa điểm</th>
-                <th>Lương</th>
-                <th>Kinh nghiệm</th>
-                <th>Ứng viên</th>
-                <th>Ngày đăng</th>
-                <th style={{ textAlign: 'right' }}>Hành động</th>
+                  <th style={{ width: 180, fontSize: 10 }}>Vị trí</th>
+                  <th style={{ width: 170, fontSize: 10 }}>Kỹ năng</th>
+                  <th style={{ width: 130, fontSize: 10 }}>Địa điểm</th>
+                  <th style={{ width: 120, fontSize: 10 }}>Lương</th>
+                  <th style={{ width: 110, fontSize: 10 }}>Kinh nghiệm</th>
+                  <th style={{ width: 90, fontSize: 10 }}>Ứng viên</th>
+                  <th style={{ width: 100, fontSize: 10 }}>Ngày đăng</th>
+                <th style={{ width: 120, textAlign: 'right', fontSize: 10 }}>Hành động</th>
               </tr>
             </thead>
             <tbody>
               {filteredJobs.map((job) => (
                 <tr key={job.id}>
-                  <td>
-                    <p style={{ fontWeight: 600, color: '#e2e8f0', margin: 0 }}>{job.title}</p>
-                    <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
-                      {(job.skills || []).slice(0, 3).map(s => (
-                        <span key={s} className="admin-badge admin-badge-info" style={{ fontSize: 9 }}>{s}</span>
-                      ))}
-                      {(job.skills || []).length > 3 && (
-                        <span style={{ fontSize: 10, color: 'var(--admin-text-dim)' }}>+{job.skills.length - 3}</span>
-                      )}
-                    </div>
-                  </td>
-                  <td style={{ color: 'var(--admin-text-muted)' }}>
+                    <td style={{ verticalAlign: 'top' }}>
+                      <p style={{ fontWeight: 600, color: 'var(--admin-text)', margin: 0, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{job.title}</p>
+                      </td>
+                    <td style={{ verticalAlign: 'top' }}>
+                      <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', maxWidth: '100%', overflow: 'hidden', fontSize: 9 }}>
+                          {(job.skills || []).slice(0, 3).map(s => (
+                          <span key={s} className="admin-badge admin-badge-info" style={{ fontSize: 7 }}>{s}</span>
+                          ))}
+                          {(job.skills || []).length > 3 && (
+                          <span style={{ fontSize: 8, color: 'var(--admin-text-dim)' }}>+{job.skills.length - 3}</span>
+                          )}
+                        </div>
+                      </td>
+                  
+                    <td style={{ color: 'var(--admin-text-muted)', verticalAlign: 'top', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 11 }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <MapPin size={12} /> {job.location || '—'}
                     </span>
                   </td>
-                  <td style={{ color: '#34d399', fontWeight: 600, fontSize: 13 }}>{job.salary || '—'}</td>
-                  <td>
-                    <span className="admin-badge admin-badge-warning">{job.experienceLevel || '—'}</span>
+                  <td style={{ color: '#34d399', fontWeight: 600, fontSize: 11, verticalAlign: 'top', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{job.salary || '—'}</td>
+                  <td style={{ verticalAlign: 'top' }}>
+                    <span className="admin-badge admin-badge-warning" style={{ fontSize: 8 }}>{job.experienceLevel || '—'}</span>
                   </td>
-                  <td>
-                    <span className={`admin-badge ${(job.applicantCount || 0) > 0 ? 'admin-badge-success' : 'admin-badge-warning'}`}>
+                  <td style={{ verticalAlign: 'top' }}>
+                    <span className={`admin-badge ${(job.applicantCount || 0) > 0 ? 'admin-badge-success' : 'admin-badge-warning'}`} style={{ fontSize: 8 }}>
                       <Users size={10} style={{ marginRight: 4 }} />{job.applicantCount || 0}
                     </span>
                   </td>
-                  <td style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>{job.postedAt}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <button 
-                        onClick={() => navigate(`/recruiter/jobs/${job.id}/roadmap`)} 
-                        className="admin-btn admin-btn-ghost admin-btn-sm" 
-                        title="Roadmap"
-                        style={{ color: '#818cf8', background: 'rgba(129, 140, 248, 0.1)' }}
-                      >
-                        <Briefcase size={14} /> Roadmap
-                      </button>
+                  <td style={{ color: 'var(--admin-text-muted)', fontSize: 10, verticalAlign: 'top', whiteSpace: 'nowrap' }}>{job.postedAt}</td>
+                  <td style={{ textAlign: 'right', verticalAlign: 'top' }}>
+                    <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', flexWrap: 'nowrap' }}>
                       <button onClick={() => handleEdit(job)} className="admin-btn admin-btn-ghost admin-btn-sm" title="Sửa">
                         <Pencil size={14} />
                       </button>

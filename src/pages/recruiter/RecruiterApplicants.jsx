@@ -79,17 +79,17 @@ const RecruiterApplicants = () => {
     <div>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Quản lý ứng viên</h1>
-        <p style={{ fontSize: 13, color: 'var(--admin-text-muted)', marginTop: 4 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--admin-text)', margin: 0 }}>Quản lý ứng viên</h1>
+        <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginTop: 4 }}>
           Xem và xử lý đơn ứng tuyển cho từng vị trí
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20, alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '300px minmax(0, 1fr)', gap: 12, alignItems: 'start' }}>
         {/* Left: Job selector */}
         <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--admin-border)' }}>
-            <p style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--admin-text-dim)', margin: 0 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--admin-text-dim)', margin: 0 }}>
               Chọn vị trí
             </p>
           </div>
@@ -99,7 +99,7 @@ const RecruiterApplicants = () => {
               <div className="admin-loader" style={{ width: 32, height: 32 }} />
             </div>
           ) : jobs.length === 0 ? (
-            <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--admin-text-dim)', fontSize: 13 }}>
+            <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--admin-text-dim)', fontSize: 12 }}>
               Chưa có bài đăng
             </div>
           ) : (
@@ -121,11 +121,11 @@ const RecruiterApplicants = () => {
                 >
                   <div style={{ minWidth: 0 }}>
                     <p style={{
-                      fontSize: 13, fontWeight: 600, margin: 0,
-                      color: selectedJobId === job.id ? '#fbbf24' : '#e2e8f0',
+                      fontSize: 12, fontWeight: 600, margin: 0,
+                      color: selectedJobId === job.id ? '#fbbf24' : 'var(--admin-text)',
                       whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                     }}>{job.title}</p>
-                    <p style={{ fontSize: 11, color: 'var(--admin-text-dim)', margin: '2px 0 0' }}>
+                    <p style={{ fontSize: 10, color: 'var(--admin-text-dim)', margin: '2px 0 0' }}>
                       {job.location || 'N/A'}
                     </p>
                   </div>
@@ -140,7 +140,7 @@ const RecruiterApplicants = () => {
         </div>
 
         {/* Right: Applicants list */}
-        <div className="admin-card" style={{ padding: 0, overflow: 'hidden', minHeight: 300 }}>
+        <div className="admin-card" style={{ padding: 0, overflowX: 'auto', overflowY: 'hidden', minHeight: 300 }}>
           {/* Selected job header */}
           {selectedJob && (
             <div style={{
@@ -149,13 +149,13 @@ const RecruiterApplicants = () => {
               background: 'rgba(255,255,255,0.02)',
             }}>
               <div>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#e2e8f0', margin: 0 }}>{selectedJob.title}</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-text)', margin: 0 }}>{selectedJob.title}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
-                  <span style={{ fontSize: 11, color: 'var(--admin-text-dim)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ fontSize: 10, color: 'var(--admin-text-dim)', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Briefcase size={11} /> {selectedJob.experienceLevel || '—'}
                   </span>
-                  <span style={{ fontSize: 11, color: 'var(--admin-text-dim)' }}>•</span>
-                  <span style={{ fontSize: 11, color: 'var(--admin-text-dim)' }}>{selectedJob.location || '—'}</span>
+                  <span style={{ fontSize: 10, color: 'var(--admin-text-dim)' }}>•</span>
+                  <span style={{ fontSize: 10, color: 'var(--admin-text-dim)' }}>{selectedJob.location || '—'}</span>
                 </div>
               </div>
               <span className="admin-badge admin-badge-info">
@@ -167,7 +167,7 @@ const RecruiterApplicants = () => {
           {!selectedJobId ? (
             <div className="admin-empty" style={{ padding: '60px 20px' }}>
               <Briefcase size={40} />
-              <p style={{ fontSize: 13, marginTop: 8 }}>Chọn một vị trí để xem ứng viên</p>
+              <p style={{ fontSize: 12, marginTop: 8 }}>Chọn một vị trí để xem ứng viên</p>
             </div>
           ) : loadingApplicants ? (
             <div className="admin-empty" style={{ padding: '40px 20px' }}>
@@ -176,10 +176,10 @@ const RecruiterApplicants = () => {
           ) : applicants.length === 0 ? (
             <div className="admin-empty" style={{ padding: '40px 20px' }}>
               <Users size={40} />
-              <p style={{ fontSize: 13, marginTop: 8 }}>Chưa có ứng viên cho vị trí này</p>
+              <p style={{ fontSize: 12, marginTop: 8 }}>Chưa có ứng viên cho vị trí này</p>
             </div>
           ) : (
-            <div>
+            <div style={{ minWidth: 662 }}>
               {applicants.map((app, idx) => {
                 const statusConfig = STATUS_MAP[app.status] || STATUS_MAP.Pending
                 const StatusIcon = statusConfig.icon
@@ -189,46 +189,47 @@ const RecruiterApplicants = () => {
                     key={app.applicationId}
                     className="animate-fade-in-up"
                     style={{
-                      padding: '20px 24px',
+                      padding: '10px 12px',
                       borderBottom: idx < applicants.length - 1 ? '1px solid var(--admin-border)' : 'none',
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
                       animationDelay: `${idx * 0.03}s`,
                       transition: 'background 0.15s ease',
+                      minWidth: 662,
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     {/* Applicant info */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0, maxWidth: '55%', paddingRight: 10, borderRight: '1px solid var(--admin-border)' }}>
                       {/* Avatar */}
                       <div style={{
-                        width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                        width: 38, height: 38, borderRadius: 10, flexShrink: 0,
                         background: app.applicant?.avatar
                           ? `url(${app.applicant.avatar}) center/cover`
                           : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 16, fontWeight: 700, color: '#fff',
+                        fontSize: 12, fontWeight: 700, color: '#fff',
                         border: '2px solid var(--admin-border)',
                       }}>
                         {!app.applicant?.avatar && (app.applicant?.fullName?.charAt(0)?.toUpperCase() || <User size={18} />)}
                       </div>
 
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: 14, fontWeight: 600, color: '#e2e8f0', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--admin-text)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {app.applicant?.fullName || app.applicant?.userName || 'Ứng viên'}
                         </p>
-                        <p style={{ fontSize: 11, color: 'var(--admin-text-dim)', margin: '2px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <p style={{ fontSize: 9, color: 'var(--admin-text-dim)', margin: '2px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Mail size={10} /> {app.applicant?.email || '—'}
                         </p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
                           <span style={{
-                            fontSize: 10, fontWeight: 700, color: '#60a5fa',
+                            fontSize: 8, fontWeight: 700, color: '#60a5fa',
                             display: 'flex', alignItems: 'center', gap: 4,
                           }}>
                             <Award size={10} /> Skills: {app.applicant?.skills?.length || 0}
                           </span>
-                          <span style={{ fontSize: 10, color: 'var(--admin-text-dim)' }}>•</span>
-                          <span style={{ fontSize: 10, color: 'var(--admin-text-dim)' }}>
+                          <span style={{ fontSize: 8, color: 'var(--admin-text-dim)' }}>•</span>
+                          <span style={{ fontSize: 8, color: 'var(--admin-text-dim)' }}>
                             Completed: {app.applicant?.completedNodes || 0} nodes
                           </span>
                         </div>
@@ -236,11 +237,11 @@ const RecruiterApplicants = () => {
                     </div>
 
                     {/* Matching score */}
-                    <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                    <div style={{ textAlign: 'center', flexShrink: 0, width: 70, padding: '0 8px', borderRight: '1px solid var(--admin-border)' }}>
                       <div style={{
-                        width: 52, height: 52, borderRadius: '50%',
+                        width: 42, height: 42, borderRadius: '50%',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 14, fontWeight: 800,
+                        fontSize: 11, fontWeight: 800,
                         background: app.matchingScore >= 70
                           ? 'rgba(16,185,129,0.12)' : app.matchingScore >= 40
                           ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)',
@@ -253,13 +254,13 @@ const RecruiterApplicants = () => {
                       }}>
                         {Math.round(app.matchingScore || 0)}%
                       </div>
-                      <p style={{ fontSize: 9, color: 'var(--admin-text-dim)', margin: '4px 0 0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      <p style={{ fontSize: 7, color: 'var(--admin-text-dim)', margin: '3px 0 0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         Match
                       </p>
                     </div>
 
                     {/* Status & Actions */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0, minWidth: 140, paddingLeft: 8 }}>
                       <span className={`admin-badge ${statusConfig.badge}`} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <StatusIcon size={10} /> {statusConfig.label}
                       </span>
@@ -271,8 +272,8 @@ const RecruiterApplicants = () => {
                             disabled={updatingId === app.applicationId}
                             className="admin-btn admin-btn-sm"
                             style={{
-                              background: 'rgba(16,185,129,0.1)', color: '#34d399',
-                              border: '1px solid rgba(16,185,129,0.2)', padding: '4px 8px', fontSize: 11,
+                                background: 'rgba(16,185,129,0.1)', color: '#34d399',
+                                border: '1px solid rgba(16,185,129,0.2)', padding: '3px 7px', fontSize: 9,
                             }}
                             title="Chấp nhận"
                           >
@@ -286,7 +287,7 @@ const RecruiterApplicants = () => {
                             className="admin-btn admin-btn-sm"
                             style={{
                               background: 'rgba(99,102,241,0.1)', color: '#818cf8',
-                              border: '1px solid rgba(99,102,241,0.2)', padding: '4px 8px', fontSize: 11,
+                              border: '1px solid rgba(99,102,241,0.2)', padding: '3px 7px', fontSize: 9,
                             }}
                             title="Phỏng vấn"
                           >
@@ -298,7 +299,7 @@ const RecruiterApplicants = () => {
                             onClick={() => handleStatusChange(app.applicationId, 'Rejected')}
                             disabled={updatingId === app.applicationId}
                             className="admin-btn admin-btn-danger admin-btn-sm"
-                            style={{ padding: '4px 8px', fontSize: 11 }}
+                            style={{ padding: '3px 7px', fontSize: 9 }}
                             title="Từ chối"
                           >
                             <XCircle size={12} />
