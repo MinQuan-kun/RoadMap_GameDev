@@ -13,6 +13,7 @@ const MyRoadMap = ({ onCreate, onEdit }) => {
 	const [searchTerm, setSearchTerm] = useState('')
 	const navigate = useNavigate()
 	const creatorId = user?.id || user?._id || null
+	const isRecruiter = user?.role === 2;
 
 	const loadRoadmaps = async () => {
 		try {
@@ -20,10 +21,11 @@ const MyRoadMap = ({ onCreate, onEdit }) => {
 			setError('')
 			// Mặc định hiển thị roadmap admin + của bản thân
 			// Cho phép tìm kiếm rộng hơn nếu có searchTerm
+			// Đối với nhà tuyển dụng, chỉ hiển thị lộ trình của họ tạo ra
 			const data = await getRoadmaps({ 
 				creatorId, 
 				search: searchTerm, 
-				includeOfficial: true 
+				includeOfficial: isRecruiter ? false : true 
 			})
 			setRoadmaps(Array.isArray(data) ? data : [])
 		} catch (e) {
@@ -55,8 +57,14 @@ const MyRoadMap = ({ onCreate, onEdit }) => {
 		<div className="flex-1 p-8 md:p-12 overflow-y-auto space-y-6">
 			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 				<div className="flex-1">
-					<h2 className="text-2xl font-black text-slate-900 dark:text-white">Khám phá lộ trình</h2>
-					<p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Tìm kiếm lộ trình học tập từ cộng đồng và các chuyên gia</p>
+					<h2 className="text-2xl font-black text-slate-900 dark:text-white">
+						{isRecruiter ? 'Lộ trình công ty' : 'Khám phá lộ trình'}
+					</h2>
+					<p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+						{isRecruiter 
+							? 'Quản lý các lộ trình tuyển dụng do công ty tạo ra gắn với các công việc' 
+							: 'Tìm kiếm lộ trình học tập từ cộng đồng và các chuyên gia'}
+					</p>
 				</div>
 				<div className="flex items-center gap-3">
 					<div className="relative">
@@ -156,7 +164,7 @@ const MyRoadMap = ({ onCreate, onEdit }) => {
 										onClick={() => navigate(`/roadmap/${roadmap.id || roadmap.slug}`)}
 										className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black hover:opacity-90 transition-opacity"
 									>
-										HỌC NGAY
+										{isRecruiter ? 'XEM LỘ TRÌNH' : 'HỌC NGAY'}
 									</button>
 									{roadmap.createdBy === creatorId && (
 										<>

@@ -46,7 +46,7 @@ const Dashboard = () => {
     <div className="space-y-8 animate-fade-in p-2">
       <div>
         <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-          Chào mừng trở lại, {user?.user_name || 'User'}! 👋
+          Chào mừng trở lại, {user?.fullName || user?.userName || 'User'}! 👋
         </h1>
       </div>
 

@@ -14,16 +14,21 @@ import FollowedPathways from '../components/profile/FollowedPathways';
 
 const UserProfile = () => {
   const { user, setUser } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('MyRoadMap');
+  const isRecruiter = user?.role === 2;
+  const [activeTab, setActiveTab] = useState(isRecruiter ? 'ProfileInfo' : 'MyRoadMap');
   const [editingRoadmapId, setEditingRoadmapId] = useState(null);
   const [builderSessionKey, setBuilderSessionKey] = useState(0);
   const location = useLocation();
-  const isRecruiter = user?.role === 2;
 
-  const sideMenu = [
+  const sideMenu = isRecruiter ? [
+    { id: 'ProfileInfo', label: 'Hồ sơ của tôi', icon: User },
+    { id: 'MyRoadMap', label: 'Lộ trình công ty', icon: Map },
+    { id: 'CreateRoadmap', label: 'Tạo lộ trình', icon: PlusSquare },
+    { id: 'Setting', label: 'Cài đặt', icon: Settings },
+  ] : [
     { id: 'DashBoard', label: 'Bảng điều khiển', icon: LayoutDashboard },
     { id: 'ProfileInfo', label: 'Hồ sơ của tôi', icon: User },
-    { id: 'MyJob', label: isRecruiter ? 'Quản lý tuyển dụng' : 'Việc làm của tôi', icon: Briefcase },
+    { id: 'MyJob', label: 'Việc làm của tôi', icon: Briefcase },
     { id: 'MyRoadMap', label: 'Lộ trình của tôi', icon: Map },
     { id: 'FollowedPathways', label: 'Tôi đã theo dõi', icon: Star },
     { id: 'CreateRoadmap', label: 'Tạo lộ trình', icon: PlusSquare },
@@ -33,6 +38,11 @@ const UserProfile = () => {
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
+      if (location.state.editingRoadmapId) {
+        setEditingRoadmapId(location.state.editingRoadmapId);
+      } else {
+        setEditingRoadmapId(null);
+      }
       // Clean up state so refresh doesn't stick
       window.history.replaceState({}, document.title);
     }

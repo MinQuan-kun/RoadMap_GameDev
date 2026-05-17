@@ -2,7 +2,8 @@ import React, { useState, useContext } from 'react'
 import { Outlet, NavLink, useNavigate, Navigate } from 'react-router-dom'
 import {
   LayoutDashboard, Briefcase, Users, LogOut,
-  ArrowLeft, ChevronLeft, ChevronRight, Building2
+  ArrowLeft, ChevronLeft, ChevronRight, Building2, Map,
+  Sun, Moon
 } from 'lucide-react'
 import AuthContext from '../../context/AuthContext'
 import '../../styles/admin.css'
@@ -11,9 +12,10 @@ const menuItems = [
   { to: '/recruiter', icon: LayoutDashboard, label: 'Tổng quan', end: true },
   { to: '/recruiter/jobs', icon: Briefcase, label: 'Quản lý tuyển dụng' },
   { to: '/recruiter/applicants', icon: Users, label: 'Ứng viên' },
+  { to: '/recruiter/roadmaps', icon: Map, label: 'Lộ trình tuyển dụng' },
 ]
 
-const RecruiterLayout = () => {
+const RecruiterLayout = ({ isDarkMode, toggleDarkMode }) => {
   const { user, isAuthenticated, logout } = useContext(AuthContext)
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
@@ -61,11 +63,11 @@ const RecruiterLayout = () => {
           </div>
           {!collapsed && (
             <div>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', margin: 0 }}>
-                Recruiter
+              <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--admin-text)', margin: 0 }}>
+                Trang quản lý
               </p>
               <p style={{ fontSize: 10, color: '#f59e0b', margin: 0, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Portal
+                Tuyển dụng
               </p>
             </div>
           )}
@@ -118,7 +120,7 @@ const RecruiterLayout = () => {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0 28px', height: 56,
           borderBottom: '1px solid var(--admin-border)',
-          background: 'rgba(10, 13, 22, 0.8)',
+          background: 'var(--admin-header-bg)',
           backdropFilter: 'blur(12px)',
           position: 'sticky', top: 0, zIndex: 30,
         }}>
@@ -130,6 +132,27 @@ const RecruiterLayout = () => {
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className="admin-btn admin-btn-ghost admin-btn-sm"
+              style={{
+                padding: '6px 10px',
+                borderRadius: 8,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid var(--admin-border)',
+                background: 'transparent',
+                color: 'var(--admin-text-muted)',
+                transition: 'all 0.15s ease'
+              }}
+              title={isDarkMode ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+            >
+              {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
+
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
                 width: 30, height: 30, borderRadius: 8,
@@ -140,7 +163,7 @@ const RecruiterLayout = () => {
                 {user?.fullName?.charAt(0)?.toUpperCase() || user?.userName?.charAt(0)?.toUpperCase() || 'R'}
               </div>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0', margin: 0, lineHeight: 1.2 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--admin-text)', margin: 0, lineHeight: 1.2 }}>
                   {user?.fullName || user?.userName || 'Recruiter'}
                 </p>
                 <p style={{ fontSize: 10, color: '#f59e0b', margin: 0, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>

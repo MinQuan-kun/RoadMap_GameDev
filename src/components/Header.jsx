@@ -52,18 +52,24 @@ const Header = ({ isDarkMode, toggleDarkMode, onOpenLogin, onOpenRegister }) => 
           </Link>
 
           <nav ref={navRef} className="hidden items-center gap-6 text-[15px] md:flex">
-            {['Lộ trình của tôi', 'Roadmap', 'Khóa học', 'Công việc', ...(user?.role === 0 ? ['Admin'] : [])]
-              .filter(menuName => menuName !== 'Lộ trình của tôi' || isAuthenticated)
+            {['Lộ trình của tôi', 'Roadmap', 'Khóa học', 'Công việc', ...(user?.role === 0 ? ['Admin'] : []), ...(user?.role === 2 ? ['Tuyển dụng'] : [])]
+              .filter(menuName => {
+                if (menuName === 'Lộ trình của tôi') {
+                  return isAuthenticated && user?.role !== 2;
+                }
+                return true;
+              })
               .map((menuName) => {
                 const isMyRoadMap = menuName === 'Lộ trình của tôi';
                 const isAdmin = menuName === 'Admin';
+                const isRecruiterPortal = menuName === 'Tuyển dụng';
                 const isCourse = menuName === 'Khóa học';
                 const isJobs = menuName === 'Công việc';
-                const path = isMyRoadMap ? '/profile' : isAdmin ? '/admin' : isCourse ? '/courses' : isJobs ? '/Jobs' : '/';
+                const path = isMyRoadMap ? '/profile' : isAdmin ? '/admin' : isRecruiterPortal ? '/recruiter' : isCourse ? '/courses' : isJobs ? '/Jobs' : '/';
 
                 return (
                   <div key={menuName} className="relative">
-                    {isMyRoadMap || isAdmin || isCourse || isJobs ? (
+                    {isMyRoadMap || isAdmin || isRecruiterPortal || isCourse || isJobs ? (
                       <Link
                         to={path}
                         state={isMyRoadMap ? { activeTab: 'MyRoadMap' } : undefined}

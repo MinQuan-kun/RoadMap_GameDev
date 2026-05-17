@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Search, Filter, ChevronRight,
   ChevronLeft, Clock, Banknote, CheckCircle2
@@ -12,6 +13,7 @@ const DEFAULT_EXPERIENCE_LEVELS = ['Intern/Fresher', '1-3 năm', '3-5 năm']
 
 const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
   const { isAuthenticated, user } = useContext(AuthContext)
+  const navigate = useNavigate()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSkills, setSelectedSkills] = useState([])
@@ -28,6 +30,7 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
     experienceLevels: DEFAULT_EXPERIENCE_LEVELS,
   })
   const [applyingJobId, setApplyingJobId] = useState(null)
+  const [expandedJobId, setExpandedJobId] = useState(null)
 
   const isRecruiter = user?.role === 2
 
@@ -310,8 +313,8 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
                           ))}
                         </div>
 
-                        <div className="mt-6 flex items-center gap-4 border-t border-slate-100 dark:border-white/5 pt-5">
-                          <div className="flex-1 hidden sm:block">
+                        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 dark:border-white/5 pt-5">
+                          <div className="flex-1 hidden sm:block max-w-[200px]">
                             <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-white/10">
                               <div
                                 className="h-full rounded-full bg-blue-600"
@@ -319,24 +322,75 @@ const JobSearch = ({ isDarkMode = false, onOpenLogin }) => {
                               />
                             </div>
                           </div>
-                          <button
-                            onClick={() => handleApplyJob(job.id)}
-                            disabled={applyingJobId === job.id || isRecruiter || job.hasApplied}
-                            className={`w-full sm:w-auto flex items-center justify-center gap-1 rounded-xl px-8 py-2.5 text-sm font-black text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
-                              job.hasApplied 
-                              ? 'bg-emerald-500' 
-                              : 'bg-slate-900 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700'
-                            }`}
-                          >
-                            {isRecruiter
-                              ? 'Chế độ nhà tuyển dụng'
-                              : job.hasApplied
-                                ? 'Đã ứng tuyển'
-                                : applyingJobId === job.id
-                                  ? 'Đang xử lý...'
-                                  : 'Ứng tuyển'} {job.hasApplied ? <CheckCircle2 size={16} /> : <ChevronRight size={16} />}
-                          </button>
+                          <div className="flex items-center gap-3 w-full sm:w-auto">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedJobId(p => p === job.id ? null : job.id)}
+                              className="flex-1 sm:flex-initial flex items-center justify-center gap-1 rounded-xl border border-slate-200 dark:border-white/10 px-5 py-2.5 text-sm font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-slate-700 dark:text-slate-200"
+                            >
+                              {expandedJobId === job.id ? 'Thu gọn' : 'Xem chi tiết'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleApplyJob(job.id)}
+                              disabled={applyingJobId === job.id || isRecruiter || job.hasApplied}
+                              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1 rounded-xl px-8 py-2.5 text-sm font-black text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
+                                job.hasApplied 
+                                ? 'bg-emerald-500' 
+                                : 'bg-slate-900 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700'
+                              }`}
+                            >
+                              {isRecruiter
+                                ? 'Chế độ nhà tuyển dụng'
+                                : job.hasApplied
+                                  ? 'Đã ứng tuyển'
+                                  : applyingJobId === job.id
+                                    ? 'Đang xử lý...'
+                                    : 'Ứng tuyển'} {job.hasApplied ? <CheckCircle2 size={16} /> : <ChevronRight size={16} />}
+                            </button>
+                          </div>
                         </div>
+
+                        {/* Collapsible Details */}
+                        {expandedJobId === job.id && (
+                          <div className="mt-6 border-t border-slate-100 dark:border-white/5 pt-6 space-y-6">
+                            {/* Description */}
+                            <div>
+                              <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">Mô tả công việc</h4>
+                              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line font-medium">
+                                {job.description || 'Chưa có mô tả chi tiết cho công việc này.'}
+                              </p>
+                            </div>
+
+                            {/* Attached Roadmap/Pathway */}
+                            <div>
+                              <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">Lộ trình học tập & Tuyển dụng</h4>
+                              {job.targetRoadmapId || job.roadmapGraphId ? (
+                                <div className="mt-3 p-5 rounded-2xl border border-blue-500/20 bg-blue-500/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                  <div>
+                                    <h5 className="font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                      📍 Lộ trình được đính kèm cho vị trí này
+                                    </h5>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                      Hãy học theo lộ trình định hướng này để chuẩn bị tốt nhất và nâng cao 100% tỷ lệ trúng tuyển!
+                                    </p>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => navigate(`/roadmap/${job.targetRoadmapId || job.roadmapGraphId}`)}
+                                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-lg shadow-blue-600/20 shrink-0 uppercase tracking-wider"
+                                  >
+                                    Xem lộ trình ngay
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="mt-2 text-sm text-amber-500 font-semibold italic">
+                                  Vị trí tuyển dụng này chưa đính kèm lộ trình học tập.
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </article>

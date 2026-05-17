@@ -1,11 +1,11 @@
 import React, { useState, useContext } from 'react'
 import { Outlet, useNavigate, Navigate } from 'react-router-dom'
-import { LogOut, ArrowLeft } from 'lucide-react'
+import { LogOut, ArrowLeft, Sun, Moon } from 'lucide-react'
 import AuthContext from '../../context/AuthContext'
 import AdminSidebar from './AdminSidebar'
 import '../../styles/admin.css'
 
-const AdminLayout = () => {
+const AdminLayout = ({ isDarkMode, toggleDarkMode }) => {
   const { user, isAuthenticated, logout } = useContext(AuthContext)
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
@@ -139,6 +139,28 @@ const AdminLayout = () => {
                 </p>
               </div>
             </div>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className="admin-btn admin-btn-ghost admin-btn-sm"
+              style={{
+                padding: '6px 10px',
+                borderRadius: 8,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid var(--admin-border)',
+                background: 'transparent',
+                color: 'var(--admin-text-muted)',
+                transition: 'all 0.15s ease',
+                marginRight: 8
+              }}
+              title={isDarkMode ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+            >
+              {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
 
             {/* Logout */}
             <button

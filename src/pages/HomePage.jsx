@@ -95,6 +95,7 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode, user, isAuthenticat
   const [pathways, setPathways] = useState([]);
   const [loading, setLoading] = useState(true);
   const settings = getSiteSettings();
+  const isRecruiter = user?.role === 2;
 
   useEffect(() => {
     const fetchPathways = async () => {
@@ -143,20 +144,31 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode, user, isAuthenticat
               : (settings.bannerDescription || "Hệ thống lộ trình chi tiết giúp bạn làm chủ Unity, Unreal Engine và các công nghệ phát triển game hiện đại.")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {(!isAuthenticated || !user?.hasCompletedQuiz) && (
+            {isRecruiter ? (
               <button
-                onClick={() => navigate('/survey')}
+                onClick={() => navigate('/recruiter')}
                 className="px-8 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 hover:-translate-y-1 flex items-center gap-2 group"
               >
-                Làm Khảo Sát Định Hướng <Rocket size={20} className="group-hover:translate-x-1 transition-transform" />
+                Vào Trang Quản Lý Tuyển Dụng <Rocket size={20} className="group-hover:translate-x-1 transition-transform" />
               </button>
+            ) : (
+              <>
+                {(!isAuthenticated || !user?.hasCompletedQuiz) && (
+                  <button
+                    onClick={() => navigate('/survey')}
+                    className="px-8 py-4 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 hover:-translate-y-1 flex items-center gap-2 group"
+                  >
+                    Làm Khảo Sát Định Hướng <Rocket size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+                )}
+                <button
+                  onClick={() => navigate('/Jobs')}
+                  className="px-8 py-4 rounded-2xl bg-white dark:bg-white/5 text-slate-900 dark:text-white font-bold border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all flex items-center gap-2"
+                >
+                  Tìm Việc Làm <Target size={20} />
+                </button>
+              </>
             )}
-            <button
-              onClick={() => navigate('/Jobs')}
-              className="px-8 py-4 rounded-2xl bg-white dark:bg-white/5 text-slate-900 dark:text-white font-bold border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all flex items-center gap-2"
-            >
-              Tìm Việc Làm <Target size={20} />
-            </button>
           </div>
         </div>
       </div>
@@ -251,25 +263,6 @@ const HomePage = ({ onOpenLogin, onOpenRegister, isDarkMode, user, isAuthenticat
           )}
         </>
       )}
-
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="p-12 rounded-[40px] bg-gradient-to-br from-slate-900 to-black text-white text-center relative overflow-hidden border border-white/5 shadow-2xl">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2"></div>
-            <div className="relative z-10">
-              <h2 className="text-4xl md:text-5xl font-black mb-6">Bạn có lộ trình riêng?</h2>
-              <p className="text-slate-400 text-lg mb-10 max-w-xl mx-auto">Chia sẻ kiến thức của bạn và giúp đỡ những nhà phát triển game khác trong cộng đồng.</p>
-              <button
-                onClick={() => navigate('/roadmap/builder')}
-                className="px-10 py-4 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 transition-all hover:scale-105"
-              >
-                Chia sẻ lộ trình của bạn
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };

@@ -53,12 +53,12 @@ const RecruiterJobManager = () => {
 
   const loadRoadmaps = async () => {
     try {
-      const data = await getRoadmaps()
+      const data = await getRoadmaps({ creatorId: user?.id || user?._id, includeOfficial: true })
       setRoadmaps(Array.isArray(data) ? data : [])
     } catch { setRoadmaps([]) }
   }
 
-  useEffect(() => { loadJobs(); loadRoadmaps() }, [])
+  useEffect(() => { loadJobs(); loadRoadmaps() }, [user])
 
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
@@ -250,6 +250,23 @@ const RecruiterJobManager = () => {
                 </select>
               </div>
 
+              {/* Target Roadmap */}
+              <div>
+                <label className="admin-label">Lộ trình đính kèm (Pathway)</label>
+                <select
+                  className="admin-select"
+                  value={form.targetRoadmapId}
+                  onChange={e => setForm(p => ({ ...p, targetRoadmapId: e.target.value }))}
+                >
+                  <option value="">Không đính kèm lộ trình</option>
+                  {roadmaps.map(r => (
+                    <option key={r.id} value={r.id}>
+                      {r.title} {r.isOfficial ? '(Official)' : '(Company)'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Tags */}
               <div>
                 <label className="admin-label">Tags (Phân loại)</label>
@@ -418,7 +435,14 @@ const RecruiterJobManager = () => {
                 <tr key={job.id}>
                     <td style={{ verticalAlign: 'top' }}>
                       <p style={{ fontWeight: 600, color: 'var(--admin-text)', margin: 0, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{job.title}</p>
-                      </td>
+                      {job.targetRoadmapId && (
+                        <div style={{ marginTop: 4 }}>
+                          <span className="admin-badge admin-badge-success" style={{ fontSize: 7, padding: '2px 6px', background: 'rgba(16,185,129,0.12)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)' }}>
+                            📍 Lộ trình: {roadmaps.find(r => r.id === job.targetRoadmapId)?.title || 'Đã liên kết'}
+                          </span>
+                        </div>
+                      )}
+                    </td>
                     <td style={{ verticalAlign: 'top' }}>
                       <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', maxWidth: '100%', overflow: 'hidden', fontSize: 9 }}>
                           {(job.skills || []).slice(0, 3).map(s => (

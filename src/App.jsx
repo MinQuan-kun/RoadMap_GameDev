@@ -34,6 +34,7 @@ import RecruiterDashboard from './pages/recruiter/RecruiterDashboard'
 import RecruiterJobManager from './pages/recruiter/RecruiterJobManager'
 import RecruiterApplicants from './pages/recruiter/RecruiterApplicants'
 import RecruiterRoadmapBuilder from './pages/recruiter/RecruiterRoadmapBuilder'
+import RecruiterRoadmaps from './pages/recruiter/RecruiterRoadmaps'
 
 // Page imports
 import SurveyResultPage from './pages/SurveyResultPage'
@@ -92,7 +93,7 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
           <Route path="/learn/:id" element={<LessonPage isDarkMode={isDarkMode} />} />
 
           {/* ─── Admin routes ─── */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminLayout isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />}>
             <Route index element={<AdminDashboard />} />
             <Route path="appearance" element={<SiteAppearance />} />
             <Route path="roadmaps" element={<RoadmapManager />} />
@@ -103,11 +104,12 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
           </Route>
 
           {/* ─── Recruiter routes ─── */}
-          <Route path="/recruiter" element={<RecruiterLayout />}>
+          <Route path="/recruiter" element={<RecruiterLayout isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />}>
             <Route index element={<RecruiterDashboard />} />
             <Route path="jobs" element={<RecruiterJobManager />} />
             <Route path="jobs/:id/roadmap" element={<RecruiterRoadmapBuilder />} />
             <Route path="applicants" element={<RecruiterApplicants />} />
+            <Route path="roadmaps" element={<RecruiterRoadmaps />} />
           </Route>
         </Routes>
 

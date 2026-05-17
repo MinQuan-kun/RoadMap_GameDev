@@ -41,7 +41,7 @@ const RecruiterDashboard = () => {
     <div>
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 800, color: '#f1f5f9', margin: 0, letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--admin-text)', margin: 0, letterSpacing: '-0.02em' }}>
           Xin chào, {user?.fullName || 'Nhà tuyển dụng'}! 👋
         </h1>
         <p style={{ fontSize: 14, color: 'var(--admin-text-muted)', marginTop: 6 }}>
@@ -70,7 +70,7 @@ const RecruiterDashboard = () => {
               <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--admin-text-dim)', margin: 0 }}>
                 {stat.label}
               </p>
-              <p style={{ fontSize: 28, fontWeight: 800, color: '#f1f5f9', margin: '4px 0 0', letterSpacing: '-0.02em' }}>
+              <p style={{ fontSize: 28, fontWeight: 800, color: 'var(--admin-text)', margin: '4px 0 0', letterSpacing: '-0.02em' }}>
                 {loading ? '—' : stat.value}
               </p>
             </div>
@@ -99,7 +99,7 @@ const RecruiterDashboard = () => {
             <PlusCircle size={20} style={{ color: '#3b82f6' }} />
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: '#e2e8f0', margin: 0 }}>Đăng tin tuyển dụng</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--admin-text)', margin: 0 }}>Đăng tin tuyển dụng</p>
             <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', margin: '2px 0 0' }}>Tạo bài đăng mới</p>
           </div>
           <ArrowUpRight size={16} style={{ color: 'var(--admin-text-dim)', flexShrink: 0 }} />
@@ -124,7 +124,7 @@ const RecruiterDashboard = () => {
             <Eye size={20} style={{ color: '#10b981' }} />
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: '#e2e8f0', margin: 0 }}>Xem ứng viên</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--admin-text)', margin: 0 }}>Xem ứng viên</p>
             <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', margin: '2px 0 0' }}>Quản lý hồ sơ ứng tuyển</p>
           </div>
           <ArrowUpRight size={16} style={{ color: 'var(--admin-text-dim)', flexShrink: 0 }} />
@@ -134,7 +134,7 @@ const RecruiterDashboard = () => {
       {/* Recent Jobs */}
       <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--admin-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#e2e8f0', margin: 0 }}>Bài đăng gần đây</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--admin-text)', margin: 0 }}>Bài đăng gần đây</h2>
           <button onClick={() => navigate('/recruiter/jobs')} className="admin-btn admin-btn-ghost admin-btn-sm">
             Xem tất cả <ArrowUpRight size={14} />
           </button>
@@ -171,7 +171,7 @@ const RecruiterDashboard = () => {
                 <tr key={job.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/recruiter/jobs`)}>
                   <td>
                     <div>
-                      <p style={{ fontWeight: 600, color: '#e2e8f0', margin: 0 }}>{job.title}</p>
+                      <p style={{ fontWeight: 600, color: 'var(--admin-text)', margin: 0 }}>{job.title}</p>
                       <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
                         {(job.skills || []).slice(0, 3).map(s => (
                           <span key={s} className="admin-badge admin-badge-info" style={{ fontSize: 9 }}>{s}</span>
