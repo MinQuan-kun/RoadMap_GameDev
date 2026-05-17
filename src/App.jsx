@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom'
 import LoginModal from './components/LoginModal'
+import ForgotPasswordModal from './components/ForgotPasswordModal'
 import Header from './components/Header';
 import RegisterModal from './components/RegisterModal'
 import AuthContext from './context/AuthContext'
@@ -40,7 +41,7 @@ import RecruiterRoadmaps from './pages/recruiter/RecruiterRoadmaps'
 import SurveyResultPage from './pages/SurveyResultPage'
 
 // Wrapper to conditionally show Header/Footer (hide on /admin routes)
-const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterModal, closeAuthModals, showLoginModal, showRegisterModal, user, isAuthenticated }) => {
+const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterModal, openForgotPasswordModal, closeAuthModals, showLoginModal, showRegisterModal, showForgotPasswordModal, user, isAuthenticated }) => {
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/recruiter')
 
@@ -119,9 +120,15 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
               isOpen={showLoginModal}
               onClose={closeAuthModals}
               onSwitchToRegister={openRegisterModal}
+              onSwitchToForgotPassword={openForgotPasswordModal}
             />
             <RegisterModal
               isOpen={showRegisterModal}
+              onClose={closeAuthModals}
+              onSwitchToLogin={openLoginModal}
+            />
+            <ForgotPasswordModal
+              isOpen={showForgotPasswordModal}
               onClose={closeAuthModals}
               onSwitchToLogin={openLoginModal}
             />
@@ -143,6 +150,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(localStorage.getItem('gamedev-token')))
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showRegisterModal, setShowRegisterModal] = useState(false)
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false)
 
   // Fetch profile on mount if token exists
   useEffect(() => {
@@ -178,17 +186,26 @@ function App() {
 
   const openLoginModal = () => {
     setShowRegisterModal(false)
+    setShowForgotPasswordModal(false)
     setShowLoginModal(true)
   }
 
   const openRegisterModal = () => {
     setShowLoginModal(false)
+    setShowForgotPasswordModal(false)
     setShowRegisterModal(true)
+  }
+
+  const openForgotPasswordModal = () => {
+    setShowLoginModal(false)
+    setShowRegisterModal(false)
+    setShowForgotPasswordModal(true)
   }
 
   const closeAuthModals = () => {
     setShowLoginModal(false)
     setShowRegisterModal(false)
+    setShowForgotPasswordModal(false)
   }
 
   const authValue = {
@@ -231,9 +248,11 @@ function App() {
             toggleDarkMode={toggleDarkMode}
             openLoginModal={openLoginModal}
             openRegisterModal={openRegisterModal}
+            openForgotPasswordModal={openForgotPasswordModal}
             closeAuthModals={closeAuthModals}
             showLoginModal={showLoginModal}
             showRegisterModal={showRegisterModal}
+            showForgotPasswordModal={showForgotPasswordModal}
             user={authValue.user}
             isAuthenticated={authValue.isAuthenticated}
           />

@@ -4,7 +4,7 @@ import AuthContext from '../context/AuthContext'
 import apiClient from '../services/apiClient';
 import toast from 'react-hot-toast';
 
-const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
+const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSwitchToForgotPassword }) => {
   const { login } = useContext(AuthContext)
   const [showPassword, setShowPassword] = useState({ userName: '', password: '' });
   const [formData, setFormData] = useState({ email: '', password: '' })
@@ -75,6 +75,13 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
           <div className="space-y-2">
             <div className="flex justify-between px-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Mật khẩu</label>
+              <button
+                type="button"
+                onClick={onSwitchToForgotPassword}
+                className="text-sm font-bold text-blue-600 hover:underline dark:text-blue-400"
+              >
+                Quên mật khẩu?
+              </button>
             </div>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
