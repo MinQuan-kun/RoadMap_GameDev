@@ -15,6 +15,8 @@ import CoursePanel from '../components/Roadmap/CoursePanel'
 import NodeDetailPanel from '../components/Roadmap/NodeDetailPanel'
 import { Loader2, ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react'
 import AuthContext from '../context/AuthContext'
+import { followPathway, unfollowPathway } from '../services/userApi'
+import toast from 'react-hot-toast'
 
 /* ═══ Custom Module Node ═════════════════════════ */
 const ModuleNode = ({ data }) => {
@@ -68,6 +70,7 @@ const RoadmapDetail = () => {
   
   // Metadata state
   const [metadata, setMetadata] = useState({
+    id: '',
     title: '',
     engine: '',
     description: '',
@@ -86,6 +89,36 @@ const RoadmapDetail = () => {
     }
   }, [user])
 
+  const handleFollowToggle = async () => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để theo dõi lộ trình.");
+      return;
+    }
+    if (!metadata.id) return;
+
+    const isFollowing = user.followedPathwayIds?.includes(metadata.id);
+    try {
+      if (isFollowing) {
+        await unfollowPathway(metadata.id);
+        setUser(prev => ({
+          ...prev,
+          followedPathwayIds: (prev.followedPathwayIds || []).filter(id => id !== metadata.id)
+        }));
+        toast.success("Đã hủy theo dõi lộ trình!");
+      } else {
+        await followPathway(metadata.id);
+        setUser(prev => ({
+          ...prev,
+          followedPathwayIds: [...(prev.followedPathwayIds || []), metadata.id]
+        }));
+        toast.success("Theo dõi lộ trình thành công!");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Thao tác thất bại. Vui lòng thử lại.");
+    }
+  };
+
   /* ─── Fetch data ─── */
   useEffect(() => {
     const loadData = async () => {
@@ -96,6 +129,7 @@ const RoadmapDetail = () => {
         const courses = response.courses || []
         
         setMetadata({
+          id: pathway.id || pathway._id || pathway.Id,
           title: pathway.title || '',
           engine: pathway.difficulty || '',
           description: pathway.description || '',
@@ -234,21 +268,37 @@ const RoadmapDetail = () => {
   return (
     <div className="w-screen h-screen flex flex-col bg-slate-50 dark:bg-[#050505] overflow-hidden transition-colors duration-300">
       {/* Top Header */}
-      <div className="h-16 flex items-center gap-4 px-6 bg-white/95 dark:bg-[#0a0a0f]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] z-10">
-        <button onClick={() => navigate('/')} className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-          <ArrowLeft size={20} />
-        </button>
-        <div className="flex flex-col">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">{metadata.title}</h1>
-            {metadata.engine && (
-              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase">
-                {metadata.engine}
-              </span>
-            )}
+      <div className="h-16 flex items-center justify-between px-6 bg-white/95 dark:bg-[#0a0a0f]/95 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] z-10">
+        <div className="flex items-center gap-4 min-w-0">
+          <button onClick={() => navigate('/')} className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors flex-shrink-0">
+            <ArrowLeft size={20} />
+          </button>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-3">
+              <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight truncate">{metadata.title}</h1>
+              {metadata.engine && (
+                <span className="text-[10px] font-black px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase flex-shrink-0">
+                  {metadata.engine}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 truncate max-w-md">{metadata.description}</p>
           </div>
-          <p className="text-xs text-slate-500 truncate max-w-md">{metadata.description}</p>
         </div>
+
+        {/* Follow/Unfollow Button */}
+        {user && metadata.id && (
+          <button
+            onClick={handleFollowToggle}
+            className={`flex-shrink-0 px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 ${
+              user.followedPathwayIds?.includes(metadata.id)
+                ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-md'
+                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20'
+            }`}
+          >
+            {user.followedPathwayIds?.includes(metadata.id) ? 'Hủy theo dõi' : 'Theo dõi lộ trình'}
+          </button>
+        )}
       </div>
 
       <div className="flex-1 flex overflow-hidden relative">

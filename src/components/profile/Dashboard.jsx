@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from "../../context/AuthContext";
-import { getRoadmaps } from '../../services/roadmapApi'
+import { getFollowedPathways } from '../../services/userApi'
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext)
@@ -19,27 +19,36 @@ const Dashboard = () => {
     const loadRoadmaps = async () => {
       if (!creatorId) { setLoading(false); return }
       try {
-        const data = await getRoadmaps(creatorId)
+        const data = await getFollowedPathways()
         setRoadmaps(Array.isArray(data) ? data : [])
-      } catch { setRoadmaps([]) }
-      finally { setLoading(false) }
+      } catch (err) {
+        console.error("Failed to load followed pathways:", err)
+        setRoadmaps([])
+      } finally {
+        setLoading(false)
+      }
     }
     loadRoadmaps()
-  }, [creatorId])
+  }, [creatorId, JSON.stringify(user?.followedPathwayIds || [])])
 
   const completedCount = user?.completedNodes?.length || 0
   const skillsCount = user?.skills?.length || 0
   const roadmapCount = roadmaps.length
 
+  // Lấy roadmap gần nhất để hiển thị
+  const latestRoadmap = roadmaps.length > 0 ? roadmaps[roadmaps.length - 1] : null
+
+  const total = latestRoadmap ? (latestRoadmap.totalLessons ?? latestRoadmap.TotalLessons ?? 0) : 0
+  const completed = latestRoadmap ? (latestRoadmap.completedLessons ?? latestRoadmap.CompletedLessons ?? 0) : 0
+  const skipped = latestRoadmap ? (latestRoadmap.skippedLessons ?? latestRoadmap.SkippedLessons ?? 0) : 0
+
+  const progress = total > 0 ? Math.min(Math.round(((completed + skipped) / total) * 100), 100) : 0
+
   const stats = [
     { label: 'Roadmaps theo đuổi', value: loading ? '—' : String(roadmapCount).padStart(2, '0'), icon: Target, color: 'text-blue-500', bg: 'bg-blue-500/10' },
     { label: 'Kỹ năng', value: String(skillsCount).padStart(2, '0'), icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    { label: 'Tiến độ', value: `${Math.min(completedCount * 5, 100)}%`, icon: Timer, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    { label: 'Tiến độ', value: `${progress}%`, icon: Timer, color: 'text-purple-500', bg: 'bg-purple-500/10' },
   ]
-
-  // Lấy roadmap gần nhất để hiển thị
-  const latestRoadmap = roadmaps.length > 0 ? roadmaps[roadmaps.length - 1] : null
-  const progress = completedCount > 0 ? Math.min(completedCount * 5, 100) : 0
 
   return (
     <div className="space-y-8 animate-fade-in p-2">
@@ -76,7 +85,7 @@ const Dashboard = () => {
                 </div>
                 {latestRoadmap && (
                   <button
-                    onClick={() => navigate(`/roadmap/${latestRoadmap.id}`)}
+                    onClick={() => navigate(`/courses/${latestRoadmap.slug || latestRoadmap.id}`)}
                     className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all hover:rotate-45"
                   >
                     <ArrowUpRight size={20} />
@@ -114,7 +123,7 @@ const Dashboard = () => {
 
             <div className="space-y-5">
               {latestRoadmap ? (
-                <div className="group cursor-pointer p-1" onClick={() => navigate(`/roadmap/${latestRoadmap.id}`)}>
+                <div className="group cursor-pointer p-1" onClick={() => navigate(`/courses/${latestRoadmap.slug || latestRoadmap.id}`)}>
                   <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.1em]">Lộ trình</p>
                   <p className="text-sm font-bold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mt-1 underline-offset-4 group-hover:underline">
                     {latestRoadmap.title}
