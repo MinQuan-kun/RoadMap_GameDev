@@ -1,7 +1,10 @@
 import React from 'react'
 import { X, BookOpen, Layers, Link2, ListChecks, GraduationCap, Video, Image as ImageIcon, Code2, CheckCircle2, XCircle, ExternalLink } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipped, isAuthenticated }) => {
   const navigate = useNavigate()
   if (!node) return null
@@ -186,11 +189,35 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
         )}
 
         {/* Description */}
-        {description && (
-          <section>
-            <p className="text-[15px] text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+        {description && category !== 'Lesson' && (
+          <section className="prose prose-slate dark:prose-invert prose-sm max-w-none">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                img: ({node, ...props}) => (
+                  <img {...props} className="rounded-xl shadow-lg border border-slate-200 dark:border-white/10 w-full h-auto my-6" />
+                ),
+                code({node, inline, className, children, ...props}) {
+                  const match = /language-(\w+)/.exec(className || '')
+                  return match ? (
+                    <SyntaxHighlighter
+                      {...props}
+                      children={String(children).replace(/\n$/, '')}
+                      style={atomDark}
+                      language={match[1]}
+                      PreTag="div"
+                      className="rounded-xl my-4 text-[12px] font-mono overflow-hidden shadow-lg border border-slate-700"
+                    />
+                  ) : (
+                    <code {...props} className={`${className || ''} bg-slate-200 dark:bg-white/10 px-1.5 py-0.5 rounded text-[12px] font-mono text-indigo-600 dark:text-indigo-400`}>
+                      {children}
+                    </code>
+                  )
+                }
+              }}
+            >
               {description}
-            </p>
+            </ReactMarkdown>
           </section>
         )}
 
@@ -234,9 +261,38 @@ const NodeDetailPanel = ({ node, onClose, onUpdateProgress, isCompleted, isSkipp
                     <div className="w-5 h-5 rounded border-2 border-slate-300 dark:border-white/20 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
                       <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 opacity-0 group-hover:opacity-20 transition-opacity" />
                     </div>
-                    <div>
-                      <p className="text-[14px] font-bold text-slate-900 dark:text-white leading-none mb-1">{task.title}</p>
-                      <p className="text-[11px] text-slate-500">{task.description || 'Hoàn thành nhiệm vụ này để nhận XP'}</p>
+                    <div className="flex-1 w-full overflow-hidden">
+                      <p className="text-[14px] font-bold text-slate-900 dark:text-white leading-none mb-2">{task.title}</p>
+                      <div className="prose prose-slate dark:prose-invert prose-sm max-w-none prose-p:text-[12px] prose-p:text-slate-500 dark:prose-p:text-slate-400 prose-headings:text-sm prose-img:rounded-lg prose-img:my-2 prose-pre:my-2">
+                        {task.description ? (
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              code({node, inline, className, children, ...props}) {
+                                const match = /language-(\w+)/.exec(className || '')
+                                return match ? (
+                                  <SyntaxHighlighter
+                                    {...props}
+                                    children={String(children).replace(/\n$/, '')}
+                                    style={atomDark}
+                                    language={match[1]}
+                                    PreTag="div"
+                                    className="rounded-lg text-[10px] font-mono overflow-hidden shadow-sm border border-slate-700"
+                                  />
+                                ) : (
+                                  <code {...props} className={`${className || ''} bg-slate-200 dark:bg-white/10 px-1 py-0.5 rounded text-[11px] font-mono text-indigo-600 dark:text-indigo-400`}>
+                                    {children}
+                                  </code>
+                                )
+                              }
+                            }}
+                          >
+                            {task.description}
+                          </ReactMarkdown>
+                        ) : (
+                          <p className="text-[11px] text-slate-500 m-0">Hoàn thành nhiệm vụ này để nhận XP</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="px-2 py-1 bg-blue-600/10 rounded text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">

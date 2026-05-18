@@ -21,6 +21,7 @@ import {
   Trash2,
   ChevronRight,
   ChevronDown,
+  ChevronUp,
   ChevronLeft,
   Save,
   ArrowRight,
@@ -38,6 +39,10 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { createFullPathway, updateFullPathway, getFullPathway, uploadFile, getTask } from '../../services/adminApi'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 const steps = [
   { id: 1, label: 'Thông tin chung', icon: Info },
@@ -77,6 +82,8 @@ const PathwayBuilder = () => {
     ]
   })
 
+  const [collapsedLessons, setCollapsedLessons] = useState({})
+
   // Fetch data if editing
   useEffect(() => {
     if (id) {
@@ -91,8 +98,8 @@ const PathwayBuilder = () => {
               modules: (c.modules || []).map(m => ({
                 ...m,
                 lessons: (m.lessons || []).map(l => ({
-                   ...l,
-                   tasks: l.tasks || []
+                  ...l,
+                  tasks: l.tasks || []
                 }))
               }))
             }))
@@ -100,14 +107,14 @@ const PathwayBuilder = () => {
 
           // Restore graph if exists
           if (data.graph && (data.graph.nodes || data.graph.Nodes)) {
-             const nodesList = data.graph.nodes || data.graph.Nodes;
-             const restoredNodes = nodesList.map(n => ({
-               id: n.id || n._id,
-               type: 'course',
-               position: { x: n.positionX || n.PositionX, y: n.positionY || n.PositionY },
-               data: { label: n.title || n.Title, courseId: n.referenceId || n.ReferenceId }
-             }))
-             setNodes(restoredNodes)
+            const nodesList = data.graph.nodes || data.graph.Nodes;
+            const restoredNodes = nodesList.map(n => ({
+              id: n.id || n._id,
+              type: 'course',
+              position: { x: n.positionX || n.PositionX, y: n.positionY || n.PositionY },
+              data: { label: n.title || n.Title, courseId: n.referenceId || n.ReferenceId }
+            }))
+            setNodes(restoredNodes)
           }
         } catch (err) {
           toast.error('Không thể tải dữ liệu lộ trình')
@@ -217,7 +224,7 @@ const PathwayBuilder = () => {
         await createFullPathway(payload)
         toast.success('Đã xuất bản lộ trình thành công!')
       }
-      
+
       localStorage.removeItem('pathway_draft')
       navigate('/admin/roadmaps')
     } catch (err) {
@@ -309,14 +316,14 @@ const PathwayBuilder = () => {
           </div>
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Thời gian (Giờ)</label>
-            <input 
-              type="number" 
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white" 
-              value={isNaN(form.estimatedHours) ? '' : form.estimatedHours} 
+            <input
+              type="number"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white"
+              value={isNaN(form.estimatedHours) ? '' : form.estimatedHours}
               onChange={e => {
                 const val = parseInt(e.target.value);
                 setForm({ ...form, estimatedHours: isNaN(val) ? 0 : val });
-              }} 
+              }}
             />
           </div>
           <div className="space-y-2">
@@ -365,8 +372,8 @@ const PathwayBuilder = () => {
   const renderStep2 = () => (
     <div className="animate-fade-in space-y-4">
       {form.courses.map((course, idx) => (
-        <div 
-          key={course.id} 
+        <div
+          key={course.id}
           className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col transition-all duration-300"
         >
           {/* Header Row */}
@@ -380,16 +387,16 @@ const PathwayBuilder = () => {
             </div>
 
             <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
-              <button 
+              <button
                 onClick={() => setExpandedCourseIdx(expandedCourseIdx === idx ? null : idx)}
                 className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-all"
               >
                 {expandedCourseIdx === idx ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
               </button>
-              <button 
+              <button
                 onClick={() => {
                   if (window.confirm(`Bạn có chắc muốn xóa giai đoạn "${course.title}"?`)) {
-                    setForm({...form, courses: form.courses.filter((_, i) => i !== idx)})
+                    setForm({ ...form, courses: form.courses.filter((_, i) => i !== idx) })
                     if (expandedCourseIdx === idx) setExpandedCourseIdx(null)
                   }
                 }}
@@ -446,11 +453,11 @@ const PathwayBuilder = () => {
                           <span className="text-[10px] font-black uppercase">Tải ảnh</span>
                         </div>
                       )}
-                      <input 
-                        type="file" 
-                        className="absolute inset-0 opacity-0 cursor-pointer" 
-                        accept="image/*" 
-                        onChange={e => handleCourseMediaUpload(e, idx, 'thumbnail')} 
+                      <input
+                        type="file"
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        accept="image/*"
+                        onChange={e => handleCourseMediaUpload(e, idx, 'thumbnail')}
                       />
                     </div>
                   </div>
@@ -469,11 +476,11 @@ const PathwayBuilder = () => {
                           <span className="text-[10px] font-black uppercase">Tải ảnh bìa</span>
                         </div>
                       )}
-                      <input 
-                        type="file" 
-                        className="absolute inset-0 opacity-0 cursor-pointer" 
-                        accept="image/*" 
-                        onChange={e => handleCourseMediaUpload(e, idx, 'coverUrl')} 
+                      <input
+                        type="file"
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        accept="image/*"
+                        onChange={e => handleCourseMediaUpload(e, idx, 'coverUrl')}
                       />
                     </div>
                   </div>
@@ -533,11 +540,11 @@ const PathwayBuilder = () => {
                       }} className="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-1 rounded hover:bg-slate-300 dark:hover:bg-slate-700">
                         + Thêm Bài học
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           const next = [...form.courses];
                           next[cIdx].modules = next[cIdx].modules.filter((_, i) => i !== mIdx);
-                          setForm({...form, courses: next});
+                          setForm({ ...form, courses: next });
                         }}
                         className="p-1 text-slate-400 hover:text-red-500 transition-all"
                       >
@@ -556,11 +563,11 @@ const PathwayBuilder = () => {
                             const next = [...form.courses]; next[cIdx].modules[mIdx].lessons[lIdx].title = e.target.value; setForm({ ...form, courses: next })
                           }}
                         />
-                        <button 
+                        <button
                           onClick={() => {
                             const next = [...form.courses];
                             next[cIdx].modules[mIdx].lessons = next[cIdx].modules[mIdx].lessons.filter((_, i) => i !== lIdx);
-                            setForm({...form, courses: next});
+                            setForm({ ...form, courses: next });
                           }}
                           className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                         >
@@ -595,10 +602,18 @@ const PathwayBuilder = () => {
                   {module.lessons.map((lesson, lIdx) => (
                     <div key={lesson.id} className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
-                          <FileText size={14} /> {lesson.title}
-                        </span>
-                        <button 
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer group"
+                          onClick={() => setCollapsedLessons(prev => ({...prev, [lesson.id]: !prev[lesson.id]}))}
+                        >
+                          <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2 group-hover:opacity-80 transition-opacity">
+                            <FileText size={14} /> {lesson.title}
+                          </span>
+                          <div className="p-1 rounded-md text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-500 transition-all">
+                            {collapsedLessons[lesson.id] ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                          </div>
+                        </div>
+                        <button
                           onClick={() => {
                             const next = [...form.courses];
                             const cIdx = next.findIndex(c => c.id === course.id);
@@ -606,71 +621,81 @@ const PathwayBuilder = () => {
                             if (!next[cIdx].modules[mIdx].lessons[lIdx].tasks) next[cIdx].modules[mIdx].lessons[lIdx].tasks = [];
                             next[cIdx].modules[mIdx].lessons[lIdx].tasks.push({ id: 't-' + Date.now(), title: 'Nhiệm vụ mới', type: 'practice' });
                             setForm({ ...form, courses: next });
+                            
+                            // Auto-expand if adding a new task
+                            if (collapsedLessons[lesson.id]) {
+                              setCollapsedLessons(prev => ({...prev, [lesson.id]: false}));
+                            }
                           }}
-                          className="text-[10px] bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-600/20"
+                          className="text-[10px] bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-600/20 transition-all"
                         >
                           + Thêm Nhiệm vụ
                         </button>
                       </div>
-                      <div className="space-y-2">
-                        {lesson.tasks?.map((task, tIdx) => (
-                          <div key={task.id} className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg group shadow-sm animate-fade-in">
-                            <Target size={14} className="text-amber-500" />
-                            <input 
-                              className="bg-transparent border-none text-slate-700 dark:text-slate-300 text-xs p-0 focus:ring-0 w-full" 
-                              value={task.title}
-                              onChange={e => {
-                                const next = [...form.courses];
-                                const cIdx = next.findIndex(c => c.id === course.id);
-                                const mIdx = next[cIdx].modules.findIndex(m => m.id === module.id);
-                                next[cIdx].modules[mIdx].lessons[lIdx].tasks[tIdx].title = e.target.value;
-                                setForm({ ...form, courses: next });
-                              }}
-                            />
-                            <div className="flex items-center gap-2">
-                              <button 
-                                onClick={async () => {
-                                  let fullTask = task;
-                                  if (task.id) {
-                                    try {
-                                       setLoading(true);
-                                       const data = await getTask(task.id);
-                                       fullTask = data;
-                                    } catch (err) {
-                                       console.error("Failed to fetch task details", err);
-                                    } finally {
-                                       setLoading(false);
-                                    }
-                                  }
-                                  setEditingTask({
-                                    courseId: course.id,
-                                    moduleId: module.id,
-                                    lessonId: lesson.id,
-                                    taskIdx: tIdx,
-                                    task: fullTask
-                                  });
-                                }}
-                                className="p-1.5 text-slate-400 hover:text-indigo-500 hover:bg-indigo-500/10 rounded-lg transition-all"
-                                title="Chỉnh sửa chi tiết"
-                              >
-                                <Settings size={14} />
-                              </button>
-                              <button 
-                                onClick={() => {
+                      
+                      {!collapsedLessons[lesson.id] && (
+                        <div className="space-y-2 animate-fade-in">
+                          {lesson.tasks?.map((task, tIdx) => (
+                            <div key={task.id} className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg group shadow-sm">
+                              <Target size={14} className="text-amber-500 shrink-0" />
+                              <input
+                                className="bg-transparent border-none text-slate-700 dark:text-slate-300 text-xs p-0 focus:ring-0 w-full"
+                                value={task.title}
+                                onChange={e => {
                                   const next = [...form.courses];
                                   const cIdx = next.findIndex(c => c.id === course.id);
                                   const mIdx = next[cIdx].modules.findIndex(m => m.id === module.id);
-                                  next[cIdx].modules[mIdx].lessons[lIdx].tasks = next[cIdx].modules[mIdx].lessons[lIdx].tasks.filter((_, i) => i !== tIdx);
+                                  next[cIdx].modules[mIdx].lessons[lIdx].tasks[tIdx].title = e.target.value;
                                   setForm({ ...form, courses: next });
                                 }}
-                                className="p-1.5 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                              >
-                                <X size={14} />
-                              </button>
+                              />
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  onClick={async () => {
+                                    let fullTask = task;
+                                    if (task.id) {
+                                      try {
+                                        setLoading(true);
+                                        const data = await getTask(task.id);
+                                        fullTask = data;
+                                      } catch (err) {
+                                        console.error("Failed to fetch task details", err);
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }
+                                    setEditingTask({
+                                      courseId: course.id,
+                                      moduleId: module.id,
+                                      lessonId: lesson.id,
+                                      taskIdx: tIdx,
+                                      task: fullTask
+                                    });
+                                  }}
+                                  className="p-1.5 text-slate-400 hover:text-indigo-500 hover:bg-indigo-500/10 rounded-lg transition-all"
+                                  title="Chỉnh sửa chi tiết"
+                                >
+                                  <Settings size={14} />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (window.confirm("Bạn có chắc chắn muốn xóa nhiệm vụ này?")) {
+                                      const next = [...form.courses];
+                                      const cIdx = next.findIndex(c => c.id === course.id);
+                                      const mIdx = next[cIdx].modules.findIndex(m => m.id === module.id);
+                                      next[cIdx].modules[mIdx].lessons[lIdx].tasks = next[cIdx].modules[mIdx].lessons[lIdx].tasks.filter((_, i) => i !== tIdx);
+                                      setForm({ ...form, courses: next });
+                                    }
+                                  }}
+                                  className="p-1.5 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -755,7 +780,7 @@ const PathwayBuilder = () => {
             <h4 className="font-bold text-slate-900 dark:text-white">Xác nhận xuất bản</h4>
             <p className="text-sm text-slate-500 dark:text-slate-400">Lộ trình sẽ hiển thị công khai cho tất cả người dùng.</p>
           </div>
-          <button 
+          <button
             onClick={handlePublish}
             disabled={loading}
             className="px-10 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-2xl shadow-indigo-600/30 transition-all flex items-center gap-3 disabled:opacity-50"
@@ -795,19 +820,19 @@ const PathwayBuilder = () => {
           <h1 className="text-slate-900 dark:text-slate-100 font-extrabold text-3xl">Thiết kế lộ trình</h1>
         </div>
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={handleSaveDraft}
             className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all shadow-sm"
           >
             <Save size={18} /> Lưu nháp
           </button>
-          <button 
+          <button
             onClick={() => setShowPreview(true)}
             className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold rounded-xl transition-all shadow-sm"
           >
             <Eye size={18} /> Xem trước
           </button>
-          <button 
+          <button
             className="flex items-center gap-2 px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-xl shadow-indigo-600/20 transition-all disabled:opacity-50"
             onClick={handlePublish}
             disabled={loading}
@@ -822,51 +847,113 @@ const PathwayBuilder = () => {
         <div className="fixed inset-0 z-[10000] bg-slate-950/98 backdrop-blur-2xl flex animate-fade-in">
           <div className="flex-1 flex flex-col border-r border-white/5">
             <div className="h-16 border-b border-white/10 flex items-center justify-between px-8 bg-slate-900/50">
-               <div className="flex items-center gap-4">
-                 <div className="w-8 h-8 bg-amber-500/20 text-amber-500 rounded-lg flex items-center justify-center">
-                   <Target size={18} />
-                 </div>
-                 <h3 className="text-white font-bold">Chỉnh sửa Nhiệm vụ: {editingTask.task.title}</h3>
-               </div>
-               <button 
-                 onClick={() => setEditingTask(null)}
-                 className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/20"
-               >
-                 Xong
-               </button>
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 bg-amber-500/20 text-amber-500 rounded-lg flex items-center justify-center">
+                  <Target size={18} />
+                </div>
+                <h3 className="text-white font-bold">Chỉnh sửa Nhiệm vụ: {editingTask.task.title}</h3>
+              </div>
+              <button
+                onClick={() => setEditingTask(null)}
+                className="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all"
+              >
+                Đóng
+              </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-12 space-y-8">
-               <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tiêu đề nhiệm vụ</label>
-                  <input 
-                    className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 text-white text-xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/50"
-                    value={editingTask.task.title}
-                    onChange={e => {
-                      const updated = { ...editingTask.task, title: e.target.value };
-                      setEditingTask({ ...editingTask, task: updated });
-                      
-                      // Update main form
-                      const next = [...form.courses];
-                      const cIdx = next.findIndex(c => c.id === editingTask.courseId);
-                      const mIdx = next[cIdx].modules.findIndex(m => m.id === editingTask.moduleId);
-                      const lIdx = next[cIdx].modules[mIdx].lessons.findIndex(l => l.id === editingTask.lessonId);
-                      next[cIdx].modules[mIdx].lessons[lIdx].tasks[editingTask.taskIdx] = updated;
-                      setForm({ ...form, courses: next });
-                    }}
-                  />
-               </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tiêu đề nhiệm vụ</label>
+                <input
+                  className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 text-white text-xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/50"
+                  value={editingTask.task.title}
+                  onChange={e => {
+                    const updated = { ...editingTask.task, title: e.target.value };
+                    setEditingTask({ ...editingTask, task: updated });
 
-               <div className="space-y-2">
+                    // Update main form
+                    const next = [...form.courses];
+                    const cIdx = next.findIndex(c => c.id === editingTask.courseId);
+                    const mIdx = next[cIdx].modules.findIndex(m => m.id === editingTask.moduleId);
+                    const lIdx = next[cIdx].modules[mIdx].lessons.findIndex(l => l.id === editingTask.lessonId);
+                    next[cIdx].modules[mIdx].lessons[lIdx].tasks[editingTask.taskIdx] = updated;
+                    setForm({ ...form, courses: next });
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Mô tả & Hướng dẫn chi tiết</label>
-                  <textarea 
-                    className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 text-slate-300 min-h-[300px] outline-none focus:ring-2 focus:ring-indigo-500/50 leading-relaxed"
-                    placeholder="Viết hướng dẫn thực hiện nhiệm vụ tại đây..."
-                    value={editingTask.task.description || ''}
+                  <div>
+                    <input 
+                      type="file" 
+                      id="markdown-image-upload" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        setUploading(true);
+                        toast.loading('Đang tải ảnh lên...', { id: 'upload-md-img' });
+                        try {
+                          const data = await uploadFile(file, 'tasks');
+                          const imgMarkdown = `\n![Ảnh minh hoạ](${data.url})\n`;
+                          const currentDesc = editingTask.task.description || '';
+                          const updated = { ...editingTask.task, description: currentDesc + imgMarkdown };
+                          setEditingTask({ ...editingTask, task: updated });
+                          
+                          const next = [...form.courses];
+                          const cIdx = next.findIndex(c => c.id === editingTask.courseId);
+                          const mIdx = next[cIdx].modules.findIndex(m => m.id === editingTask.moduleId);
+                          const lIdx = next[cIdx].modules[mIdx].lessons.findIndex(l => l.id === editingTask.lessonId);
+                          next[cIdx].modules[mIdx].lessons[lIdx].tasks[editingTask.taskIdx] = updated;
+                          setForm({ ...form, courses: next });
+                          
+                          toast.success('Đã chèn ảnh vào nội dung!', { id: 'upload-md-img' });
+                        } catch (err) {
+                          toast.error('Lỗi khi tải ảnh', { id: 'upload-md-img' });
+                        } finally {
+                          setUploading(false);
+                          e.target.value = ''; // reset input
+                        }
+                      }}
+                    />
+                    <label 
+                      htmlFor="markdown-image-upload"
+                      className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-bold rounded-lg cursor-pointer transition-all border border-indigo-500/20"
+                    >
+                      <ImageIcon size={14} /> Chèn ảnh vào nội dung
+                    </label>
+                  </div>
+                </div>
+                <textarea
+                  className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 text-slate-300 min-h-[300px] outline-none focus:ring-2 focus:ring-indigo-500/50 leading-relaxed"
+                  placeholder="Viết hướng dẫn thực hiện nhiệm vụ tại đây..."
+                  value={editingTask.task.description || ''}
+                  onChange={e => {
+                    const updated = { ...editingTask.task, description: e.target.value };
+                    setEditingTask({ ...editingTask, task: updated });
+
+                    const next = [...form.courses];
+                    const cIdx = next.findIndex(c => c.id === editingTask.courseId);
+                    const mIdx = next[cIdx].modules.findIndex(m => m.id === editingTask.moduleId);
+                    const lIdx = next[cIdx].modules[mIdx].lessons.findIndex(l => l.id === editingTask.lessonId);
+                    next[cIdx].modules[mIdx].lessons[lIdx].tasks[editingTask.taskIdx] = updated;
+                    setForm({ ...form, courses: next });
+                  }}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Độ khó nhiệm vụ</label>
+                  <select
+                    className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 text-white outline-none focus:ring-2 focus:ring-indigo-500/50"
+                    value={editingTask.task.difficulty || 'easy'}
                     onChange={e => {
-                      const updated = { ...editingTask.task, description: e.target.value };
+                      const updated = { ...editingTask.task, difficulty: e.target.value };
                       setEditingTask({ ...editingTask, task: updated });
-                      
                       const next = [...form.courses];
                       const cIdx = next.findIndex(c => c.id === editingTask.courseId);
                       const mIdx = next[cIdx].modules.findIndex(m => m.id === editingTask.moduleId);
@@ -874,17 +961,25 @@ const PathwayBuilder = () => {
                       next[cIdx].modules[mIdx].lessons[lIdx].tasks[editingTask.taskIdx] = updated;
                       setForm({ ...form, courses: next });
                     }}
-                  />
-               </div>
-
-               <div className="grid grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Độ khó nhiệm vụ</label>
-                    <select 
-                      className="w-full bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 text-white outline-none focus:ring-2 focus:ring-indigo-500/50"
-                      value={editingTask.task.difficulty || 'easy'}
+                  >
+                    <option value="easy">Easy (Dễ)</option>
+                    <option value="medium">Medium (Trung bình)</option>
+                    <option value="hard">Hard (Khó)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Phần thưởng XP</label>
+                  <div className="relative">
+                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-amber-500">
+                      <Zap size={18} />
+                    </div>
+                    <input
+                      type="number"
+                      className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-14 pr-6 py-4 text-white text-xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/50"
+                      value={editingTask.task.xp_reward || 0}
                       onChange={e => {
-                        const updated = { ...editingTask.task, difficulty: e.target.value };
+                        const val = parseInt(e.target.value) || 0;
+                        const updated = { ...editingTask.task, xp_reward: val };
                         setEditingTask({ ...editingTask, task: updated });
                         const next = [...form.courses];
                         const cIdx = next.findIndex(c => c.id === editingTask.courseId);
@@ -893,174 +988,189 @@ const PathwayBuilder = () => {
                         next[cIdx].modules[mIdx].lessons[lIdx].tasks[editingTask.taskIdx] = updated;
                         setForm({ ...form, courses: next });
                       }}
-                    >
-                      <option value="easy">Easy (Dễ)</option>
-                      <option value="medium">Medium (Trung bình)</option>
-                      <option value="hard">Hard (Khó)</option>
-                    </select>
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Phần thưởng XP</label>
-                    <div className="relative">
-                      <div className="absolute left-6 top-1/2 -translate-y-1/2 text-amber-500">
-                        <Zap size={18} />
-                      </div>
-                      <input 
-                        type="number"
-                        className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-14 pr-6 py-4 text-white text-xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/50"
-                        value={editingTask.task.xp_reward || 0}
-                        onChange={e => {
-                          const val = parseInt(e.target.value) || 0;
-                          const updated = { ...editingTask.task, xp_reward: val };
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Media (Ảnh/Video)</label>
+                  <div className="space-y-4">
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() => {
+                          const updated = { ...editingTask.task, mediaType: 'image' };
                           setEditingTask({ ...editingTask, task: updated });
-                          const next = [...form.courses];
-                          const cIdx = next.findIndex(c => c.id === editingTask.courseId);
-                          const mIdx = next[cIdx].modules.findIndex(m => m.id === editingTask.moduleId);
-                          const lIdx = next[cIdx].modules[mIdx].lessons.findIndex(l => l.id === editingTask.lessonId);
-                          next[cIdx].modules[mIdx].lessons[lIdx].tasks[editingTask.taskIdx] = updated;
-                          setForm({ ...form, courses: next });
+                        }}
+                        className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 border transition-all ${editingTask.task.mediaType === 'image' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500'}`}
+                      >
+                        <ImageIcon size={18} /> Hình ảnh
+                      </button>
+                      <button
+                        onClick={() => {
+                          const updated = { ...editingTask.task, mediaType: 'video' };
+                          setEditingTask({ ...editingTask, task: updated });
+                        }}
+                        className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 border transition-all ${editingTask.task.mediaType === 'video' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500'}`}
+                      >
+                        <Video size={18} /> Video
+                      </button>
+                    </div>
+
+                    <div className="p-8 bg-slate-900 border-2 border-dashed border-slate-800 rounded-3xl text-center">
+                      <input
+                        type="file"
+                        id="task-media"
+                        className="hidden"
+                        accept={editingTask.task.mediaType === 'video' ? 'video/*' : 'image/*'}
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          setUploading(true);
+                          try {
+                            const data = await uploadFile(file, 'tasks');
+                            const updated = { ...editingTask.task, mediaUrl: data.url };
+                            setEditingTask({ ...editingTask, task: updated });
+
+                            const next = [...form.courses];
+                            const cIdx = next.findIndex(c => c.id === editingTask.courseId);
+                            const mIdx = next[cIdx].modules.findIndex(m => m.id === editingTask.moduleId);
+                            const lIdx = next[cIdx].modules[mIdx].lessons.findIndex(l => l.id === editingTask.lessonId);
+                            next[cIdx].modules[mIdx].lessons[lIdx].tasks[editingTask.taskIdx] = updated;
+                            setForm({ ...form, courses: next });
+                            toast.success('Đã tải media lên!');
+                          } catch (err) {
+                            toast.error('Lỗi khi tải media');
+                          } finally {
+                            setUploading(false);
+                          }
                         }}
                       />
+                      <label htmlFor="task-media" className="cursor-pointer group block">
+                        <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-600/20 group-hover:text-indigo-400 transition-all">
+                          {uploading ? <div className="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" /> : <Plus size={32} />}
+                        </div>
+                        <p className="text-slate-400 font-bold">Nhấn để tải {editingTask.task.mediaType === 'video' ? 'Video' : 'Ảnh'} lên</p>
+                        <p className="text-xs text-slate-600 mt-2">Dung lượng tối đa 50MB</p>
+                      </label>
                     </div>
                   </div>
-               </div>
+                </div>
 
-               <div className="grid grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Media (Ảnh/Video)</label>
-                    <div className="space-y-4">
-                       <div className="flex gap-4">
-                          <button 
-                            onClick={() => {
-                              const updated = { ...editingTask.task, mediaType: 'image' };
-                              setEditingTask({ ...editingTask, task: updated });
-                            }}
-                            className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 border transition-all ${editingTask.task.mediaType === 'image' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500'}`}
-                          >
-                            <ImageIcon size={18} /> Hình ảnh
-                          </button>
-                          <button 
-                             onClick={() => {
-                              const updated = { ...editingTask.task, mediaType: 'video' };
-                              setEditingTask({ ...editingTask, task: updated });
-                            }}
-                            className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 border transition-all ${editingTask.task.mediaType === 'video' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500'}`}
-                          >
-                            <Video size={18} /> Video
-                          </button>
-                       </div>
-
-                       <div className="p-8 bg-slate-900 border-2 border-dashed border-slate-800 rounded-3xl text-center">
-                          <input 
-                            type="file" 
-                            id="task-media" 
-                            className="hidden" 
-                            accept={editingTask.task.mediaType === 'video' ? 'video/*' : 'image/*'} 
-                            onChange={async (e) => {
-                               const file = e.target.files[0];
-                               if (!file) return;
-                               setUploading(true);
-                               try {
-                                 const data = await uploadFile(file, 'tasks');
-                                 const updated = { ...editingTask.task, mediaUrl: data.url };
-                                 setEditingTask({ ...editingTask, task: updated });
-                                 
-                                 const next = [...form.courses];
-                                 const cIdx = next.findIndex(c => c.id === editingTask.courseId);
-                                 const mIdx = next[cIdx].modules.findIndex(m => m.id === editingTask.moduleId);
-                                 const lIdx = next[cIdx].modules[mIdx].lessons.findIndex(l => l.id === editingTask.lessonId);
-                                 next[cIdx].modules[mIdx].lessons[lIdx].tasks[editingTask.taskIdx] = updated;
-                                 setForm({ ...form, courses: next });
-                                 toast.success('Đã tải media lên!');
-                               } catch (err) {
-                                 toast.error('Lỗi khi tải media');
-                               } finally {
-                                 setUploading(false);
-                               }
-                            }}
-                          />
-                          <label htmlFor="task-media" className="cursor-pointer group block">
-                             <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-600/20 group-hover:text-indigo-400 transition-all">
-                                {uploading ? <div className="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" /> : <Plus size={32} />}
-                             </div>
-                             <p className="text-slate-400 font-bold">Nhấn để tải {editingTask.task.mediaType === 'video' ? 'Video' : 'Ảnh'} lên</p>
-                             <p className="text-xs text-slate-600 mt-2">Dung lượng tối đa 50MB</p>
-                          </label>
-                       </div>
-                    </div>
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Xem trước Media</label>
+                  <div className="aspect-video bg-slate-900 rounded-3xl overflow-hidden border border-white/5 flex items-center justify-center relative group">
+                    {editingTask.task.mediaUrl ? (
+                      editingTask.task.mediaType === 'video' ? (
+                        <video src={editingTask.task.mediaUrl} controls className="w-full h-full object-cover" />
+                      ) : (
+                        <img src={editingTask.task.mediaUrl} className="w-full h-full object-cover" alt="Task Preview" />
+                      )
+                    ) : (
+                      <div className="text-slate-700 italic text-sm">Chưa có media minh họa</div>
+                    )}
+                    {editingTask.task.mediaUrl && (
+                      <button
+                        onClick={() => {
+                          const updated = { ...editingTask.task, mediaUrl: '' };
+                          setEditingTask({ ...editingTask, task: updated });
+                          // Update main form too...
+                        }}
+                        className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
-
-                  <div className="space-y-4">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Xem trước Media</label>
-                    <div className="aspect-video bg-slate-900 rounded-3xl overflow-hidden border border-white/5 flex items-center justify-center relative group">
-                       {editingTask.task.mediaUrl ? (
-                         editingTask.task.mediaType === 'video' ? (
-                           <video src={editingTask.task.mediaUrl} controls className="w-full h-full object-cover" />
-                         ) : (
-                           <img src={editingTask.task.mediaUrl} className="w-full h-full object-cover" alt="Task Preview" />
-                         )
-                       ) : (
-                         <div className="text-slate-700 italic text-sm">Chưa có media minh họa</div>
-                       )}
-                       {editingTask.task.mediaUrl && (
-                         <button 
-                           onClick={() => {
-                             const updated = { ...editingTask.task, mediaUrl: '' };
-                             setEditingTask({ ...editingTask, task: updated });
-                             // Update main form too...
-                           }}
-                           className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                         >
-                           <Trash2 size={16} />
-                         </button>
-                       )}
-                    </div>
-                  </div>
-               </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="w-[450px] bg-slate-900/50 p-8 flex flex-col">
-             <div className="flex-1">
-               <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-8">Bản xem trước hiển thị</h4>
-               <div className="bg-slate-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl">
-                  {editingTask.task.mediaUrl && (
-                    <div className="aspect-video relative">
-                      {editingTask.task.mediaType === 'video' ? (
-                        <div className="w-full h-full bg-slate-800 flex items-center justify-center">
-                          <Play size={48} className="text-white opacity-40" />
-                        </div>
-                      ) : (
-                        <img src={editingTask.task.mediaUrl} className="w-full h-full object-cover" alt="Task" />
-                      )}
-                    </div>
-                  )}
-                  <div className="p-8 space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                       <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase rounded border border-indigo-500/30">
-                         {editingTask.task.difficulty || 'easy'}
-                       </span>
-                       <span className="flex items-center gap-1 text-amber-500 text-[10px] font-black uppercase">
-                         <Zap size={10} /> +{editingTask.task.xp_reward || 0} XP
-                       </span>
-                    </div>
-                    <h2 className="text-2xl font-black text-white">{editingTask.task.title}</h2>
-                    <div className="prose prose-invert prose-sm">
-                      <p className="text-slate-400 whitespace-pre-wrap">{editingTask.task.description || 'Nội dung hướng dẫn nhiệm vụ sẽ hiển thị ở đây...'}</p>
-                    </div>
+          <div className="w-[450px] bg-slate-900/50 p-8 flex flex-col h-screen">
+            <div className="flex-1 overflow-y-auto pr-4 pb-4">
+              <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-8">Bản xem trước hiển thị</h4>
+              <div className="bg-slate-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl">
+                {editingTask.task.mediaUrl && (
+                  <div className="aspect-video relative">
+                    {editingTask.task.mediaType === 'video' ? (
+                      <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+                        <Play size={48} className="text-white opacity-40" />
+                      </div>
+                    ) : (
+                      <img src={editingTask.task.mediaUrl} className="w-full h-full object-cover" alt="Task" />
+                    )}
                   </div>
-               </div>
-             </div>
-             
-             <div className="pt-8 border-t border-white/5 space-y-4">
+                )}
+                <div className="p-8 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase rounded border border-indigo-500/30">
+                      {editingTask.task.difficulty || 'easy'}
+                    </span>
+                    <span className="flex items-center gap-1 text-amber-500 text-[10px] font-black uppercase">
+                      <Zap size={10} /> +{editingTask.task.xp_reward || 0} XP
+                    </span>
+                  </div>
+                  <h2 className="text-2xl font-black text-white">{editingTask.task.title}</h2>
+                  <div className="prose prose-invert prose-sm max-w-none text-slate-400">
+                    {editingTask.task.description ? (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          img: ({node, ...props}) => (
+                            <img {...props} className="rounded-xl shadow-lg border border-white/10 w-full h-auto my-6" />
+                          ),
+                          code({ node, inline, className, children, ...props }) {
+                            const match = /language-(\w+)/.exec(className || '')
+                            return !inline ? (
+                              <SyntaxHighlighter
+                                {...props}
+                                children={String(children).replace(/\n$/, '')}
+                                style={atomDark}
+                                language={match ? match[1] : 'text'}
+                                PreTag="div"
+                                customStyle={{ padding: '16px', borderRadius: '12px', fontSize: '13px', margin: '16px 0', border: '1px solid rgba(255,255,255,0.1)' }}
+                              />
+                            ) : (
+                              <code {...props} className={`${className || ''} bg-white/10 px-1.5 py-0.5 rounded text-indigo-400`}>
+                                {children}
+                              </code>
+                            )
+                          }
+                        }}
+                      >
+                        {editingTask.task.description}
+                      </ReactMarkdown>
+                    ) : (
+                      <p className="italic opacity-50">Nội dung hướng dẫn nhiệm vụ sẽ hiển thị ở đây...</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-8 border-t border-white/5 space-y-6 shrink-0 mt-4">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase">
-                  <span>Trạng thái lưu</span>
-                  <span className="text-emerald-400">Đã lưu tự động</span>
+                  <span>Trạng thái</span>
+                  <span className="text-emerald-400">Tự động đồng bộ</span>
                 </div>
                 <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
                   <div className="h-full bg-indigo-500 w-full" />
                 </div>
-             </div>
+              </div>
+              
+              <button
+                onClick={() => {
+                  toast.success('Đã lưu nhiệm vụ!');
+                  setEditingTask(null);
+                }}
+                className="w-full flex items-center justify-center gap-2 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-600/20"
+              >
+                <Save size={20} /> Lưu Nhiệm vụ & Trở về
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1102,10 +1212,10 @@ const PathwayBuilder = () => {
 
               <div className="space-y-8">
                 <div className="flex items-center justify-between">
-                   <h2 className="text-2xl font-black text-white flex items-center gap-3">
-                     <GitBranch className="text-indigo-500" /> Sơ đồ học tập
-                   </h2>
-                   <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Giao diện tương tác</span>
+                  <h2 className="text-2xl font-black text-white flex items-center gap-3">
+                    <GitBranch className="text-indigo-500" /> Sơ đồ học tập
+                  </h2>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Giao diện tương tác</span>
                 </div>
                 <div className="h-[500px] bg-[#0a0a0f] border border-white/5 rounded-[40px] relative overflow-hidden flex items-center justify-center bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] shadow-inner">
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#050505]/80 pointer-events-none" />
@@ -1114,7 +1224,7 @@ const PathwayBuilder = () => {
                     <div className="px-10 py-5 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-3xl font-black text-lg shadow-[0_0_40px_rgba(37,99,235,0.3)] border-2 border-blue-400/50">
                       BẮT ĐẦU: {form.title || 'START'}
                     </div>
-                    
+
                     <div className="w-1 h-12 bg-gradient-to-b from-blue-500/50 to-amber-500/50" />
 
                     <div className="flex flex-wrap justify-center gap-8 px-12">
@@ -1138,8 +1248,8 @@ const PathwayBuilder = () => {
                     <Layers className="text-indigo-500" /> Chi tiết nội dung
                   </h2>
                   <div className="flex items-center gap-2">
-                     <span className="w-3 h-3 bg-amber-500 rounded-full" />
-                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Học phần chính</span>
+                    <span className="w-3 h-3 bg-amber-500 rounded-full" />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Học phần chính</span>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-6">
@@ -1164,7 +1274,7 @@ const PathwayBuilder = () => {
                           </div>
                         </div>
                         <div className="pt-2">
-                           <ArrowRight className="text-slate-700 group-hover:text-indigo-500 transition-all" />
+                          <ArrowRight className="text-slate-700 group-hover:text-indigo-500 transition-all" />
                         </div>
                       </div>
                     </div>

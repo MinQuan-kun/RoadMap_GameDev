@@ -40,6 +40,10 @@ import {
   deleteLearningTask
 } from '../../services/adminApi'
 import toast from 'react-hot-toast'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 // =============================================================================
 // SUB-COMPONENTS
@@ -374,9 +378,45 @@ const LessonManager = () => {
                           <input className="admin-input" style={{ fontWeight: 600 }} placeholder="Tiêu đề task (vd: Create HP variable)" value={task.title} onChange={(e) => {
                             const next = [...tasks]; next[idx].title = e.target.value; setTasks(next);
                           }} />
-                          <textarea className="admin-textarea" rows={2} style={{ fontSize: 12 }} placeholder="Hướng dẫn thực hành..." value={task.description} onChange={(e) => {
+                          <textarea className="admin-textarea" rows={4} style={{ fontSize: 13, fontFamily: 'monospace' }} placeholder="Hướng dẫn thực hành (Hỗ trợ Markdown)..." value={task.description} onChange={(e) => {
                             const next = [...tasks]; next[idx].description = e.target.value; setTasks(next);
                           }} />
+                          
+                          {/* Markdown Preview */}
+                          {task.description && (
+                            <div style={{ marginTop: 8, padding: 16, background: 'rgba(0,0,0,0.2)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <span style={{ fontSize: 10, color: '#64748b', textTransform: 'uppercase', fontWeight: 800, marginBottom: 8, display: 'block' }}>Preview</span>
+                              <div className="prose prose-slate dark:prose-invert max-w-none text-sm text-slate-300">
+                                <ReactMarkdown
+                                  remarkPlugins={[remarkGfm]}
+                                  components={{
+                                    img: ({node, ...props}) => (
+                                      <img {...props} style={{ width: '100%', borderRadius: 8, marginTop: 16, marginBottom: 16, border: '1px solid rgba(255,255,255,0.1)' }} />
+                                    ),
+                                    code({node, inline, className, children, ...props}) {
+                                      const match = /language-(\w+)/.exec(className || '')
+                                      return match ? (
+                                        <SyntaxHighlighter
+                                          {...props}
+                                          children={String(children).replace(/\n$/, '')}
+                                          style={atomDark}
+                                          language={match[1]}
+                                          PreTag="div"
+                                          customStyle={{ padding: '12px', borderRadius: '8px', fontSize: '12px', margin: '8px 0' }}
+                                        />
+                                      ) : (
+                                        <code {...props} style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 4px', borderRadius: '4px', color: '#818cf8' }}>
+                                          {children}
+                                        </code>
+                                      )
+                                    }
+                                  }}
+                                >
+                                  {task.description}
+                                </ReactMarkdown>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

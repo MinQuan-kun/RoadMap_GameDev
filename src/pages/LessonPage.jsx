@@ -22,6 +22,10 @@ import { getUserProfile } from '../services/adminApi';
 import { completeTask } from '../services/userApi';
 import AuthContext from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const LessonPage = () => {
   const { id: pathwaySlug } = useParams();
@@ -307,9 +311,35 @@ const LessonPage = () => {
                       placeholder="Mô tả bài học..."
                     />
                   ) : activeLesson.description && (
-                    <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
-                      {activeLesson.description}
-                    </p>
+                    <div className="prose prose-slate dark:prose-invert max-w-none text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-8">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          img: ({node, ...props}) => (
+                            <img {...props} className="rounded-xl shadow-lg border border-slate-200 dark:border-white/10 w-full h-auto my-6" />
+                          ),
+                          code({node, inline, className, children, ...props}) {
+                            const match = /language-(\w+)/.exec(className || '')
+                            return match ? (
+                              <SyntaxHighlighter
+                                {...props}
+                                children={String(children).replace(/\n$/, '')}
+                                style={atomDark}
+                                language={match[1]}
+                                PreTag="div"
+                                className="rounded-xl my-4 text-sm font-mono overflow-hidden shadow-lg border border-slate-700"
+                              />
+                            ) : (
+                              <code {...props} className={`${className || ''} bg-slate-200 dark:bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono text-indigo-600 dark:text-indigo-400`}>
+                                {children}
+                              </code>
+                            )
+                          }
+                        }}
+                      >
+                        {activeLesson.description}
+                      </ReactMarkdown>
+                    </div>
                   )
                 )}
               </div>
@@ -343,29 +373,10 @@ const LessonPage = () => {
                             <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Q&A (0)</span>
                           </div>
                         </div>
- 
-                        {isEditMode ? (
-                          <textarea 
-                            value={task.description || ''}
-                            onChange={(e) => {
-                              const newTasks = [...activeLesson.tasks];
-                              newTasks[tIdx] = {...task, description: e.target.value};
-                              setActiveLesson({...activeLesson, tasks: newTasks});
-                            }}
-                            className="w-full text-lg text-slate-700 dark:text-slate-300 leading-relaxed bg-transparent border border-slate-200 dark:border-white/10 rounded-xl p-4 outline-none min-h-[150px]"
-                            placeholder="Mô tả nhiệm vụ..."
-                          />
-                        ) : task.description && (
-                          <div className="prose prose-slate dark:prose-invert max-w-none">
-                            <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
-                              {task.description}
-                            </p>
-                          </div>
-                        )}
- 
+
                         {/* Media Section */}
                         {task.mediaUrl && (
-                          <div className="rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-white/5">
+                          <div className="rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-white/5 mb-6">
                             {(task.mediaType === 'video' || (task.mediaUrl && (task.mediaUrl.includes('youtube') || task.mediaUrl.includes('vimeo')))) ? (
                               <div className="aspect-video bg-black">
                                 <iframe 
@@ -378,6 +389,49 @@ const LessonPage = () => {
                             ) : (
                               <img src={task.mediaUrl} alt={task.title} className="w-full h-auto object-cover" />
                             )}
+                          </div>
+                        )}
+                        
+                        {isEditMode ? (
+                          <textarea 
+                            value={task.description || ''}
+                            onChange={(e) => {
+                              const newTasks = [...activeLesson.tasks];
+                              newTasks[tIdx] = {...task, description: e.target.value};
+                              setActiveLesson({...activeLesson, tasks: newTasks});
+                            }}
+                            className="w-full text-lg text-slate-700 dark:text-slate-300 leading-relaxed bg-transparent border border-slate-200 dark:border-white/10 rounded-xl p-4 outline-none min-h-[150px]"
+                            placeholder="Mô tả nhiệm vụ..."
+                          />
+                        ) : task.description && (
+                          <div className="prose prose-slate dark:prose-invert max-w-none text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                img: ({node, ...props}) => (
+                                  <img {...props} className="rounded-xl shadow-lg border border-slate-200 dark:border-white/10 w-full h-auto my-6" />
+                                ),
+                                code({node, inline, className, children, ...props}) {
+                                  const match = /language-(\w+)/.exec(className || '')
+                                  return match ? (
+                                    <SyntaxHighlighter
+                                      {...props}
+                                      children={String(children).replace(/\n$/, '')}
+                                      style={atomDark}
+                                      language={match[1]}
+                                      PreTag="div"
+                                      className="rounded-xl my-4 text-sm font-mono overflow-hidden shadow-lg border border-slate-700"
+                                    />
+                                  ) : (
+                                    <code {...props} className={`${className || ''} bg-slate-200 dark:bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono text-indigo-600 dark:text-indigo-400`}>
+                                      {children}
+                                    </code>
+                                  )
+                                }
+                              }}
+                            >
+                              {task.description}
+                            </ReactMarkdown>
                           </div>
                         )}
 

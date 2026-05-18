@@ -109,12 +109,15 @@ const RoadmapDetail = () => {
             // FORCE VERTICAL ALIGNMENT: x is centered (0), y is sequential
             const x = 0
             const y = idx * 250 // Spaced out for a clear path
+            const courseDetails = courses.find(c => (c.Id || c.id) === n.referenceId)
             return {
               id: n.id,
               data: {
                 label: n.title,
                 nodeType: n.nodeType,
                 referenceId: n.referenceId,
+                description: courseDetails?.Description || courseDetails?.description || '',
+                category: 'Giai đoạn',
               },
               position: { x, y }
             }
