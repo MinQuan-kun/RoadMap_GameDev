@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getQuizResult, getPathways, getCourses } from '../services/roadmapApi';
 import { Target, Rocket, Loader2, Award, ArrowRight } from 'lucide-react';
+import AuthContext from '../context/AuthContext';
+import { followPathway, unfollowPathway } from '../services/userApi';
+import toast from 'react-hot-toast';
 
 const SurveyResultPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, setUser } = useContext(AuthContext);
   const [result, setResult] = useState(null);
   const [recommendedRoadmaps, setRecommendedRoadmaps] = useState([]);
   const [recommendedCourses, setRecommendedCourses] = useState([]);
@@ -60,6 +64,34 @@ const SurveyResultPage = () => {
       setRecommendedRoadmaps(newRoadmaps);
     }
     setShowConflictResolution(false);
+  };
+
+  const handleFollowToggle = async (pathwayId) => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để theo dõi lộ trình.");
+      return;
+    }
+    const isFollowing = user.followedPathwayIds?.includes(pathwayId);
+    try {
+      if (isFollowing) {
+        await unfollowPathway(pathwayId);
+        setUser(prev => ({
+          ...prev,
+          followedPathwayIds: (prev.followedPathwayIds || []).filter(id => id !== pathwayId)
+        }));
+        toast.success("Đã hủy theo dõi lộ trình!");
+      } else {
+        await followPathway(pathwayId);
+        setUser(prev => ({
+          ...prev,
+          followedPathwayIds: [...(prev.followedPathwayIds || []), pathwayId]
+        }));
+        toast.success("Theo dõi lộ trình thành công!");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Thao tác thất bại. Vui lòng thử lại.");
+    }
   };
 
   if (loading) {
@@ -152,7 +184,19 @@ const SurveyResultPage = () => {
                 <p className="text-slate-500 dark:text-slate-400 mb-6 line-clamp-3">
                   {roadmap.description || 'Khám phá kiến thức chuyên sâu và thực hành thực tế để làm chủ công cụ này.'}
                 </p>
-                <div className="mt-auto flex justify-end">
+                <div className="mt-auto flex justify-end items-center gap-3">
+                  {user && (
+                    <button
+                      onClick={() => handleFollowToggle(roadmap.id)}
+                      className={`px-5 py-3 rounded-xl font-bold text-sm uppercase tracking-wide transition-all ${
+                        user.followedPathwayIds?.includes(roadmap.id)
+                          ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-md'
+                          : 'bg-blue-600/10 text-blue-600 dark:text-blue-400 hover:bg-blue-600/20'
+                      }`}
+                    >
+                      {user.followedPathwayIds?.includes(roadmap.id) ? 'Hủy theo dõi' : 'Theo dõi lộ trình'}
+                    </button>
+                  )}
                   <button 
                     onClick={() => navigate(`/roadmap/${roadmap.id}`)}
                     className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all group"
