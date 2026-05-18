@@ -30,7 +30,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, onSwitchToLogin }) => {
     setLoading(true)
 
     try {
-      await apiClient.post('http://localhost:7111/api/auth/forgot-password', {
+      await apiClient.post('/auth/forgot-password', {
         Email: formData.email,
       })
       toast.success('Mã xác nhận đã được gửi đến email của bạn.')
@@ -55,7 +55,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
     setLoading(true)
     try {
-      await apiClient.post('http://localhost:7111/api/auth/reset-password', {
+      await apiClient.post('/auth/reset-password', {
         Email: formData.email,
         Code: formData.code,
         NewPassword: formData.newPassword,
