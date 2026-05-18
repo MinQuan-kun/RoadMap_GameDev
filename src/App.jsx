@@ -82,8 +82,8 @@ const AppContent = ({ isDarkMode, toggleDarkMode, openLoginModal, openRegisterMo
             path="/Jobs"
             element={<JobSearch isDarkMode={isDarkMode} onOpenLogin={openLoginModal} onOpenRegister={openRegisterModal} />}
           />
-          <Route path="/survey" element={<CareerQuiz />} />
-          <Route path="/quiz" element={<CareerQuiz />} />
+          <Route path="/survey" element={<CareerQuiz onOpenLogin={openLoginModal} />} />
+          <Route path="/quiz" element={<CareerQuiz onOpenLogin={openLoginModal} />} />
           <Route path="/survey/result/:id" element={<SurveyResultPage />} />
           <Route path="/roadmap/:id" element={<RoadmapDetail />} />
           <Route path="/roadmap/:roadmapId/node/:nodeId" element={<PathwayViewer />} />

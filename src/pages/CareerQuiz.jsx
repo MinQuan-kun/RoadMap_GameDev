@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Sparkles, Rocket, Loader2, Gamepad2, Target, Cpu, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Sparkles, Rocket, Loader2, Target, CheckCircle2, LogIn, Lock } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import { getActiveQuiz, submitQuiz } from '../services/roadmapApi';
 import { toast } from 'react-hot-toast';
 
-const CareerQuiz = () => {
-  const { user, setUser } = useContext(AuthContext);
+const CareerQuiz = ({ onOpenLogin }) => {
+  const { user, isAuthenticated, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [quizInfo, setQuizInfo] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -19,6 +19,11 @@ const CareerQuiz = () => {
   const timeoutRef = useRef(null);
 
   useEffect(() => {
+    // Only fetch quiz data if user is authenticated
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
     const fetchQuiz = async () => {
       try {
         const data = await getActiveQuiz();
@@ -31,7 +36,7 @@ const CareerQuiz = () => {
       }
     };
     fetchQuiz();
-  }, []);
+  }, [isAuthenticated]);
 
   const currentQuestion = questions[currentIndex];
 
@@ -135,6 +140,58 @@ const CareerQuiz = () => {
     </div>
   );
 
+  // ── Auth Gate ──────────────────────────────────────────────────────────────
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] flex items-center justify-center p-6 relative overflow-hidden transition-colors duration-500">
+        {/* Background blobs */}
+        <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-blue-600/15 blur-[150px] rounded-full mix-blend-screen animate-pulse" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[40%] h-[40%] bg-purple-600/15 blur-[150px] rounded-full mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }} />
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="relative z-10 w-full max-w-lg text-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-3xl rounded-[2.5rem] border border-white/20 dark:border-white/5 shadow-2xl p-10 md:p-14"
+        >
+          {/* Lock icon with glow */}
+          <div className="relative inline-flex items-center justify-center w-24 h-24 mb-8 mx-auto">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 opacity-20 blur-xl animate-pulse" />
+            <div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-blue-500/30">
+              <Lock size={40} className="text-blue-500" />
+            </div>
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white mb-3 tracking-tight">
+            Yêu cầu đăng nhập
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-base md:text-lg mb-8 leading-relaxed">
+            Bạn cần <span className="text-blue-500 font-bold">đăng nhập</span> để làm bài khảo sát và nhận lộ trình học tập cá nhân hoá phù hợp nhất với bạn.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={onOpenLogin}
+              className="flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 text-sm uppercase tracking-widest"
+            >
+              <LogIn size={18} /> Đăng nhập ngay
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate('/')}
+              className="flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 text-sm uppercase tracking-widest"
+            >
+              Về trang chủ
+            </motion.button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   if (!loading && questions.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] flex flex-col items-center justify-center text-slate-900 dark:text-white transition-colors duration-500 p-6 text-center">
@@ -149,6 +206,7 @@ const CareerQuiz = () => {
       </div>
     );
   }
+
 
   // Progress chỉ đạt 100% khi isSubmitting = true
   const progress = isSubmitting ? 100 : Math.max(5, (currentIndex / (questions.length || 1)) * 100);
