@@ -34,7 +34,6 @@ const Dashboard = () => {
   const stats = [
     { label: 'Roadmaps theo đuổi', value: loading ? '—' : String(roadmapCount).padStart(2, '0'), icon: Target, color: 'text-blue-500', bg: 'bg-blue-500/10' },
     { label: 'Kỹ năng', value: String(skillsCount).padStart(2, '0'), icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    { label: 'Nodes hoàn thành', value: String(completedCount).padStart(2, '0'), icon: Code2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
     { label: 'Tiến độ', value: `${Math.min(completedCount * 5, 100)}%`, icon: Timer, color: 'text-purple-500', bg: 'bg-purple-500/10' },
   ]
 
@@ -112,9 +111,7 @@ const Dashboard = () => {
 
         <div className="space-y-8">
           <div className="p-7 rounded-[2.5rem] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-            <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-              <Star className="text-amber-500 fill-amber-500" size={20} /> Gợi ý cho bạn
-            </h3>
+
             <div className="space-y-5">
               {latestRoadmap ? (
                 <div className="group cursor-pointer p-1" onClick={() => navigate(`/roadmap/${latestRoadmap.id}`)}>

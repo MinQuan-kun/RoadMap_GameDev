@@ -105,8 +105,8 @@ const ProfileInfo = ({ profile, onProfileUpdated }) => {
             setIsEditing(false);
             toast.success('Cập nhật thông tin thành công!');
         } catch (e) {
-            const msg = typeof e.response?.data === 'string' 
-                ? e.response.data 
+            const msg = typeof e.response?.data === 'string'
+                ? e.response.data
                 : e.response?.data?.message || 'Cập nhật thất bại.';
             toast.error(msg);
         } finally {
@@ -394,24 +394,7 @@ const ProfileInfo = ({ profile, onProfileUpdated }) => {
                     {/* RIGHT */}
                     <div className="space-y-6">
                         {/* Progress card */}
-                        <div className="p-8 rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl relative overflow-hidden group">
-                            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition" />
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <Target size={20} className="text-blue-200" />
-                                    <h3 className="font-bold uppercase text-sm tracking-wider">Tiến độ</h3>
-                                </div>
-                                <p className="text-sm text-blue-100 mb-4">
-                                    Đã hoàn thành {profile.completedNodes?.length || 0} node kiến thức
-                                </p>
-                                <div className="h-2 w-full bg-white/20 rounded-full overflow-hidden mb-5">
-                                    <div className="h-full bg-white transition-all" style={{ width: `${Math.min((profile.completedNodes?.length || 0) * 5, 100)}%` }} />
-                                </div>
-                                <button className="w-full py-2.5 rounded-lg bg-white text-blue-600 font-bold text-xs uppercase tracking-wider hover:bg-blue-50 transition active:scale-95">
-                                    Tiếp tục học
-                                </button>
-                            </div>
-                        </div>
+
 
                         {/* Contact */}
                         <div className="p-8 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 shadow-sm">
