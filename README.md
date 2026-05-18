@@ -32,44 +32,6 @@ Hệ thống được thiết kế theo mô hình **Client-Server** hiện đạ
 *   **Email System**: Tự động gửi email thông báo, phục hồi mật khẩu (Forgot Password) sử dụng Background Services bất đồng bộ và mẫu HTML chuyên nghiệp.
 
 
----
-
-## 🌟 Tính Năng Cốt Lõi (Core Features)
-
-Hệ thống được thiết kế tối ưu hóa cho **3 nhóm vai trò người dùng (Roles)** với các phân hệ chức năng riêng biệt:
-
-```mermaid
-flowchart TD
-    subgraph Users ["Nhóm Người Dùng"]
-        A[Học viên / Ứng viên]
-        B[Nhà Tuyển Dụng]
-        C[Quản Trị Viên]
-    end
-
-    subgraph UserFeatures ["Chức năng Học Viên"]
-        A --> A1[Trắc nghiệm định hướng]
-        A --> A2[Xem Lộ trình tương tác React Flow]
-        A --> A3[Học bài học & Làm nhiệm vụ thực hành]
-        A --> A4[Tìm kiếm & Ứng tuyển việc làm]
-        A --> A5[Quản lý trang cá nhân & Tiến độ]
-    end
-
-    subgraph RecruiterFeatures ["Chức năng Nhà Tuyển Dụng"]
-        B --> B1[Bảng điều khiển Thống kê]
-        B --> B2[Đăng & Quản lý tin tuyển dụng]
-        B --> B3[Thiết kế Lộ trình yêu cầu công việc]
-        B --> B4[Quản lý ứng viên & Tiến độ học tập]
-    end
-
-    subgraph AdminFeatures ["Chức năng Quản Trị Viên"]
-        C --> C1[Báo cáo tổng quan hệ thống]
-        C --> C2[Visual Pathway Builder 6 bước kéo thả]
-        C --> C3[Quản lý bài học & Câu hỏi trắc nghiệm]
-        C --> C4[Phân quyền & Quản lý người dùng]
-        C --> C5[Tùy chỉnh giao diện trang chủ Site Appearance]
-    end
-```
-
 ### 1. Phân Hệ Người Học & Ứng Viên (Student / Candidate)
 
 *   **Trang chủ Trực quan (Modern Home Page)**:
